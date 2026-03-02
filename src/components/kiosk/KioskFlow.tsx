@@ -215,15 +215,15 @@ export default function KioskFlow() {
             <p className="text-2xl text-white/60">Picture yourself with up to 10 hours back per week.</p>
           </div>
 
-          <Carousel className="w-full max-w-6xl mx-auto">
+          <Carousel className="w-full max-w-[90vw] mx-auto">
             <CarouselContent className="-ml-4">
               {THEMES.map((theme) => {
                 const imageData = PlaceHolderImages.find(img => img.id === theme.id);
                 return (
-                  <CarouselItem key={theme.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                  <CarouselItem key={theme.id} className="pl-4 md:basis-1/3 lg:basis-1/4">
                     <div 
                       onClick={() => handleThemeSelect(theme)}
-                      className="group cursor-pointer relative aspect-square rounded-[2.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
+                      className="group cursor-pointer relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
                     >
                       <img 
                         src={imageData?.imageUrl} 
@@ -231,8 +231,8 @@ export default function KioskFlow() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                      <div className="absolute bottom-8 left-8 right-8">
-                        <h3 className="text-3xl font-bold text-white font-headline leading-tight">{theme.title}</h3>
+                      <div className="absolute bottom-6 left-6 right-6">
+                        <h3 className="text-xl font-bold text-white font-headline leading-tight">{theme.title}</h3>
                       </div>
                     </div>
                   </CarouselItem>
