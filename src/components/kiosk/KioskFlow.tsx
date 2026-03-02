@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/carousel";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-type KioskStep = 'capture' | 'select-theme' | 'refine' | 'processing';
+type KioskStep = 'capture' | 'select-theme' | 'refine' | 'processing' | 'results';
 
 const AVAILABLE_DETAILS = [
   "an Andy Warhol haircut",
@@ -109,11 +109,9 @@ export default function KioskFlow() {
   };
 
   const handleThemeSelect = async (theme: typeof THEMES[0]) => {
-    // Set parameters for possible manual refinement later
     setScene(theme.scene);
     setActivity(theme.activity);
     
-    // Direct generation to skip manual refinement page
     if (!capturedImage) return;
     setIsProcessing(true);
     setStep('processing');
@@ -127,10 +125,9 @@ export default function KioskFlow() {
         details: finalDetails,
       });
       setResultImage(response.transformedPhotoDataUri);
-      setStep('refine');
+      setStep('results');
     } catch (error) {
       console.error("Generation failed", error);
-      // If generation fails, go to refinement page so user can try again manually
       setStep('refine');
     } finally {
       setIsProcessing(false);
@@ -151,7 +148,7 @@ export default function KioskFlow() {
         details: finalDetails,
       });
       setResultImage(response.transformedPhotoDataUri);
-      setStep('refine');
+      setStep('results');
     } catch (error) {
       console.error("Generation failed", error);
       setStep('refine');
@@ -289,50 +286,15 @@ export default function KioskFlow() {
             <div className="space-y-8 sticky top-8">
               <div className="space-y-4">
                 <h1 className="text-6xl font-bold leading-tight tracking-tighter text-white font-headline">
-                  {resultImage ? "Your vision is ready!" : "Refine your vision"}
+                  Refine your vision
                 </h1>
               </div>
 
-              {resultImage ? (
-                <div id="polaroid-frame" className="bg-[#F8F9FA] p-6 pb-12 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform -rotate-1 w-full max-w-lg mx-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-black/60">Google</span>
-                      <span className="text-xs text-black/40">for Education</span>
-                    </div>
-                  </div>
-                  <div className="aspect-square bg-zinc-200 overflow-hidden rounded-sm relative">
-                    <img src={resultImage} alt="AI Vision" className="w-full h-full object-cover" />
-                    <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md p-1.5 rounded-full">
-                      <Sparkles className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                  <div className="mt-8 text-center">
-                    <p className="text-2xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                      {activity}, thanks to Gemini
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="aspect-video w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-zinc-900 border border-white/5">
-                  {capturedImage && (
-                    <img src={capturedImage} alt="Captured" className="w-full h-full object-cover mirror transform -scale-x-100" />
-                  )}
-                </div>
-              )}
-
-              {resultImage && (
-                <div className="flex flex-col items-center gap-6 pt-8 animate-in fade-in slide-in-from-bottom duration-500">
-                  <div className="bg-white p-4 rounded-2xl w-48 h-48 shadow-2xl">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}/share/session-${Date.now()}`} 
-                      alt="QR Code" 
-                      className="w-full h-full"
-                    />
-                  </div>
-                  <p className="text-white/60 text-center text-lg font-headline">Scan to save and share your masterpiece.</p>
-                </div>
-              )}
+              <div className="aspect-video w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-zinc-900 border border-white/5">
+                {capturedImage && (
+                  <img src={capturedImage} alt="Captured" className="w-full h-full object-cover mirror transform -scale-x-100" />
+                )}
+              </div>
             </div>
 
             <div className="bg-white/5 backdrop-blur-xl p-10 rounded-[3rem] border border-white/5 space-y-12">
@@ -340,10 +302,10 @@ export default function KioskFlow() {
                 <div className="flex items-center space-x-6">
                   <span className="text-2xl font-medium text-white min-w-[140px] font-headline">Imagine me</span>
                   <div className="flex-grow">
-                    <Input 
+                    <input 
                       value={scene}
                       onChange={(e) => setScene(e.target.value)}
-                      className="bg-transparent border-[#4285F4] text-xl py-6 rounded-full px-8 focus-visible:ring-1 focus-visible:ring-[#4285F4]"
+                      className="w-full bg-transparent border-b-2 border-[#4285F4] text-xl py-4 px-2 outline-none focus:border-white transition-colors text-white"
                       placeholder="e.g. in a digital garden"
                     />
                   </div>
@@ -352,10 +314,10 @@ export default function KioskFlow() {
                 <div className="flex items-center space-x-6">
                   <span className="text-2xl font-medium text-white min-w-[140px] font-headline">while</span>
                   <div className="flex-grow">
-                    <Input 
+                    <input 
                       value={activity}
                       onChange={(e) => setActivity(e.target.value)}
-                      className="bg-transparent border-[#4285F4] text-xl py-6 rounded-full px-8 focus-visible:ring-1 focus-visible:ring-[#4285F4]"
+                      className="w-full bg-transparent border-b-2 border-[#4285F4] text-xl py-4 px-2 outline-none focus:border-white transition-colors text-white"
                       placeholder="e.g. sketching new ideas"
                     />
                   </div>
@@ -392,19 +354,8 @@ export default function KioskFlow() {
                   className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white rounded-full px-12 py-8 text-2xl font-bold shadow-lg shadow-[#4285F4]/20 font-headline h-auto w-full"
                 >
                   <Zap className="mr-2 h-6 w-6" />
-                  {resultImage ? "Regenerate Vision" : "Generate Vision"}
+                  Generate Vision
                 </Button>
-                
-                {resultImage && (
-                  <Button 
-                    onClick={resetKiosk}
-                    variant="outline"
-                    className="border-white/20 text-white rounded-full px-12 py-6 text-xl font-bold hover:bg-white/10 font-headline h-auto w-full"
-                  >
-                    <RotateCcw className="mr-2 h-5 w-5" />
-                    New Photo
-                  </Button>
-                )}
               </div>
             </div>
           </div>
@@ -422,6 +373,78 @@ export default function KioskFlow() {
           <div className="space-y-4">
             <h2 className="text-5xl font-bold tracking-tight text-white uppercase italic font-headline">AI is Dreaming...</h2>
             <p className="text-white/50 text-xl font-mono animate-pulse">Synthesizing your masterpiece...</p>
+          </div>
+        </div>
+      )}
+
+      {step === 'results' && resultImage && (
+        <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
+          {/* Left: Polaroid Frame */}
+          <div className="relative">
+            <button 
+              onClick={() => setStep('refine')}
+              className="absolute -left-16 top-0 p-2 text-white/60 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-10 h-10" />
+            </button>
+            
+            <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full max-w-md mx-auto">
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-1">
+                  <span className="text-lg font-bold text-[#4285F4]">Google</span>
+                  <span className="text-lg text-black/60 font-medium">for Education</span>
+                </div>
+              </div>
+              
+              <div className="aspect-square bg-zinc-100 overflow-hidden relative">
+                <img src={resultImage} alt="AI Vision" className="w-full h-full object-cover" />
+                <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md p-2 rounded-full border border-white/20">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+              </div>
+              
+              <div className="mt-10 text-center">
+                <p className="text-3xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
+                  {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex-1 space-y-12 text-center md:text-left">
+            <h2 className="text-8xl font-bold tracking-tighter text-white font-headline">Ta-da!</h2>
+            
+            <div className="space-y-6">
+              <div className="bg-white p-4 rounded-2xl w-56 h-56 shadow-2xl mx-auto md:mx-0">
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}/share/session-${Date.now()}`} 
+                  alt="QR Code" 
+                  className="w-full h-full"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-2xl font-bold text-white font-headline">Those extra hours look great on you.</p>
+                <p className="text-xl text-white/50 font-headline">Scan to save and share.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4 pt-8">
+              <Button 
+                onClick={() => setStep('refine')}
+                variant="outline"
+                className="border-white/20 text-white rounded-full px-12 py-8 text-xl font-bold hover:bg-white/10 font-headline h-auto min-w-[240px]"
+              >
+                Adjust photo
+              </Button>
+              <Button 
+                onClick={resetKiosk}
+                className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white rounded-full px-12 py-8 text-xl font-bold shadow-lg shadow-[#4285F4]/20 font-headline h-auto min-w-[240px]"
+              >
+                I've scanned the QR code
+              </Button>
+            </div>
           </div>
         </div>
       )}
