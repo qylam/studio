@@ -11,7 +11,7 @@ export default function KioskPage() {
           <div className="bg-[#4290FF]/10 p-2 rounded-xl group-hover:bg-[#4290FF]/20 transition-colors">
             <Clock className="w-6 h-6 text-[#4290FF]" />
           </div>
-          <span className="text-xl font-medium tracking-tight font-headline">
+          <span className="text-xl font-bold tracking-tight font-headline">
             Free-Time <span className="text-[#4290FF]">Machine</span>
           </span>
         </Link>
