@@ -11,6 +11,54 @@
       "description": "Take a well-earned break theme",
       "imageUrl": "https://images.unsplash.com/photo-1624221354254-ef5929f021f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxoYW1tb2NrJTIwYmVhY2h8ZW58MHx8fHwxNzcyNDE2NzIyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "hammock beach"
+    },
+    {
+      "id": "theme-teaching",
+      "description": "Level up my teaching theme",
+      "imageUrl": "https://images.unsplash.com/photo-1760121788536-9797394e210e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx0ZWFjaGluZyUyMGNsYXNzcm9vbXxlbnwwfHx8fDE3NzI0Mjk1ODR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "teaching classroom"
+    },
+    {
+      "id": "theme-recipe",
+      "description": "Learn a new recipe theme",
+      "imageUrl": "https://images.unsplash.com/photo-1557573791-7ab7d3d68932?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb29raW5nJTIwa2l0Y2hlbnxlbnwwfHx8fDE3NzIzNTA5ODF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cooking kitchen"
+    },
+    {
+      "id": "theme-zen",
+      "description": "Find my zen theme",
+      "imageUrl": "https://images.unsplash.com/photo-1737639441322-8d083c13eb6a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtZWRpdGF0aW9uJTIwZ2FyZGVufGVufDB8fHx8MTc3MjQyOTU4NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "meditation garden"
+    },
+    {
+      "id": "theme-active",
+      "description": "Get more active theme",
+      "imageUrl": "https://images.unsplash.com/photo-1758520705390-ccfc66f2b18a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmaXRuZXNzJTIwcnVubmluZ3xlbnwwfHx8fDE3NzI0Mjk1ODR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fitness running"
+    },
+    {
+      "id": "theme-break",
+      "description": "Take a well-earned break theme",
+      "imageUrl": "https://images.unsplash.com/photo-1555895357-1c6cae6c6cce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiZWFjaCUyMGhhbW1vY2t8ZW58MHx8fHwxNzcyNDI5NTg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "beach hammock"
+    },
+    {
+      "id": "theme-skill",
+      "description": "Learn a new skill theme",
+      "imageUrl": "https://images.unsplash.com/photo-1554881070-0f77dbb0f2b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3b3Jrc2hvcCUyMGxlYXJuaW5nfGVufDB8fHx8MTc3MjM2NTIxNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "workshop learning"
+    },
+    {
+      "id": "theme-creative",
+      "description": "Get more creative theme",
+      "imageUrl": "https://images.unsplash.com/photo-1708941432245-289f6add01c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YXJ0JTIwcGFpbnRpbmd8ZW58MHx8fHwxNzcyNDI5NTg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "art painting"
+    },
+    {
+      "id": "theme-imagination",
+      "description": "Let my imagination loose theme",
+      "imageUrl": "https://images.unsplash.com/photo-1761762678285-db493138783d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYW50YXN5JTIwc3RlYW1wdW5rfGVufDB8fHx8MTc3MjQyOTU4NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fantasy steampunk"
     }
   ]
 }
