@@ -513,9 +513,6 @@ export default function KioskFlow() {
             >
               <ArrowLeft className="w-10 h-10" />
             </button>
-            <div className="absolute -left-16 -top-12 w-10 h-10 bg-[#4285F4] rounded-full flex items-center justify-center text-white text-xs font-bold">
-              10
-            </div>
             
             <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full max-w-md mx-auto">
               <div className="flex justify-between items-center mb-6">
