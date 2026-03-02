@@ -460,7 +460,7 @@ export default function KioskFlow() {
               </div>
               
               <div className="mt-10 text-center">
-                <p className="text-3xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
+                <p className="text-4xl font-medium text-zinc-800 tracking-tight" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
                   {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
                 </p>
               </div>
@@ -530,7 +530,7 @@ export default function KioskFlow() {
               </div>
               
               <div className="mt-10 text-center">
-                <p className="text-3xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
+                <p className="text-4xl font-medium text-zinc-800 tracking-tight" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
                   {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
                 </p>
               </div>
