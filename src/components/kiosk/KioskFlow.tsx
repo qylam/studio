@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -16,6 +17,34 @@ import {
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
+
+/** 
+ * ADMIN: EDIT STYLE PROMPTS HERE
+ * These 'detail' strings are the instructions sent to the AI.
+ * The 'title' is what the user sees on the button.
+ */
+const STYLES = [
+  { 
+    id: 'style-keychain', 
+    title: 'Cute Keychain', 
+    detail: 'stylized as a high-quality, adorable 3D keychain figurine, vinyl toy aesthetic, smooth plastic textures, vibrant studio lighting, macro photography style' 
+  },
+  { 
+    id: 'style-oil', 
+    title: 'Oil Painting', 
+    detail: 'stylized as a masterpiece digital oil painting, thick impasto brushstrokes, visible canvas texture, rich color palette, dramatic Chiaroscuro lighting, artistic and expressive' 
+  },
+  { 
+    id: 'style-steampunk', 
+    title: 'Steampunk', 
+    detail: 'stylized with intricate brass gears, polished copper machinery, leather accents, Victorian industrial aesthetic, warm sepia tones, steam-powered atmospheric effects' 
+  },
+  { 
+    id: 'style-gothic', 
+    title: 'Gothic Clay', 
+    detail: 'stylized as a dark, moody gothic claymation figure, Tim Burton aesthetic, handcrafted clay textures, deep shadows, monochromatic with hints of cool blue, surreal atmosphere' 
+  },
+];
 
 const AVAILABLE_DETAILS = [
   "an Andy Warhol haircut",
@@ -42,13 +71,6 @@ const THEMES = [
   { id: 'theme-skill', title: 'Learn a new skill', scene: 'in a high-tech robotics laboratory', activity: 'programming a friendly droid' },
   { id: 'theme-creative', title: 'Get more creative', scene: 'in a vibrant, sun-drenched art studio', activity: 'painting a massive impressionist mural' },
   { id: 'theme-imagination', title: 'Let my imagination loose', scene: 'aboard a majestic steampunk airship', activity: 'navigating through a sea of golden clouds' },
-];
-
-const STYLES = [
-  { id: 'style-keychain', title: 'Cute Keychain', detail: 'stylized as a high-quality, adorable 3D keychain figurine' },
-  { id: 'style-oil', title: 'Oil Painting', detail: 'stylized as a masterpiece digital oil painting with thick brushstrokes' },
-  { id: 'style-steampunk', title: 'Steampunk', detail: 'stylized with brass gears, Victorian machinery, and steam-powered aesthetic' },
-  { id: 'style-gothic', title: 'Gothic Clay', detail: 'stylized as a dark, moody gothic claymation figure with deep shadows' },
 ];
 
 export default function KioskFlow() {
@@ -460,7 +482,7 @@ export default function KioskFlow() {
               </div>
               
               <div className="mt-10 text-center">
-                <p className="text-4xl font-medium text-zinc-800 tracking-tight" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
+                <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
                   {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
                 </p>
               </div>
@@ -530,7 +552,7 @@ export default function KioskFlow() {
               </div>
               
               <div className="mt-10 text-center">
-                <p className="text-4xl font-medium text-zinc-800 tracking-tight" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
+                <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
                   {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
                 </p>
               </div>
