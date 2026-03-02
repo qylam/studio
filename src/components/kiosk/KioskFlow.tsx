@@ -161,12 +161,12 @@ export default function KioskFlow() {
             onClick={startCountdown} 
             disabled={countdown !== null}
             className={cn(
-              "btn-google-blue h-auto py-6 px-12 text-2xl rounded-full transition-all duration-300",
+              "btn-google-blue h-auto py-6 px-12 text-2xl rounded-full transition-all duration-300 font-bold tracking-tight",
               countdown !== null && "opacity-50 grayscale scale-95"
             )}
           >
             <Camera className="mr-3 h-8 w-8" />
-            {countdown !== null ? 'Get Ready...' : 'Capture Photo'}
+            {countdown !== null ? 'Get Ready...' : 'Take your Photo'}
           </Button>
         </div>
       )}
