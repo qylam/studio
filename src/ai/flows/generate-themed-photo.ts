@@ -36,8 +36,9 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
   input: { schema: GenerateThemedPhotoInputSchema },
-  output: { schema: GenerateThemedPhotoOutputSchema },
-  model: 'googleai/gemini-2.5-flash-image', // Explicitly specify the image generation model
+  // Note: output schema is intentionally omitted here because gemini-2.5-flash-image 
+  // does not support JSON mode when generating IMAGE modalities.
+  model: 'googleai/gemini-2.5-flash-image',
   config: {
     responseModalities: ['TEXT', 'IMAGE'],
   },
@@ -48,7 +49,7 @@ Artistic Refinement 1: "{{{styleOption1}}}"
 Artistic Refinement 2: "{{{styleOption2}}}"
 Artistic Refinement 3: "{{{styleOption3}}}"
 
-Generate an image that incorporates these elements. After generating the image, provide a concise textual description of the created scene.
+Generate an image that incorporates these elements. Also provide a concise textual description of the created scene.
 
 Photo: {{media url=photoDataUri}}`,
 });
@@ -60,6 +61,7 @@ const generateThemedPhotoFlow = ai.defineFlow(
     outputSchema: GenerateThemedPhotoOutputSchema,
   },
   async (input) => {
+    // Calling the prompt without a constrained output schema to avoid JSON mode errors
     const { text, media } = await themedPhotoPrompt(input);
 
     if (!media || !text) {
