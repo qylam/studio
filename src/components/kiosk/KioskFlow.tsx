@@ -30,7 +30,6 @@ const THEME_OPTIONS = [
 ];
 
 const AVAILABLE_DETAILS = [
-  "an unimpressed tutor",
   "an Andy Warhol haircut",
   "a group of breakdancers",
   "glowing spores",
@@ -43,8 +42,7 @@ const AVAILABLE_DETAILS = [
   "cyberpunk style",
   "soft bokeh",
   "underwater bubbles",
-  "digital oil painting",
-  "3D claymation"
+  "digital oil painting"
 ];
 
 export default function KioskFlow() {
@@ -243,9 +241,9 @@ export default function KioskFlow() {
                       onClick={() => handleThemeSelect(theme)}
                       className="group cursor-pointer space-y-6 transition-transform hover:scale-105"
                     >
-                      <div className="aspect-square rounded-[2rem] overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl transition-all group-hover:border-white/30">
+                      <div className="aspect-video rounded-[2rem] overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl transition-all group-hover:border-white/30">
                         <img 
-                          src={`https://picsum.photos/seed/${theme.seed}/600/600`} 
+                          src={`https://picsum.photos/seed/${theme.seed}/640/360`} 
                           alt={theme.label} 
                           className="w-full h-full object-cover"
                           data-ai-hint="themed vision"
@@ -283,7 +281,7 @@ export default function KioskFlow() {
             <span className="text-xl font-medium font-headline">Back to Themes</span>
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-7xl font-bold leading-tight tracking-tighter text-white font-headline">
@@ -293,7 +291,7 @@ export default function KioskFlow() {
                   Tweak the details to make this masterpiece truly yours.
                 </p>
               </div>
-              <div className="aspect-square w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl bg-zinc-900 border border-white/5">
+              <div className="aspect-video w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-zinc-900 border border-white/5">
                 {capturedImage && (
                   <img src={capturedImage} alt="Captured" className="w-full h-full object-cover mirror transform -scale-x-100" />
                 )}
@@ -414,7 +412,7 @@ export default function KioskFlow() {
             
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-[#4285F4] to-[#9B72CB] rounded-[3.5rem] blur-2xl opacity-30"></div>
-              <div className="relative aspect-[3/4] rounded-[3.5rem] overflow-hidden shadow-2xl border border-white/10">
+              <div className="relative aspect-video rounded-[3.5rem] overflow-hidden shadow-2xl border border-white/10">
                 <img src={resultImage} alt="Transformation" className="w-full h-full object-cover" />
                 <div className="absolute bottom-10 left-10 right-10">
                    <div className="bg-black/60 backdrop-blur-xl p-6 rounded-3xl border border-white/10 flex items-center justify-between">

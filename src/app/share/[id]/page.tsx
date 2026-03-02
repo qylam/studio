@@ -1,10 +1,11 @@
+
 import { Download, Share2, Instagram, Twitter, Facebook, ExternalLink, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function SharePortal({ params }: { params: { id: string } }) {
   // In a real app, we would fetch the image data from Firestore using the ID
-  const mockImageUrl = "https://picsum.photos/seed/sharing-preview/800/1200";
+  const mockImageUrl = "https://picsum.photos/seed/sharing-preview/1280/720";
 
   return (
     <main className="min-h-screen bg-[#16181B] text-white p-4 md:p-8 flex flex-col items-center">
@@ -26,7 +27,7 @@ export default function SharePortal({ params }: { params: { id: string } }) {
             <img 
               src={mockImageUrl} 
               alt="Your Free-Time Transformation" 
-              className="w-full aspect-[3/4] object-cover"
+              className="w-full aspect-video object-cover"
             />
           </Card>
         </div>
