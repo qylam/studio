@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles, Download, RotateCcw } from 'lucide-react';
+import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
 import { cn } from '@/lib/utils';
@@ -16,7 +15,7 @@ import {
 } from "@/components/ui/carousel";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-type KioskStep = 'capture' | 'select-theme' | 'refine' | 'processing' | 'results' | 'thanks';
+type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
 
 const AVAILABLE_DETAILS = [
   "an Andy Warhol haircut",
@@ -45,6 +44,13 @@ const THEMES = [
   { id: 'theme-imagination', title: 'Let my imagination loose', scene: 'aboard a majestic steampunk airship', activity: 'navigating through a sea of golden clouds' },
 ];
 
+const STYLES = [
+  { id: 'style-keychain', title: 'Cute Keychain', detail: 'stylized as a high-quality, adorable 3D keychain figurine' },
+  { id: 'style-oil', title: 'Oil Painting', detail: 'stylized as a masterpiece digital oil painting with thick brushstrokes' },
+  { id: 'style-steampunk', title: 'Steampunk', detail: 'stylized with brass gears, Victorian machinery, and steam-powered aesthetic' },
+  { id: 'style-gothic', title: 'Gothic Clay', detail: 'stylized as a dark, moody gothic claymation figure with deep shadows' },
+];
+
 export default function KioskFlow() {
   const [step, setStep] = useState<KioskStep>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -55,6 +61,7 @@ export default function KioskFlow() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isWheelchairUser, setIsWheelchairUser] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<typeof THEMES[0] | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -108,20 +115,26 @@ export default function KioskFlow() {
     }
   };
 
-  const handleThemeSelect = async (theme: typeof THEMES[0]) => {
+  const handleThemeSelect = (theme: typeof THEMES[0]) => {
+    setSelectedTheme(theme);
     setScene(theme.scene);
     setActivity(theme.activity);
-    
-    if (!capturedImage) return;
+    setStep('select-style');
+  };
+
+  const handleStyleSelect = async (style: typeof STYLES[0]) => {
+    if (!capturedImage || !selectedTheme) return;
     setIsProcessing(true);
     setStep('processing');
     
     try {
-      const finalDetails = isWheelchairUser ? [...details, 'subject is using a wheelchair'] : details;
+      const finalDetails = [...details, style.detail];
+      if (isWheelchairUser) finalDetails.push('subject is using a wheelchair');
+      
       const response = await generateThemedPhoto({
         photoDataUri: capturedImage,
-        scene: theme.scene,
-        activity: theme.activity,
+        scene: selectedTheme.scene,
+        activity: selectedTheme.activity,
         details: finalDetails,
       });
       setResultImage(response.transformedPhotoDataUri);
@@ -166,6 +179,7 @@ export default function KioskFlow() {
     setActivity('');
     setDetails([]);
     setIsWheelchairUser(false);
+    setSelectedTheme(null);
   };
 
   const toggleDetail = (detail: string) => {
@@ -272,14 +286,57 @@ export default function KioskFlow() {
         </div>
       )}
 
+      {step === 'select-style' && (
+        <div className="w-full space-y-12 animate-in fade-in slide-in-from-right duration-500">
+          <div className="text-center space-y-4">
+            <h2 className="text-6xl font-bold tracking-tight text-white font-headline">Select your style</h2>
+            <p className="text-2xl text-white/60">Choose an artistic direction for your vision.</p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
+            {STYLES.map((style) => {
+              const imageData = PlaceHolderImages.find(img => img.id === style.id);
+              return (
+                <div 
+                  key={style.id}
+                  onClick={() => handleStyleSelect(style)}
+                  className="group cursor-pointer relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
+                >
+                  <img 
+                    src={imageData?.imageUrl} 
+                    alt={style.title} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <h3 className="text-xl font-bold text-white font-headline leading-tight">{style.title}</h3>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-col items-center gap-6 pt-8">
+            <Button 
+              variant="ghost" 
+              onClick={() => setStep('select-theme')}
+              className="text-white/40 hover:text-white hover:bg-transparent text-xl font-headline"
+            >
+              <ArrowLeft className="mr-2 h-6 w-6" />
+              Back to themes
+            </Button>
+          </div>
+        </div>
+      )}
+
       {step === 'refine' && (
         <div className="w-full animate-in fade-in slide-in-from-right duration-500">
           <button 
-            onClick={() => setStep('select-theme')}
+            onClick={() => setStep('select-style')}
             className="flex items-center text-white/60 hover:text-white transition-colors mb-8 group"
           >
             <ChevronLeft className="w-6 h-6 mr-1 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xl font-medium font-headline">Change Theme</span>
+            <span className="text-xl font-medium font-headline">Change Style</span>
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -379,10 +436,9 @@ export default function KioskFlow() {
 
       {step === 'results' && resultImage && (
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
-          {/* Left: Polaroid Frame */}
           <div className="relative">
             <button 
-              onClick={() => setStep('select-theme')}
+              onClick={() => setStep('select-style')}
               className="absolute -left-16 top-0 p-2 text-white/60 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-10 h-10" />
@@ -411,7 +467,6 @@ export default function KioskFlow() {
             </div>
           </div>
 
-          {/* Right: Actions */}
           <div className="flex-1 space-y-12 text-center md:text-left">
             <h2 className="text-8xl font-bold tracking-tighter text-white font-headline">Ta-da!</h2>
             
@@ -451,7 +506,6 @@ export default function KioskFlow() {
 
       {step === 'thanks' && resultImage && (
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
-          {/* Left: Polaroid Frame (Static) */}
           <div className="relative">
             <button 
               onClick={() => setStep('results')}
@@ -486,7 +540,6 @@ export default function KioskFlow() {
             </div>
           </div>
 
-          {/* Right: Thanks message */}
           <div className="flex-1 space-y-12 text-center md:text-left">
             <h2 className="text-7xl font-bold tracking-tight text-white font-headline leading-none">
               Thanks for saving <br /> time with Gemini

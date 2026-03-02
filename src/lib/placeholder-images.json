@@ -59,6 +59,30 @@
       "description": "Let my imagination loose theme",
       "imageUrl": "https://images.unsplash.com/photo-1761762678285-db493138783d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYW50YXN5JTIwc3RlYW1wdW5rfGVufDB8fHx8MTc3MjQyOTU4NHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "fantasy steampunk"
+    },
+    {
+      "id": "style-keychain",
+      "description": "Cute Keychain style",
+      "imageUrl": "https://images.unsplash.com/photo-1614944011151-697a48d8a7c2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjdXRlJTIwdG95fGVufDB8fHx8MTc3MjQzMDk4NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cute toy"
+    },
+    {
+      "id": "style-oil",
+      "description": "Oil Painting style",
+      "imageUrl": "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxvaWwlMjBwYWludGluZ3xlbnwwfHx8fDE3NzI0MzA5ODR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "oil painting"
+    },
+    {
+      "id": "style-steampunk",
+      "description": "Steampunk style",
+      "imageUrl": "https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzdGVhbXB1bmt8ZW58MHx8fHwxNzcyNDMwOTg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "steampunk"
+    },
+    {
+      "id": "style-gothic",
+      "description": "Gothic Clay style",
+      "imageUrl": "https://images.unsplash.com/photo-1509248961158-e54f6934749c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxnb3RoaWN8ZW58MHx8fHwxNzcyNDMwOTg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gothic"
     }
   ]
 }
