@@ -113,9 +113,11 @@ export default function KioskFlow() {
   const handleThemeSelect = (theme: typeof THEME_OPTIONS[0]) => {
     setScene(theme.scene);
     setActivity(theme.activity);
-    if (isWheelchairUser) {
-      setDetails(prev => [...prev, 'subject is using a wheelchair']);
-    }
+    
+    // Initialize details with wheelchair status if selected
+    const initialDetails = isWheelchairUser ? ['subject is using a wheelchair'] : [];
+    setDetails(initialDetails);
+    
     setStep('refine');
   };
 
