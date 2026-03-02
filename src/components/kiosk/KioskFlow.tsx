@@ -436,15 +436,15 @@ export default function KioskFlow() {
 
       {step === 'results' && resultImage && (
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
-          <div className="relative">
+          <div className="flex flex-col items-start w-full max-w-md mx-auto">
             <button 
               onClick={() => setStep('select-style')}
-              className="absolute -left-16 top-0 p-2 text-white/60 hover:text-white transition-colors"
+              className="mb-6 p-2 text-white/60 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-10 h-10" />
             </button>
             
-            <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full max-w-md mx-auto">
+            <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full">
               <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-1">
                   <span className="text-lg font-bold text-[#4285F4]">Google</span>
@@ -506,15 +506,15 @@ export default function KioskFlow() {
 
       {step === 'thanks' && resultImage && (
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
-          <div className="relative">
+          <div className="flex flex-col items-start w-full max-w-md mx-auto">
             <button 
               onClick={() => setStep('results')}
-              className="absolute -left-16 top-0 p-2 text-white/60 hover:text-white transition-colors"
+              className="mb-6 p-2 text-white/60 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-10 h-10" />
             </button>
             
-            <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full max-w-md mx-auto">
+            <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full">
               <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-1">
                   <span className="text-lg font-bold text-[#4285F4]">Google</span>
