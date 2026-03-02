@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, RefreshCcw, Zap, ChevronLeft, QrCode, Loader2 } from 'lucide-react';
+import { Camera, RefreshCcw, Zap, ChevronLeft, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
 import { cn } from '@/lib/utils';
@@ -24,6 +23,8 @@ export default function KioskFlow() {
   const [details, setDetails] = useState(['an unimpressed tutor', 'an Andy Warhol haircut', 'a group of breakdancers']);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -43,7 +44,28 @@ export default function KioskFlow() {
     };
   }, [step]);
 
-  const capturePhoto = () => {
+  // Handle countdown logic
+  useEffect(() => {
+    if (countdown === null) return;
+
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      // Countdown finished
+      performCapture();
+      setCountdown(null);
+    }
+  }, [countdown]);
+
+  const startCountdown = () => {
+    if (countdown !== null) return;
+    setCountdown(3);
+  };
+
+  const performCapture = () => {
     if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext('2d');
       if (context) {
@@ -91,6 +113,7 @@ export default function KioskFlow() {
     setStep('capture');
     setCapturedImage(null);
     setResultImage(null);
+    setCountdown(null);
   };
 
   return (
@@ -102,10 +125,26 @@ export default function KioskFlow() {
           <div className="relative overflow-hidden aspect-video max-w-4xl mx-auto rounded-[2rem] border-2 border-white/10 bg-zinc-900">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
             <canvas ref={canvasRef} className="hidden" />
+            
+            {/* Countdown Overlay */}
+            {countdown !== null && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-50">
+                <span className="text-[12rem] font-black italic font-headline text-white drop-shadow-[0_0_30px_rgba(66,133,244,0.8)] animate-in zoom-in duration-300">
+                  {countdown > 0 ? countdown : "Smile!"}
+                </span>
+              </div>
+            )}
           </div>
-          <Button onClick={capturePhoto} className="btn-google-blue h-auto py-6 px-12 text-2xl rounded-full">
+          <Button 
+            onClick={startCountdown} 
+            disabled={countdown !== null}
+            className={cn(
+              "btn-google-blue h-auto py-6 px-12 text-2xl rounded-full transition-all duration-300",
+              countdown !== null && "opacity-50 grayscale scale-95"
+            )}
+          >
             <Camera className="mr-3 h-8 w-8" />
-            Capture Photo
+            {countdown !== null ? 'Get Ready...' : 'Capture Photo'}
           </Button>
         </div>
       )}
@@ -141,7 +180,6 @@ export default function KioskFlow() {
             {/* Right: Prompt Builder UI */}
             <div className="bg-black/40 backdrop-blur-xl p-10 rounded-[3rem] border border-white/5 space-y-12">
               <div className="space-y-8">
-                {/* Imagine Row */}
                 <div className="flex items-center space-x-6">
                   <span className="text-2xl font-medium text-white min-w-[140px]">Imagine me</span>
                   <div className="flex-grow">
@@ -153,7 +191,6 @@ export default function KioskFlow() {
                   </div>
                 </div>
 
-                {/* While Row */}
                 <div className="flex items-center space-x-6">
                   <span className="text-2xl font-medium text-white min-w-[140px]">while</span>
                   <div className="flex-grow">
@@ -165,13 +202,11 @@ export default function KioskFlow() {
                   </div>
                 </div>
 
-                {/* With Row */}
                 <div className="flex items-start space-x-6">
                   <div className="pt-3">
                     <span className="text-2xl font-medium text-white min-w-[140px] block">with</span>
                   </div>
                   <div className="flex-grow space-y-4 relative">
-                    {/* Vertical line connecting 'with' inputs */}
                     <div className="absolute left-[-3rem] top-8 bottom-8 w-[1px] bg-white/10" />
                     {details.map((detail, idx) => (
                       <Input 
