@@ -19,14 +19,14 @@ import {
 type KioskStep = 'capture' | 'theme' | 'refine' | 'processing' | 'result';
 
 const THEME_OPTIONS = [
-  { id: 'teaching', label: 'Level up my teaching', scene: 'in a modern classroom', activity: 'teaching complex science with holographic projections', seed: '101' },
-  { id: 'recipe', label: 'Learn a new recipe', scene: 'in a professional gourmet kitchen', activity: 'preparing a masterpiece dish with fresh ingredients', seed: '102' },
-  { id: 'zen', label: 'Find my zen', scene: 'in a serene Japanese garden', activity: 'meditating peacefully near a koi pond', seed: '103' },
-  { id: 'active', label: 'Get more active', scene: 'on a scenic mountain trail', activity: 'running a marathon with determination', seed: '104' },
-  { id: 'break', label: 'Take a well-earned break', scene: 'on a tropical beach at sunset', activity: 'relaxing in a hammock with a book', seed: '105' },
-  { id: 'skill', label: 'Learn a new skill', scene: 'in a high-tech workshop', activity: 'building a custom robot', seed: '106' },
-  { id: 'creative', label: 'Get more creative', scene: 'in a vibrant art studio', activity: 'painting a large abstract mural', seed: '107' },
-  { id: 'imagination', label: 'Let my imagination loose', scene: 'in a fantastical steampunk city', activity: 'piloting a wooden airship', seed: '108' },
+  { id: 'teaching', label: 'Level up my teaching', shortLabel: 'more prepared', scene: 'in a modern classroom', activity: 'teaching complex science with holographic projections', seed: '101' },
+  { id: 'recipe', label: 'Learn a new recipe', shortLabel: 'more culinary', scene: 'in a professional gourmet kitchen', activity: 'preparing a masterpiece dish with fresh ingredients', seed: '102' },
+  { id: 'zen', label: 'Find my zen', shortLabel: 'more zen', scene: 'in a serene Japanese garden', activity: 'meditating peacefully near a koi pond', seed: '103' },
+  { id: 'active', label: 'Get more active', shortLabel: 'more active', scene: 'on a scenic mountain trail', activity: 'running a marathon with determination', seed: '104' },
+  { id: 'break', label: 'Take a well-earned break', shortLabel: 'more relaxed', scene: 'on a tropical beach at sunset', activity: 'relaxing in a hammock with a book', seed: '105' },
+  { id: 'skill', label: 'Learn a new skill', shortLabel: 'more skilled', scene: 'in a high-tech workshop', activity: 'building a custom robot', seed: '106' },
+  { id: 'creative', label: 'Get more creative', shortLabel: 'more creative', scene: 'in a vibrant art studio', activity: 'painting a large abstract mural', seed: '107' },
+  { id: 'imagination', label: 'Let my imagination loose', shortLabel: 'more imaginative', scene: 'in a fantastical steampunk city', activity: 'piloting a wooden airship', seed: '108' },
 ];
 
 const AVAILABLE_DETAILS = [
@@ -48,6 +48,7 @@ const AVAILABLE_DETAILS = [
 export default function KioskFlow() {
   const [step, setStep] = useState<KioskStep>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
   const [scene, setScene] = useState('');
   const [activity, setActivity] = useState('');
   const [details, setDetails] = useState<string[]>([]);
@@ -58,6 +59,8 @@ export default function KioskFlow() {
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const currentTheme = THEME_OPTIONS.find(t => t.id === selectedThemeId);
 
   useEffect(() => {
     if (step === 'capture' && videoRef.current) {
@@ -109,6 +112,7 @@ export default function KioskFlow() {
   };
 
   const handleThemeSelect = (theme: typeof THEME_OPTIONS[0]) => {
+    setSelectedThemeId(theme.id);
     setScene(theme.scene);
     setActivity(theme.activity);
     
@@ -146,6 +150,7 @@ export default function KioskFlow() {
     setCapturedImage(null);
     setResultImage(null);
     setCountdown(null);
+    setSelectedThemeId(null);
     setScene('');
     setActivity('');
     setDetails([]);
@@ -165,7 +170,7 @@ export default function KioskFlow() {
       
       {step === 'capture' && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
-          <h2 className="text-6xl font-bold tracking-tight text-white font-headline">Strike a Pose</h2>
+          <h2 className="text-7xl font-bold tracking-tight text-white font-headline">Strike a Pose</h2>
           <div className="relative overflow-hidden aspect-video max-w-4xl mx-auto rounded-[2rem] border-2 border-white/10 bg-zinc-900">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
             <canvas ref={canvasRef} className="hidden" />
@@ -377,51 +382,80 @@ export default function KioskFlow() {
       )}
 
       {step === 'result' && resultImage && (
-        <div className="w-full space-y-8 animate-in zoom-in duration-700">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div className="space-y-10">
-              <div className="space-y-4">
-                <h2 className="text-7xl font-bold tracking-tighter text-white leading-none font-headline">Your New Reality</h2>
-                <p className="text-2xl text-[#4285F4] font-medium font-headline">Reimagined by Gemini</p>
+        <div className="w-full relative p-8 animate-in zoom-in duration-700 bg-black rounded-[3rem]">
+          {/* Top Left Back Arrow */}
+          <button 
+            onClick={() => setStep('refine')}
+            className="absolute top-8 left-8 text-white hover:opacity-70 transition-opacity z-20"
+          >
+            <ArrowLeft className="w-10 h-10" />
+          </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center px-8 py-12">
+            {/* Polaroid Container */}
+            <div className="flex justify-center">
+              <div id="polaroid-frame" className="bg-[#F8F9FA] p-6 pb-12 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform -rotate-2 w-full max-w-lg">
+                <div className="flex justify-between items-center mb-4">
+                   <div className="flex items-center gap-1.5">
+                     <span className="text-xs font-bold text-black/60">Google</span>
+                     <span className="text-xs text-black/40">for Education</span>
+                   </div>
+                </div>
+                <div className="aspect-square bg-zinc-200 overflow-hidden rounded-sm relative">
+                   <img src={resultImage} alt="AI Vision" className="w-full h-full object-cover" />
+                   <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md p-1.5 rounded-full">
+                     <Sparkles className="w-4 h-4 text-white" />
+                   </div>
+                </div>
+                <div className="mt-8 text-center">
+                  <p className="text-3xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
+                    Getting {currentTheme?.shortLabel || 'more active'}, thanks to Gemini
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Action Column */}
+            <div className="space-y-12">
+              <div className="space-y-2">
+                <h2 className="text-7xl font-bold tracking-tighter text-white leading-none font-headline">Ta-da!</h2>
               </div>
               
-              <div className="p-10 bg-zinc-900/50 backdrop-blur-md rounded-[3rem] border border-white/10 space-y-8">
-                <div className="flex items-center space-x-6">
-                  <div className="bg-[#4285F4] p-5 rounded-3xl">
-                    <QrCode className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="text-2xl font-bold font-headline">Scan to Download</h4>
-                    <p className="text-white/50 text-lg leading-tight font-headline">Take your HD creation home and share the inspiration.</p>
-                  </div>
-                </div>
-                <div className="bg-white p-6 rounded-[2rem] w-64 h-64 mx-auto flex items-center justify-center shadow-2xl">
+              <div className="space-y-8">
+                <div className="bg-white p-6 rounded-[2rem] w-64 h-64 flex items-center justify-center shadow-2xl">
                   <img 
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}/share/mock-id`} 
                     alt="QR Code" 
                     className="w-full h-full"
                   />
                 </div>
-              </div>
-
-              <Button onClick={resetKiosk} className="w-full py-8 text-2xl font-bold rounded-full border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center font-headline">
-                <RefreshCcw className="mr-3 h-6 w-6" />
-                Create Another
-              </Button>
-            </div>
-            
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#4285F4] to-[#9B72CB] rounded-[3.5rem] blur-2xl opacity-30"></div>
-              <div className="relative aspect-video rounded-[3.5rem] overflow-hidden shadow-2xl border border-white/10">
-                <img src={resultImage} alt="Transformation" className="w-full h-full object-cover" />
-                <div className="absolute bottom-10 left-10 right-10">
-                   <div className="bg-black/60 backdrop-blur-xl p-6 rounded-3xl border border-white/10 flex items-center justify-between">
-                     <span className="text-sm uppercase tracking-[0.2em] font-black text-white/80 font-headline">Gemini 2.5 Flash</span>
-                     <Zap className="w-6 h-6 text-[#4285F4]" />
-                   </div>
+                <div className="space-y-2">
+                  <p className="text-2xl font-medium text-white font-headline">Those extra hours look great on you.</p>
+                  <p className="text-xl text-white/50 font-headline">Scan to save and share.</p>
                 </div>
               </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button 
+                  onClick={() => setStep('refine')}
+                  variant="outline"
+                  className="py-8 px-12 text-xl font-bold rounded-full border-2 border-white text-white bg-transparent hover:bg-white/10 font-headline h-auto"
+                >
+                  Adjust photo
+                </Button>
+                <Button 
+                  onClick={resetKiosk} 
+                  className="py-8 px-12 text-xl font-bold rounded-full bg-[#4285F4] hover:bg-[#4285F4]/90 text-white shadow-lg shadow-blue-500/20 font-headline h-auto"
+                >
+                  I've scanned the QR code
+                </Button>
+              </div>
             </div>
+          </div>
+          
+          {/* Subtle footer markers */}
+          <div className="absolute bottom-8 right-12 opacity-20 pointer-events-none">
+            <span className="text-xs uppercase tracking-widest font-bold">Confidential</span>
           </div>
         </div>
       )}
