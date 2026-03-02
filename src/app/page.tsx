@@ -1,9 +1,23 @@
+
+"use client";
+
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 
 export default function Home() {
+  const [showConsent, setShowConsent] = useState(false);
+  const router = useRouter();
+
   const polaroids = [
     { seed: '10', rotate: '-6deg', delay: '0ms' },
     { seed: '21', rotate: '8deg', delay: '100ms' },
@@ -46,11 +60,12 @@ export default function Home() {
           </p>
 
           <div className="pt-4">
-            <Link href="/kiosk">
-              <Button className="btn-google-blue h-auto">
-                Start
-              </Button>
-            </Link>
+            <Button 
+              onClick={() => setShowConsent(true)}
+              className="btn-google-blue h-auto"
+            >
+              Start
+            </Button>
           </div>
 
           <div className="pt-8">
@@ -82,7 +97,6 @@ export default function Home() {
               />
             </div>
           ))}
-          {/* Duplicate set for filling out the grid visually if needed */}
           {polaroids.map((p, idx) => (
             <div 
               key={`dup-${idx}`} 
@@ -101,9 +115,44 @@ export default function Home() {
           ))}
         </div>
         
-        {/* Subtle Gradient Overlay to blend with left side */}
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/20 to-transparent z-10 hidden md:block" />
       </div>
+
+      {/* Consent Dialog */}
+      <AlertDialog open={showConsent} onOpenChange={setShowConsent}>
+        <AlertDialogContent className="max-w-4xl bg-[#F8F9FA] border-none rounded-[2rem] p-12 text-black shadow-2xl">
+          <div className="flex flex-col md:flex-row gap-12 items-center">
+            <div className="flex-1 space-y-6">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-6xl font-bold tracking-tight text-zinc-900">
+                  Before you begin
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-lg leading-relaxed text-zinc-600 font-medium">
+                  The Gemini Free-Time Machine is an experiment using Nano Banana Pro, Google's latest generative image model.
+                  <br /><br />
+                  Take a photo and we'll create a picture using your selected effect. By submitting your photo, you confirm that you are 18 or older and consent to Google processing your image to generate your picture. To download it, simply scan the QR code provided at the end and check back to see when it's ready.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+            </div>
+            
+            <div className="flex flex-col gap-4 min-w-[280px]">
+              <Button 
+                onClick={() => router.push('/kiosk')}
+                className="w-full py-8 text-xl font-bold rounded-full bg-[#4285F4] hover:bg-[#4285F4]/90 text-white shadow-lg shadow-blue-500/20"
+              >
+                Accept and proceed
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setShowConsent(false)}
+                className="w-full py-8 text-xl font-bold rounded-full border-2 border-[#4285F4] text-[#4285F4] hover:bg-blue-50 bg-white"
+              >
+                Do not accept
+              </Button>
+            </div>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }
