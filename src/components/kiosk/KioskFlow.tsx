@@ -122,9 +122,6 @@ export default function KioskFlow() {
     setScene(preset.scene);
     setActivity(preset.activity);
     setDetails(preset.details);
-    // Note: We don't auto-generate here so the user can see the change, 
-    // or we could if we wanted to make it instant. 
-    // Let's just update the UI for "Surprise" feel.
   };
 
   const resetKiosk = () => {
@@ -147,7 +144,7 @@ export default function KioskFlow() {
       
       {step === 'capture' && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
-          <h2 className="text-6xl font-black font-headline uppercase italic tracking-tighter">Strike a Pose</h2>
+          <h2 className="text-6xl font-bold tracking-tight text-white">Strike a Pose</h2>
           <div className="relative overflow-hidden aspect-video max-w-4xl mx-auto rounded-[2rem] border-2 border-white/10 bg-zinc-900">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
             <canvas ref={canvasRef} className="hidden" />
@@ -280,7 +277,7 @@ export default function KioskFlow() {
             </div>
           </div>
           <div className="space-y-4">
-            <h2 className="text-5xl font-black font-headline uppercase italic tracking-tighter">AI is Dreaming...</h2>
+            <h2 className="text-5xl font-bold tracking-tight text-white uppercase italic">AI is Dreaming...</h2>
             <p className="text-white/50 text-xl font-mono animate-pulse">Synthesizing your masterpiece...</p>
           </div>
         </div>
@@ -291,7 +288,7 @@ export default function KioskFlow() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div className="space-y-10">
               <div className="space-y-4">
-                <h2 className="text-7xl font-black font-headline uppercase italic leading-none tracking-tighter">Your New Reality</h2>
+                <h2 className="text-7xl font-bold tracking-tighter text-white leading-none">Your New Reality</h2>
                 <p className="text-2xl text-[#4285F4] font-medium">Reimagined by Gemini</p>
               </div>
               
