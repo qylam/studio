@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -109,10 +108,33 @@ export default function KioskFlow() {
     }
   };
 
-  const handleThemeSelect = (theme: typeof THEMES[0]) => {
+  const handleThemeSelect = async (theme: typeof THEMES[0]) => {
+    // Set parameters for possible manual refinement later
     setScene(theme.scene);
     setActivity(theme.activity);
-    setStep('refine');
+    
+    // Direct generation to skip manual refinement page
+    if (!capturedImage) return;
+    setIsProcessing(true);
+    setStep('processing');
+    
+    try {
+      const finalDetails = isWheelchairUser ? [...details, 'subject is using a wheelchair'] : details;
+      const response = await generateThemedPhoto({
+        photoDataUri: capturedImage,
+        scene: theme.scene,
+        activity: theme.activity,
+        details: finalDetails,
+      });
+      setResultImage(response.transformedPhotoDataUri);
+      setStep('refine');
+    } catch (error) {
+      console.error("Generation failed", error);
+      // If generation fails, go to refinement page so user can try again manually
+      setStep('refine');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleGenerate = async () => {
