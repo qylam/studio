@@ -8,8 +8,16 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
 import { cn } from '@/lib/utils';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-type KioskStep = 'capture' | 'refine' | 'processing';
+type KioskStep = 'capture' | 'select-theme' | 'refine' | 'processing';
 
 const AVAILABLE_DETAILS = [
   "an Andy Warhol haircut",
@@ -27,11 +35,22 @@ const AVAILABLE_DETAILS = [
   "digital oil painting"
 ];
 
+const THEMES = [
+  { id: 'theme-teaching', title: 'Level up my teaching', scene: 'in a modern, inspiring classroom', activity: 'teaching with digital holographic aids' },
+  { id: 'theme-recipe', title: 'Learn a new recipe', scene: 'in a professional masterchef kitchen', activity: 'preparing a gourmet feast' },
+  { id: 'theme-zen', title: 'Find my zen', scene: 'in a serene Japanese zen garden', activity: 'meditating by a peaceful waterfall' },
+  { id: 'theme-active', title: 'Get more active', scene: 'on a high-altitude mountain peak', activity: 'completing a challenging rock climb' },
+  { id: 'theme-break', title: 'Take a well-earned break', scene: 'on a luxury tropical private island', activity: 'relaxing in a hammock over crystal water' },
+  { id: 'theme-skill', title: 'Learn a new skill', scene: 'in a high-tech robotics laboratory', activity: 'programming a friendly droid' },
+  { id: 'theme-creative', title: 'Get more creative', scene: 'in a vibrant, sun-drenched art studio', activity: 'painting a massive impressionist mural' },
+  { id: 'theme-imagination', title: 'Let my imagination loose', scene: 'aboard a majestic steampunk airship', activity: 'navigating through a sea of golden clouds' },
+];
+
 export default function KioskFlow() {
   const [step, setStep] = useState<KioskStep>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [scene, setScene] = useState('in a futuristic city');
-  const [activity, setActivity] = useState('exploring the neon streets');
+  const [scene, setScene] = useState('');
+  const [activity, setActivity] = useState('');
   const [details, setDetails] = useState<string[]>([]);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -85,9 +104,15 @@ export default function KioskFlow() {
         context.drawImage(videoRef.current, 0, 0);
         const dataUrl = canvasRef.current.toDataURL('image/jpeg');
         setCapturedImage(dataUrl);
-        setStep('refine');
+        setStep('select-theme');
       }
     }
+  };
+
+  const handleThemeSelect = (theme: typeof THEMES[0]) => {
+    setScene(theme.scene);
+    setActivity(theme.activity);
+    setStep('refine');
   };
 
   const handleGenerate = async () => {
@@ -118,8 +143,8 @@ export default function KioskFlow() {
     setCapturedImage(null);
     setResultImage(null);
     setCountdown(null);
-    setScene('in a futuristic city');
-    setActivity('exploring the neon streets');
+    setScene('');
+    setActivity('');
     setDetails([]);
     setIsWheelchairUser(false);
   };
@@ -164,18 +189,81 @@ export default function KioskFlow() {
         </div>
       )}
 
+      {step === 'select-theme' && (
+        <div className="w-full space-y-12 animate-in fade-in slide-in-from-right duration-500">
+          <div className="text-center space-y-4">
+            <h2 className="text-6xl font-bold tracking-tight text-white font-headline">What would you do with your free time?</h2>
+            <p className="text-2xl text-white/60">Picture yourself with up to 10 hours back per week.</p>
+          </div>
+
+          <div className="flex justify-center mb-8">
+            <div className="flex items-center space-x-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+              <Checkbox 
+                id="wheelchair-select" 
+                checked={isWheelchairUser}
+                onCheckedChange={(checked) => setIsWheelchairUser(!!checked)}
+                className="w-8 h-8 rounded-lg border-white/20 data-[state=checked]:bg-[#4285F4] data-[state=checked]:border-[#4285F4]"
+              />
+              <label htmlFor="wheelchair-select" className="text-2xl font-medium text-white/80 cursor-pointer">
+                I'm a wheelchair user
+              </label>
+            </div>
+          </div>
+
+          <Carousel className="w-full max-w-6xl mx-auto">
+            <CarouselContent className="-ml-4">
+              {THEMES.map((theme) => {
+                const imageData = PlaceHolderImages.find(img => img.id === theme.id);
+                return (
+                  <CarouselItem key={theme.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                    <div 
+                      onClick={() => handleThemeSelect(theme)}
+                      className="group cursor-pointer relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
+                    >
+                      <img 
+                        src={imageData?.imageUrl} 
+                        alt={theme.title} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      <div className="absolute bottom-8 left-8 right-8">
+                        <h3 className="text-3xl font-bold text-white font-headline leading-tight">{theme.title}</h3>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <div className="flex justify-center gap-4 mt-8">
+              <CarouselPrevious className="static translate-y-0 h-16 w-16 bg-white/5 border-white/10 hover:bg-white/10" />
+              <CarouselNext className="static translate-y-0 h-16 w-16 bg-white/5 border-white/10 hover:bg-white/10" />
+            </div>
+          </Carousel>
+
+          <div className="flex justify-center pt-8">
+            <Button 
+              variant="ghost" 
+              onClick={() => setStep('capture')}
+              className="text-white/40 hover:text-white hover:bg-transparent text-xl font-headline"
+            >
+              <ArrowLeft className="mr-2 h-6 w-6" />
+              Back to camera
+            </Button>
+          </div>
+        </div>
+      )}
+
       {step === 'refine' && (
         <div className="w-full animate-in fade-in slide-in-from-right duration-500">
           <button 
-            onClick={resetKiosk}
+            onClick={() => setStep('select-theme')}
             className="flex items-center text-white/60 hover:text-white transition-colors mb-8 group"
           >
             <ChevronLeft className="w-6 h-6 mr-1 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xl font-medium font-headline">Back to Camera</span>
+            <span className="text-xl font-medium font-headline">Change Theme</span>
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Left Column: Image Area */}
             <div className="space-y-8 sticky top-8">
               <div className="space-y-4">
                 <h1 className="text-6xl font-bold leading-tight tracking-tighter text-white font-headline">
@@ -184,7 +272,6 @@ export default function KioskFlow() {
               </div>
 
               {resultImage ? (
-                /* Polaroid Frame for Results */
                 <div id="polaroid-frame" className="bg-[#F8F9FA] p-6 pb-12 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform -rotate-1 w-full max-w-lg mx-auto">
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-1.5">
@@ -200,12 +287,11 @@ export default function KioskFlow() {
                   </div>
                   <div className="mt-8 text-center">
                     <p className="text-2xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                      Exploring new horizons, thanks to Gemini
+                      {activity}, thanks to Gemini
                     </p>
                   </div>
                 </div>
               ) : (
-                /* Standard Preview for Input */
                 <div className="aspect-video w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-zinc-900 border border-white/5">
                   {capturedImage && (
                     <img src={capturedImage} alt="Captured" className="w-full h-full object-cover mirror transform -scale-x-100" />
@@ -227,22 +313,8 @@ export default function KioskFlow() {
               )}
             </div>
 
-            {/* Right Column: Controls */}
             <div className="bg-white/5 backdrop-blur-xl p-10 rounded-[3rem] border border-white/5 space-y-12">
-              
               <div className="space-y-8">
-                <div className="flex items-center space-x-4">
-                  <Checkbox 
-                    id="wheelchair-refine" 
-                    checked={isWheelchairUser}
-                    onCheckedChange={(checked) => setIsWheelchairUser(!!checked)}
-                    className="w-6 h-6 rounded border-white/20 data-[state=checked]:bg-[#4285F4] data-[state=checked]:border-[#4285F4]"
-                  />
-                  <label htmlFor="wheelchair-refine" className="text-lg font-medium text-white/80 cursor-pointer">
-                    I'm a wheelchair user
-                  </label>
-                </div>
-
                 <div className="flex items-center space-x-6">
                   <span className="text-2xl font-medium text-white min-w-[140px] font-headline">Imagine me</span>
                   <div className="flex-grow">
