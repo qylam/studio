@@ -145,7 +145,7 @@ export default function Home() {
               <Button 
                 variant="outline"
                 onClick={() => setShowConsent(false)}
-                className="w-full py-8 text-xl font-bold rounded-full border-2 border-[#4285F4] text-[#4285F4] hover:bg-blue-50 bg-white"
+                className="w-full py-8 text-xl font-bold rounded-full border-2 border-[#4285F4] text-[#4285F4] hover:bg-zinc-100 bg-white"
               >
                 Do not accept
               </Button>
