@@ -223,7 +223,7 @@ export default function KioskFlow() {
                   <CarouselItem key={theme.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
                     <div 
                       onClick={() => handleThemeSelect(theme)}
-                      className="group cursor-pointer relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
+                      className="group cursor-pointer relative aspect-square rounded-[2.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
                     >
                       <img 
                         src={imageData?.imageUrl} 
@@ -245,7 +245,19 @@ export default function KioskFlow() {
             </div>
           </Carousel>
 
-          <div className="flex justify-center pt-8">
+          <div className="flex flex-col items-center gap-6 pt-8">
+            <div className="flex items-center space-x-3 bg-white/5 px-6 py-4 rounded-full border border-white/10">
+              <Checkbox 
+                id="wheelchair" 
+                checked={isWheelchairUser} 
+                onCheckedChange={(checked) => setIsWheelchairUser(checked === true)}
+                className="w-6 h-6 rounded-md border-white/20 data-[state=checked]:bg-[#4285F4] data-[state=checked]:border-[#4285F4]"
+              />
+              <label htmlFor="wheelchair" className="text-xl text-white font-headline cursor-pointer select-none">
+                I'm a wheelchair user
+              </label>
+            </div>
+            
             <Button 
               variant="ghost" 
               onClick={() => setStep('capture')}
