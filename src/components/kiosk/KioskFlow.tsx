@@ -15,12 +15,30 @@ const SURPRISE_PRESETS = [
   { scene: 'in a high-tech orbital kitchen', activity: 'baking zero-gravity cookies', details: ['panoramic Earth view', 'floating chocolate chips', 'robotic assistant'] },
 ];
 
+const AVAILABLE_DETAILS = [
+  "an unimpressed tutor",
+  "an Andy Warhol haircut",
+  "a group of breakdancers",
+  "glowing spores",
+  "vaporwave lighting",
+  "floating islands",
+  "robotic assistant",
+  "neon highlights",
+  "cinematic lighting",
+  "retro aesthetic",
+  "cyberpunk style",
+  "soft bokeh",
+  "underwater bubbles",
+  "digital oil painting",
+  "3D claymation"
+];
+
 export default function KioskFlow() {
   const [step, setStep] = useState<KioskStep>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [scene, setScene] = useState('at an improv theatre class');
   const [activity, setActivity] = useState('reciting Hamlet');
-  const [details, setDetails] = useState(['an unimpressed tutor', 'an Andy Warhol haircut', 'a group of breakdancers']);
+  const [details, setDetails] = useState<string[]>(['an unimpressed tutor', 'an Andy Warhol haircut', 'a group of breakdancers']);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -44,7 +62,6 @@ export default function KioskFlow() {
     };
   }, [step]);
 
-  // Handle countdown logic
   useEffect(() => {
     if (countdown === null) return;
 
@@ -54,7 +71,6 @@ export default function KioskFlow() {
       }, 1000);
       return () => clearTimeout(timer);
     } else {
-      // Countdown finished
       performCapture();
       setCountdown(null);
     }
@@ -106,7 +122,9 @@ export default function KioskFlow() {
     setScene(preset.scene);
     setActivity(preset.activity);
     setDetails(preset.details);
-    handleGenerate();
+    // Note: We don't auto-generate here so the user can see the change, 
+    // or we could if we wanted to make it instant. 
+    // Let's just update the UI for "Surprise" feel.
   };
 
   const resetKiosk = () => {
@@ -114,6 +132,14 @@ export default function KioskFlow() {
     setCapturedImage(null);
     setResultImage(null);
     setCountdown(null);
+  };
+
+  const toggleDetail = (detail: string) => {
+    if (details.includes(detail)) {
+      setDetails(details.filter(d => d !== detail));
+    } else {
+      setDetails([...details, detail]);
+    }
   };
 
   return (
@@ -126,7 +152,6 @@ export default function KioskFlow() {
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
             <canvas ref={canvasRef} className="hidden" />
             
-            {/* Countdown Overlay */}
             {countdown !== null && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-50">
                 <span className="text-[12rem] font-black italic font-headline text-white drop-shadow-[0_0_30px_rgba(66,133,244,0.8)] animate-in zoom-in duration-300">
@@ -160,7 +185,6 @@ export default function KioskFlow() {
           </button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Left: Headline and Image */}
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-7xl font-bold leading-tight tracking-tighter text-white">
@@ -177,7 +201,6 @@ export default function KioskFlow() {
               </div>
             </div>
 
-            {/* Right: Prompt Builder UI */}
             <div className="bg-black/40 backdrop-blur-xl p-10 rounded-[3rem] border border-white/5 space-y-12">
               <div className="space-y-8">
                 <div className="flex items-center space-x-6">
@@ -206,30 +229,41 @@ export default function KioskFlow() {
                   <div className="pt-3">
                     <span className="text-2xl font-medium text-white min-w-[140px] block">with</span>
                   </div>
-                  <div className="flex-grow space-y-4 relative">
-                    <div className="absolute left-[-3rem] top-8 bottom-8 w-[1px] bg-white/10" />
-                    {details.map((detail, idx) => (
-                      <Input 
-                        key={idx}
-                        value={detail}
-                        onChange={(e) => {
-                          const newDetails = [...details];
-                          newDetails[idx] = e.target.value;
-                          setDetails(newDetails);
-                        }}
-                        className="bg-transparent border-[#4285F4]/40 text-lg py-6 rounded-full px-8 focus-visible:ring-1 focus-visible:ring-[#4285F4]"
-                      />
+                  <div className="flex-grow flex flex-wrap gap-3">
+                    {AVAILABLE_DETAILS.map((detail) => (
+                      <Button
+                        key={detail}
+                        variant="outline"
+                        onClick={() => toggleDetail(detail)}
+                        className={cn(
+                          "rounded-full px-6 py-4 h-auto text-lg transition-all",
+                          details.includes(detail) 
+                            ? "bg-[#4285F4] border-[#4285F4] text-white hover:bg-[#4285F4]/90" 
+                            : "bg-transparent border-white/10 text-white/70 hover:border-[#4285F4] hover:text-white"
+                        )}
+                      >
+                        {detail}
+                      </Button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex gap-4 justify-end pt-4">
                 <Button 
                   onClick={handleSurprise}
-                  className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white rounded-full px-12 py-8 text-2xl font-bold shadow-lg shadow-[#4285F4]/20"
+                  variant="outline"
+                  className="rounded-full px-8 py-8 text-xl font-bold border-white/10 text-white/60 hover:text-white"
                 >
                   Surprise me!
+                </Button>
+                <Button 
+                  onClick={handleGenerate}
+                  disabled={isProcessing}
+                  className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white rounded-full px-12 py-8 text-2xl font-bold shadow-lg shadow-[#4285F4]/20"
+                >
+                  <Zap className="mr-2 h-6 w-6" />
+                  Generate Vision
                 </Button>
               </div>
             </div>
