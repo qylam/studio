@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: 220 12% 10%;
-    --foreground: 210 20% 98%;
-    --card: 220 12% 12%;
-    --card-foreground: 210 20% 98%;
-    --popover: 220 12% 10%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 215 100% 63%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 12% 18%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 220 12% 20%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 187 53% 78%;
-    --accent-foreground: 220 12% 10%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 217 89% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 217 89% 61%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 12% 20%;
-    --input: 220 12% 20%;
-    --ring: 215 100% 63%;
-    --radius: 1rem;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 217 89% 61%;
+    --radius: 0.5rem;
   }
 }
 
@@ -32,26 +32,23 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body antialiased selection:bg-primary/30;
-    background-color: #16181B; /* As specified: nearly black with subtle blue undertone */
+    @apply bg-background text-foreground font-body antialiased;
+    background-color: #000000;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline tracking-tight;
   }
 }
 
-.glass-panel {
-  @apply bg-card/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl;
+.polaroid {
+  @apply bg-white p-2 pb-8 shadow-xl inline-block transition-transform duration-500 hover:scale-105;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
-.neon-glow {
-  box-shadow: 0 0 20px rgba(66, 144, 255, 0.3);
+.polaroid img {
+  @apply w-full aspect-square object-cover;
 }
 
-.cyan-glow {
-  box-shadow: 0 0 20px rgba(171, 223, 230, 0.2);
-}
-
-.btn-primary {
-  @apply bg-[#4290FF] hover:bg-[#4290FF]/90 text-white font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 px-8 py-6 rounded-2xl shadow-lg;
+.btn-google-blue {
+  @apply bg-[#1a73e8] hover:bg-[#1a73e8]/90 text-white font-medium transition-all duration-200 px-10 py-4 rounded-full text-xl;
 }
