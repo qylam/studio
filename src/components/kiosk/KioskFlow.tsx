@@ -1,11 +1,11 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles, RotateCcw } from 'lucide-react';
+import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
+import { suggestDetails } from '@/ai/flows/suggest-details-flow';
 import { cn } from '@/lib/utils';
 import {
   Carousel,
@@ -15,52 +15,30 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { features } from 'process';
 
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
 
-/** 
- * ADMIN: EDIT STYLE PROMPTS HERE
- * These 'detail' strings are the instructions sent to the AI.
- * The 'title' is what the user sees on the button.
- */
 const STYLES = [
   { 
     id: 'style-keychain', 
     title: 'Cute Keychain', 
-    detail: 'Transform the person in the image into a KEYCHAIN CHARACTER VERSION OF THEMSELVES, placed on a tabletop. Preserve recognizable features but redesign them in a kawaii, Pixar-inspired style — slightly oversized head, small body, soft rounded features, glossy expressive eyes, and a warm, heartwarming smile. The character should feel like a premium animated collectible toy, with smooth materials, soft shading, and subtle skin glow. Keep outfit colors and key visual identity, but simplify details into clean, cute shapes. Use soft cinematic lighting, shallow depth of field, warm tones, and a cozy tabletop setting. Ultra-detailed 3D render' 
+    detail: 'Transform the person or group of people in the image into a KEYCHAIN CHARACTER VERSION OF THEMSELVES, placed on a tabletop. Preserve recognizable features but redesign them in a kawaii, Pixar-inspired style — slightly oversized head, small body, soft rounded features, glossy expressive eyes, and a warm, heartwarming smile. The character should feel like a premium animated collectible toy, with smooth materials, soft shading, and subtle skin glow. Keep outfit colors and key visual identity, but simplify details into clean, cute shapes. Use soft cinematic lighting, shallow depth of field, warm tones, and a cozy tabletop setting. Ultra-detailed 3D render' 
   },
   { 
     id: 'style-oil', 
     title: 'Oil Painting', 
-    detail: 'Transform the person in this photo into a classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes and a rich, deep color palette. The lighting should be dramatic chiaroscuro, with soft shadows and a warm glow on the persons face. The background should be a soft, textured abstract landscape or a dark studio setting. Ensure the final result looks like a physical painting with subtle canvas texture visible. Maintain the person facial features.' 
+    detail: 'Transform the person or group of people in this photo into a classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes and a rich, deep color palette. The lighting should be dramatic chiaroscuro, with soft shadows and a warm glow on the persons face. The background should be a soft, textured abstract landscape or a dark studio setting. Ensure the final result looks like a physical painting with subtle canvas texture visible. Maintain the person facial features.' 
   },
   { 
     id: 'style-steampunk', 
     title: 'Steampunk', 
-    detail: 'Transform the person in this photo into a high-detail steampunk character. Replace their clothing with Victorian-era explorer attire featuring leather straps, brass buckles, and gears. The background should be a hazy industrial workshop filled with copper pipes, glowing pressure gauges, and steam. Apply a warm, sepia-toned color palette with dramatic rim lighting and metallic reflections. Maintain the persons facial features.' 
+    detail: 'Transform the perso or group of people in this photo into a high-detail steampunk character. Replace their clothing with Victorian-era explorer attire featuring leather straps, brass buckles, and goggles. Apply a warm, sepia-toned color palette with dramatic rim lighting and metallic reflections. Maintain the persons facial features.' 
   },
   { 
     id: 'style-gothic', 
     title: 'Gothic Clay', 
-    detail: 'Transform the person in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons whimsical gothicism and Edward Goreys Victorian illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold.' 
+    detail: 'Transform the person or group of people in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons and Edward Goreys illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold.' 
   },
-];
-
-const AVAILABLE_DETAILS = [
-  "an Andy Warhol haircut",
-  "a group of breakdancers",
-  "glowing spores",
-  "vaporwave lighting",
-  "floating islands",
-  "robotic assistant",
-  "neon highlights",
-  "cinematic lighting",
-  "retro aesthetic",
-  "cyberpunk style",
-  "soft bokeh",
-  "underwater bubbles",
-  "digital oil painting"
 ];
 
 const THEMES = [
@@ -80,8 +58,10 @@ export default function KioskFlow() {
   const [scene, setScene] = useState('');
   const [activity, setActivity] = useState('');
   const [details, setDetails] = useState<string[]>([]);
+  const [suggestedDetails, setSuggestedDetails] = useState<string[]>([]);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSuggesting, setIsSuggesting] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isWheelchairUser, setIsWheelchairUser] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<typeof THEMES[0] | null>(null);
@@ -143,6 +123,13 @@ export default function KioskFlow() {
     setScene(theme.scene);
     setActivity(theme.activity);
     setStep('select-style');
+    
+    // Background suggest details so they're ready for refine step
+    setIsSuggesting(true);
+    suggestDetails({ scene: theme.scene, activity: theme.activity })
+      .then(res => setSuggestedDetails(res.suggestions))
+      .catch(err => console.error("Failed to suggest details", err))
+      .finally(() => setIsSuggesting(false));
   };
 
   const handleStyleSelect = async (style: typeof STYLES[0]) => {
@@ -201,6 +188,7 @@ export default function KioskFlow() {
     setScene('');
     setActivity('');
     setDetails([]);
+    setSuggestedDetails([]);
     setIsWheelchairUser(false);
     setSelectedTheme(null);
   };
@@ -354,16 +342,16 @@ export default function KioskFlow() {
 
       {step === 'refine' && (
         <div className="w-full animate-in fade-in slide-in-from-right duration-500">
-          <button 
-            onClick={() => setStep('select-style')}
-            className="flex items-center text-white/60 hover:text-white transition-colors mb-8 group"
-          >
-            <ChevronLeft className="w-6 h-6 mr-1 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xl font-medium font-headline">Change Style</span>
-          </button>
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-8 sticky top-8">
+              <button 
+                onClick={() => setStep('select-style')}
+                className="flex items-center text-white/60 hover:text-white transition-colors mb-4 group"
+              >
+                <ChevronLeft className="w-6 h-6 mr-1 group-hover:-translate-x-1 transition-transform" />
+                <span className="text-xl font-medium font-headline">Change Style</span>
+              </button>
+
               <div className="space-y-4">
                 <h1 className="text-6xl font-bold leading-tight tracking-tighter text-white font-headline">
                   Refine your vision
@@ -408,21 +396,29 @@ export default function KioskFlow() {
                     <span className="text-2xl font-medium text-white min-w-[140px] block font-headline">with</span>
                   </div>
                   <div className="flex-grow flex flex-wrap gap-3">
-                    {AVAILABLE_DETAILS.map((detail) => (
-                      <Button
-                        key={detail}
-                        variant="outline"
-                        onClick={() => toggleDetail(detail)}
-                        className={cn(
-                          "rounded-full px-6 py-4 h-auto text-lg transition-all font-headline",
-                          details.includes(detail) 
-                            ? "bg-[#4285F4] border-[#4285F4] text-white hover:bg-[#4285F4]/90" 
-                            : "bg-transparent border-white/10 text-white/70 hover:border-[#4285F4] hover:text-white"
-                        )}
-                      >
-                        {detail}
-                      </Button>
-                    ))}
+                    {isSuggesting ? (
+                      <div className="flex gap-3 animate-pulse">
+                        <div className="h-12 w-32 bg-white/10 rounded-full" />
+                        <div className="h-12 w-40 bg-white/10 rounded-full" />
+                        <div className="h-12 w-36 bg-white/10 rounded-full" />
+                      </div>
+                    ) : (
+                      suggestedDetails.map((detail) => (
+                        <Button
+                          key={detail}
+                          variant="outline"
+                          onClick={() => toggleDetail(detail)}
+                          className={cn(
+                            "rounded-full px-6 py-4 h-auto text-lg transition-all font-headline",
+                            details.includes(detail) 
+                              ? "bg-[#4285F4] border-[#4285F4] text-white hover:bg-[#4285F4]/90" 
+                              : "bg-transparent border-white/10 text-white/70 hover:border-[#4285F4] hover:text-white"
+                          )}
+                        >
+                          {detail}
+                        </Button>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
