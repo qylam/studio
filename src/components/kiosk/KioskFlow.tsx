@@ -382,7 +382,7 @@ export default function KioskFlow() {
       )}
 
       {step === 'result' && resultImage && (
-        <div className="w-full relative p-8 animate-in zoom-in duration-700 bg-black rounded-[3rem]">
+        <div className="w-full relative p-8 animate-in zoom-in duration-700">
           {/* Top Left Back Arrow */}
           <button 
             onClick={() => setStep('refine')}
