@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A Genkit flow for transforming a user's photo into a themed, stylized masterpiece using AI.
+ * @fileOverview A Genkit flow for transforming a user's photo into a themed, stylized masterpiece using a structured prompt builder.
  *
  * - generateThemedPhoto - A function that handles the photo transformation process.
  * - GenerateThemedPhotoInput - The input type for the generateThemedPhoto function.
@@ -16,10 +16,9 @@ const GenerateThemedPhotoInputSchema = z.object({
     .describe(
       "A photo of the user, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
-  theme: z.string().describe('The selected theme for the photo transformation (e.g., "take a well-earned break", "find my zen").'),
-  styleOption1: z.string().describe('The first refinement option for artistic style.'),
-  styleOption2: z.string().describe('The second refinement option for artistic style.'),
-  styleOption3: z.string().describe('The third refinement option for artistic style.'),
+  scene: z.string().describe('The primary scene or location (e.g., "at an improv theatre class").'),
+  activity: z.string().describe('The activity the user is performing (e.g., "reciting Hamlet").'),
+  details: z.array(z.string()).describe('Specific stylistic or background details to include.'),
 });
 export type GenerateThemedPhotoInput = z.infer<typeof GenerateThemedPhotoInputSchema>;
 
@@ -36,20 +35,20 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
   input: { schema: GenerateThemedPhotoInputSchema },
-  // Note: output schema is intentionally omitted here because gemini-2.5-flash-image 
-  // does not support JSON mode when generating IMAGE modalities.
   model: 'googleai/gemini-2.5-flash-image',
   config: {
     responseModalities: ['TEXT', 'IMAGE'],
   },
-  prompt: `You are an expert photo editor and artistic AI. Your task is to transform the provided photo into a stylized masterpiece based on the given theme and artistic preferences, while strictly maintaining the subject's likeness and original pose. The goal is to depict the user in a scene that evokes having gained significant free time (up to 10 hours per week), aligning with the selected theme.
+  prompt: `You are an expert photo editor and artistic AI. Your task is to transform the provided photo into a stylized masterpiece based on the structured prompt provided, while strictly maintaining the subject's likeness and original pose.
 
-Theme: "{{{theme}}}"
-Artistic Refinement 1: "{{{styleOption1}}}"
-Artistic Refinement 2: "{{{styleOption2}}}"
-Artistic Refinement 3: "{{{styleOption3}}}"
+Imagine the user: "{{{scene}}}"
+While: "{{{activity}}}"
+With the following details:
+{{#each details}}
+- {{{this}}}
+{{/each}}
 
-Generate an image that incorporates these elements. Also provide a concise textual description of the created scene.
+Artistic style should be cinematic, high-quality, and evoke a sense of professional photography or digital art. Generate an image that incorporates these elements. Also provide a concise textual description of the created scene.
 
 Photo: {{media url=photoDataUri}}`,
 });
@@ -61,7 +60,6 @@ const generateThemedPhotoFlow = ai.defineFlow(
     outputSchema: GenerateThemedPhotoOutputSchema,
   },
   async (input) => {
-    // Calling the prompt without a constrained output schema to avoid JSON mode errors
     const { text, media } = await themedPhotoPrompt(input);
 
     if (!media || !text) {
