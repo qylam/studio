@@ -15,6 +15,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { features } from 'process';
 
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
 
@@ -27,22 +28,22 @@ const STYLES = [
   { 
     id: 'style-keychain', 
     title: 'Cute Keychain', 
-    detail: 'stylized as a high-quality, adorable 3D keychain figurine, vinyl toy aesthetic, smooth plastic textures, vibrant studio lighting, macro photography style' 
+    detail: 'Transform the person in the image into a KEYCHAIN CHARACTER VERSION OF THEMSELVES, placed on a tabletop. Preserve recognizable features but redesign them in a kawaii, Pixar-inspired style — slightly oversized head, small body, soft rounded features, glossy expressive eyes, and a warm, heartwarming smile. The character should feel like a premium animated collectible toy, with smooth materials, soft shading, and subtle skin glow. Keep outfit colors and key visual identity, but simplify details into clean, cute shapes. Use soft cinematic lighting, shallow depth of field, warm tones, and a cozy tabletop setting. Ultra-detailed 3D render' 
   },
   { 
     id: 'style-oil', 
     title: 'Oil Painting', 
-    detail: 'stylized as a masterpiece digital oil painting, thick impasto brushstrokes, visible canvas texture, rich color palette, dramatic Chiaroscuro lighting, artistic and expressive' 
+    detail: 'Transform the person in this photo into a classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes and a rich, deep color palette. The lighting should be dramatic chiaroscuro, with soft shadows and a warm glow on the persons face. The background should be a soft, textured abstract landscape or a dark studio setting. Ensure the final result looks like a physical painting with subtle canvas texture visible. Maintain the person facial features.' 
   },
   { 
     id: 'style-steampunk', 
     title: 'Steampunk', 
-    detail: 'stylized with intricate brass gears, polished copper machinery, leather accents, Victorian industrial aesthetic, warm sepia tones, steam-powered atmospheric effects' 
+    detail: 'Transform the person in this photo into a high-detail steampunk character. Replace their clothing with Victorian-era explorer attire featuring leather straps, brass buckles, and gears. The background should be a hazy industrial workshop filled with copper pipes, glowing pressure gauges, and steam. Apply a warm, sepia-toned color palette with dramatic rim lighting and metallic reflections. Maintain the persons facial features.' 
   },
   { 
     id: 'style-gothic', 
     title: 'Gothic Clay', 
-    detail: 'stylized as a dark, moody gothic claymation figure, Tim Burton aesthetic, handcrafted clay textures, deep shadows, monochromatic with hints of cool blue, surreal atmosphere' 
+    detail: 'Transform the person in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons whimsical gothicism and Edward Goreys Victorian illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold.' 
   },
 ];
 
