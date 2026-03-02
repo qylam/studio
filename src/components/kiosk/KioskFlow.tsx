@@ -215,12 +215,26 @@ export default function KioskFlow() {
             <p className="text-2xl text-white/60">Picture yourself with up to 10 hours back per week.</p>
           </div>
 
+          <div className="flex justify-center">
+            <div className="flex items-center space-x-3 bg-white/5 px-6 py-4 rounded-full border border-white/10">
+              <Checkbox 
+                id="wheelchair" 
+                checked={isWheelchairUser} 
+                onCheckedChange={(checked) => setIsWheelchairUser(checked === true)}
+                className="w-6 h-6 rounded-md border-white/20 data-[state=checked]:bg-[#4285F4] data-[state=checked]:border-[#4285F4]"
+              />
+              <label htmlFor="wheelchair" className="text-xl text-white font-headline cursor-pointer select-none">
+                I'm a wheelchair user
+              </label>
+            </div>
+          </div>
+
           <Carousel className="w-full max-w-[90vw] mx-auto">
             <CarouselContent className="-ml-4">
               {THEMES.map((theme) => {
                 const imageData = PlaceHolderImages.find(img => img.id === theme.id);
                 return (
-                  <CarouselItem key={theme.id} className="pl-4 md:basis-1/3 lg:basis-1/4">
+                  <CarouselItem key={theme.id} className="pl-4 md:basis-1/4">
                     <div 
                       onClick={() => handleThemeSelect(theme)}
                       className="group cursor-pointer relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
@@ -246,18 +260,6 @@ export default function KioskFlow() {
           </Carousel>
 
           <div className="flex flex-col items-center gap-6 pt-8">
-            <div className="flex items-center space-x-3 bg-white/5 px-6 py-4 rounded-full border border-white/10">
-              <Checkbox 
-                id="wheelchair" 
-                checked={isWheelchairUser} 
-                onCheckedChange={(checked) => setIsWheelchairUser(checked === true)}
-                className="w-6 h-6 rounded-md border-white/20 data-[state=checked]:bg-[#4285F4] data-[state=checked]:border-[#4285F4]"
-              />
-              <label htmlFor="wheelchair" className="text-xl text-white font-headline cursor-pointer select-none">
-                I'm a wheelchair user
-              </label>
-            </div>
-            
             <Button 
               variant="ghost" 
               onClick={() => setStep('capture')}
