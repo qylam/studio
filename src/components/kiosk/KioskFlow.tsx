@@ -137,19 +137,13 @@ export default function KioskFlow() {
       .finally(() => setIsSuggesting(false));
   };
 
-  const handleStyleSelect = async (style: typeof STYLES[0]) => {
+  const generateVision = async (style: typeof STYLES[0], currentDetails: string[]) => {
     if (!capturedImage || !selectedTheme) return;
-    setSelectedStyle(style);
-    setStep('refine');
-  };
-
-  const handleGenerate = async () => {
-    if (!capturedImage || !selectedTheme || !selectedStyle) return;
     setIsProcessing(true);
     setStep('processing');
     
     try {
-      const finalDetails = [...details, selectedStyle.detail];
+      const finalDetails = [...currentDetails, style.detail];
       if (isWheelchairUser) finalDetails.push('subject is using a wheelchair');
       
       const response = await generateThemedPhoto({
@@ -162,9 +156,21 @@ export default function KioskFlow() {
       setStep('results');
     } catch (error) {
       console.error("Generation failed", error);
-      setStep('refine');
+      // Fallback to style selection if generation fails
+      setStep('select-style');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleStyleSelect = (style: typeof STYLES[0]) => {
+    setSelectedStyle(style);
+    generateVision(style, details);
+  };
+
+  const handleGenerate = () => {
+    if (selectedStyle) {
+      generateVision(selectedStyle, details);
     }
   };
 
@@ -451,124 +457,132 @@ export default function KioskFlow() {
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
-          <div className="flex flex-col items-center w-full max-w-md mx-auto">
+        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-8 animate-in fade-in zoom-in duration-700">
+          <div className="w-full flex justify-center">
             <button 
               onClick={() => setStep('refine')}
-              className="mb-6 p-2 text-white/60 hover:text-white transition-colors self-start"
+              className="p-2 text-white/60 hover:text-white transition-colors group"
             >
-              <ArrowLeft className="w-10 h-10" />
+              <ArrowLeft className="w-10 h-10 group-hover:-translate-x-1 transition-transform" />
             </button>
-            
-            <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-[#4285F4]">Google</span>
-                  <span className="text-lg text-black/60 font-medium">for Education</span>
-                </div>
-              </div>
-              
-              <div className="aspect-square bg-zinc-100 overflow-hidden relative">
-                <img src={resultImage} alt="AI Vision" className="w-full h-full object-cover" />
-                <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md p-2 rounded-full border border-white/20">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-              </div>
-              
-              <div className="mt-10 text-center">
-                <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                  {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
-                </p>
-              </div>
-            </div>
           </div>
 
-          <div className="flex-1 space-y-12 text-center md:text-left">
-            <h2 className="text-8xl font-bold tracking-tighter text-white font-headline">Ta-da!</h2>
-            
-            <div className="space-y-6">
-              <div className="bg-white p-4 rounded-2xl w-56 h-56 shadow-2xl mx-auto md:mx-0">
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}/share/session-${Date.now()}`} 
-                  alt="QR Code" 
-                  className="w-full h-full"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <p className="text-2xl font-bold text-white font-headline">Those extra hours look great on you.</p>
-                <p className="text-xl text-white/50 font-headline">Scan to save and share.</p>
+          <div className="w-full flex flex-col md:flex-row items-center gap-12 md:gap-24">
+            <div className="flex flex-col items-center w-full max-w-md mx-auto">
+              <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-1">
+                    <span className="text-lg font-bold text-[#4285F4]">Google</span>
+                    <span className="text-lg text-black/60 font-medium">for Education</span>
+                  </div>
+                </div>
+                
+                <div className="aspect-square bg-zinc-100 overflow-hidden relative">
+                  <img src={resultImage} alt="AI Vision" className="w-full h-full object-cover" />
+                  <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md p-2 rounded-full border border-white/20">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                
+                <div className="mt-10 text-center">
+                  <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
+                    {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 pt-8">
-              <Button 
-                onClick={() => setStep('refine')}
-                variant="outline"
-                className="border-white/20 text-white rounded-full px-12 py-8 text-xl font-bold hover:bg-white/10 font-headline h-auto min-w-[240px]"
-              >
-                Adjust photo
-              </Button>
-              <Button 
-                onClick={() => setStep('thanks')}
-                className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white rounded-full px-12 py-8 text-xl font-bold shadow-lg shadow-[#4285F4]/20 font-headline h-auto min-w-[240px]"
-              >
-                I've scanned the QR code
-              </Button>
+            <div className="flex-1 space-y-12 text-center md:text-left">
+              <h2 className="text-8xl font-bold tracking-tighter text-white font-headline">Ta-da!</h2>
+              
+              <div className="space-y-6">
+                <div className="bg-white p-4 rounded-2xl w-56 h-56 shadow-2xl mx-auto md:mx-0">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}/share/session-${Date.now()}`} 
+                    alt="QR Code" 
+                    className="w-full h-full"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold text-white font-headline">Those extra hours look great on you.</p>
+                  <p className="text-xl text-white/50 font-headline">Scan to save and share.</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-4 pt-8">
+                <Button 
+                  onClick={() => setStep('refine')}
+                  variant="outline"
+                  className="border-white/20 text-white rounded-full px-12 py-8 text-xl font-bold hover:bg-white/10 font-headline h-auto min-w-[240px]"
+                >
+                  Adjust photo
+                </Button>
+                <Button 
+                  onClick={() => setStep('thanks')}
+                  className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white rounded-full px-12 py-8 text-xl font-bold shadow-lg shadow-[#4285F4]/20 font-headline h-auto min-w-[240px]"
+                >
+                  I've scanned the QR code
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {step === 'thanks' && resultImage && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
-          <div className="flex flex-col items-center w-full max-w-md mx-auto">
+        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-8 animate-in fade-in zoom-in duration-700">
+          <div className="w-full flex justify-center">
             <button 
               onClick={() => setStep('results')}
-              className="mb-6 p-2 text-white/60 hover:text-white transition-colors self-start"
+              className="p-2 text-white/60 hover:text-white transition-colors group"
             >
-              <ArrowLeft className="w-10 h-10" />
+              <ArrowLeft className="w-10 h-10 group-hover:-translate-x-1 transition-transform" />
             </button>
-            
-            <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-[#4285F4]">Google</span>
-                  <span className="text-lg text-black/60 font-medium">for Education</span>
-                </div>
-              </div>
-              
-              <div className="aspect-square bg-zinc-100 overflow-hidden relative">
-                <img src={resultImage} alt="AI Vision" className="w-full h-full object-cover" />
-                <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md p-2 rounded-full border border-white/20">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-              </div>
-              
-              <div className="mt-10 text-center">
-                <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                  {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
-                </p>
-              </div>
-            </div>
           </div>
 
-          <div className="flex-1 space-y-12 text-center md:text-left">
-            <h2 className="text-7xl font-bold tracking-tight text-white font-headline leading-none">
-              Thanks for saving <br /> time with Gemini
-            </h2>
-            
-            <p className="text-2xl text-white/60 font-headline max-w-md leading-relaxed">
-              Share on social how you'll spend your free time and tag us for a chance to be featured!
-            </p>
+          <div className="w-full flex flex-col md:flex-row items-center gap-12 md:gap-24">
+            <div className="flex flex-col items-center w-full max-w-md mx-auto">
+              <div className="bg-white p-6 pb-16 rounded-sm shadow-2xl transform -rotate-1 w-full">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-1">
+                    <span className="text-lg font-bold text-[#4285F4]">Google</span>
+                    <span className="text-lg text-black/60 font-medium">for Education</span>
+                  </div>
+                </div>
+                
+                <div className="aspect-square bg-zinc-100 overflow-hidden relative">
+                  <img src={resultImage} alt="AI Vision" className="w-full h-full object-cover" />
+                  <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md p-2 rounded-full border border-white/20">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                
+                <div className="mt-10 text-center">
+                  <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
+                    {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <div className="pt-8">
-              <Button 
-                onClick={resetKiosk}
-                className="bg-white text-[#4285F4] hover:bg-zinc-100 rounded-full px-16 py-8 text-2xl font-bold shadow-xl font-headline h-auto min-w-[240px]"
-              >
-                Start over
-              </Button>
+            <div className="flex-1 space-y-12 text-center md:text-left">
+              <h2 className="text-7xl font-bold tracking-tight text-white font-headline leading-none">
+                Thanks for saving <br /> time with Gemini
+              </h2>
+              
+              <p className="text-2xl text-white/60 font-headline max-w-md leading-relaxed">
+                Share on social how you'll spend your free time and tag us for a chance to be featured!
+              </p>
+
+              <div className="pt-8">
+                <Button 
+                  onClick={resetKiosk}
+                  className="bg-white text-[#4285F4] hover:bg-zinc-100 rounded-full px-16 py-8 text-2xl font-bold shadow-xl font-headline h-auto min-w-[240px]"
+                >
+                  Start over
+                </Button>
+              </div>
             </div>
           </div>
         </div>
