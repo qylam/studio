@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -156,7 +155,6 @@ export default function KioskFlow() {
       setStep('results');
     } catch (error) {
       console.error("Generation failed", error);
-      // Fallback to style selection if generation fails
       setStep('select-style');
     } finally {
       setIsProcessing(false);
@@ -450,7 +448,9 @@ export default function KioskFlow() {
             </div>
           </div>
           <div className="space-y-4">
-            <h2 className="text-5xl font-bold tracking-tight text-white uppercase italic font-headline">AI is Dreaming...</h2>
+            <h2 className="text-5xl font-medium tracking-tight text-white font-headline">
+              AI is Dreaming...
+            </h2>
             <p className="text-white/50 text-xl font-mono animate-pulse">Synthesizing your masterpiece...</p>
           </div>
         </div>
