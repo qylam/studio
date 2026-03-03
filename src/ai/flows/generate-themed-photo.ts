@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A Genkit flow for transforming a user's photo into a themed, stylized masterpiece using a structured prompt builder.
@@ -32,6 +33,11 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
   return generateThemedPhotoFlow(input);
 }
 
+/**
+ * MASTER PROMPT TEMPLATE
+ * This defines the instructions sent to Gemini for every image generation.
+ * It combines the subject's likeness with the 'scene', 'activity', and 'details' selected in the kiosk.
+ */
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
   input: { schema: GenerateThemedPhotoInputSchema },

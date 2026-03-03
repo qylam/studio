@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -19,8 +20,8 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
 
 /**
- * ADMIN: Edit these prompts to change how Gemini stylizes the image.
- * The 'detail' field is what is actually sent to the AI model.
+ * PROMPT DATA: STYLES
+ * Edit the 'detail' strings below to change how Gemini transforms the subject's appearance.
  */
 const STYLES = [
   { 
@@ -45,6 +46,10 @@ const STYLES = [
   },
 ];
 
+/**
+ * PROMPT DATA: THEMES
+ * Edit 'scene' and 'activity' to change the environmental context and action Gemini generates.
+ */
 const THEMES = [
   { id: 'theme-teaching', title: 'Level up my teaching', scene: 'in a modern, inspiring classroom', activity: 'teaching with digital holographic aids' },
   { id: 'theme-recipe', title: 'Learn a new recipe', scene: 'in a professional masterchef kitchen', activity: 'preparing a gourmet feast' },
