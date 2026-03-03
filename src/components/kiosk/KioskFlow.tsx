@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -279,7 +280,10 @@ export default function KioskFlow() {
                       <img 
                         src={imageUrl} 
                         alt={theme.title} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        onError={(e) => {
+                          e.currentTarget.src = `https://picsum.photos/seed/${theme.id}/600/600`;
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                       <div className="absolute bottom-6 left-6 right-6">
@@ -330,6 +334,9 @@ export default function KioskFlow() {
                     src={imageUrl} 
                     alt={style.title} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    onError={(e) => {
+                      e.currentTarget.src = `https://picsum.photos/seed/${style.id}/600/600`;
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6">
@@ -467,7 +474,7 @@ export default function KioskFlow() {
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
+        <div className="w-full max-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
           <div className="flex flex-col items-center w-full max-w-md mx-auto">
             <button 
               onClick={() => setStep('select-style')}
