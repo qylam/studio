@@ -262,6 +262,11 @@ export default function KioskFlow() {
     }
   };
 
+  // Helper to strip "Variation X Activity: " prefix
+  const getDisplayActivity = (text: string) => {
+    return text.replace(/^Variation \d+ Activity: /i, '').trim();
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center min-h-[80vh]">
       
@@ -554,7 +559,10 @@ export default function KioskFlow() {
                 
                 <div className="mt-10 text-center">
                   <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                    {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
+                    {(() => {
+                      const cleanActivity = getDisplayActivity(activity);
+                      return cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1);
+                    })()}, thanks to Gemini
                   </p>
                 </div>
               </div>
@@ -628,7 +636,10 @@ export default function KioskFlow() {
                 
                 <div className="mt-10 text-center">
                   <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                    {activity.charAt(0).toUpperCase() + activity.slice(1)}, thanks to Gemini
+                    {(() => {
+                      const cleanActivity = getDisplayActivity(activity);
+                      return cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1);
+                    })()}, thanks to Gemini
                   </p>
                 </div>
               </div>
