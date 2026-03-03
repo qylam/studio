@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -19,10 +18,6 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
 
-/**
- * PROMPT DATA: STYLES
- * Edit the 'detail' strings below to change how Gemini transforms the subject's appearance.
- */
 const STYLES = [
   { 
     id: 'style-keychain', 
@@ -46,19 +41,79 @@ const STYLES = [
   },
 ];
 
-/**
- * PROMPT DATA: THEMES
- * Edit 'scene' and 'activity' to change the environmental context and action Gemini generates.
- */
 const THEMES = [
-  { id: 'theme-teaching', title: 'Level up my teaching', scene: 'in a modern, inspiring classroom', activity: 'teaching with digital holographic aids' },
-  { id: 'theme-recipe', title: 'Learn a new recipe', scene: 'in a professional masterchef kitchen', activity: 'preparing a gourmet feast' },
-  { id: 'theme-zen', title: 'Find my zen', scene: 'in a serene Japanese zen garden', activity: 'meditating by a peaceful waterfall' },
-  { id: 'theme-active', title: 'Get more active', scene: 'on a high-altitude mountain peak', activity: 'completing a challenging rock climb' },
-  { id: 'theme-break', title: 'Take a well-earned break', scene: 'on a luxury tropical private island', activity: 'relaxing in a hammock over crystal water' },
-  { id: 'theme-skill', title: 'Learn a new skill', scene: 'in a high-tech robotics laboratory', activity: 'programming a friendly droid' },
-  { id: 'theme-creative', title: 'Get more creative', scene: 'in a vibrant, sun-drenched art studio', activity: 'painting a massive impressionist mural' },
-  { id: 'theme-imagination', title: 'Let my imagination loose', scene: 'aboard a majestic steampunk airship', activity: 'navigating through a sea of golden clouds' },
+  { 
+    id: 'theme-teaching', 
+    title: 'Level up my teaching', 
+    variations: [
+      { scene: 'Variation 1 Scene: modern high-tech classroom', activity: 'Variation 1 Activity: demonstrating holographic physics' },
+      { scene: 'Variation 2 Scene: cozy storybook library', activity: 'Variation 2 Activity: reading an enchanted glowing book' },
+      { scene: 'Variation 3 Scene: futuristic space observatory', activity: 'Variation 3 Activity: charting new constellations' },
+    ]
+  },
+  { 
+    id: 'theme-recipe', 
+    title: 'Learn a new recipe', 
+    variations: [
+      { scene: 'Variation 1 Scene: rustic Italian villa kitchen', activity: 'Variation 1 Activity: kneading fresh pasta dough' },
+      { scene: 'Variation 2 Scene: molecular gastronomy lab', activity: 'Variation 2 Activity: creating edible liquid nitrogen art' },
+      { scene: 'Variation 3 Scene: bustling street food market', activity: 'Variation 3 Activity: tossing a perfect artisan pizza' },
+    ]
+  },
+  { 
+    id: 'theme-zen', 
+    title: 'Find my zen', 
+    variations: [
+      { scene: 'Variation 1 Scene: misty mountaintop temple', activity: 'Variation 1 Activity: performing slow, graceful Tai Chi' },
+      { scene: 'Variation 2 Scene: floating crystal lotus pod', activity: 'Variation 2 Activity: deep meditation in zero gravity' },
+      { scene: 'Variation 3 Scene: glowing bioluminescent forest', activity: 'Variation 3 Activity: listening to the whispers of ancient trees' },
+    ]
+  },
+  { 
+    id: 'theme-active', 
+    title: 'Get more active', 
+    variations: [
+      { scene: 'Variation 1 Scene: neon-lit urban rooftop', activity: 'Variation 1 Activity: mastering high-speed parkour' },
+      { scene: 'Variation 2 Scene: underwater coral gymnasium', activity: 'Variation 2 Activity: swimming with mechanical dolphins' },
+      { scene: 'Variation 3 Scene: desert canyon adventure', activity: 'Variation 3 Activity: rock climbing up a vertical mesa' },
+    ]
+  },
+  { 
+    id: 'theme-break', 
+    title: 'Take a well-earned break', 
+    variations: [
+      { scene: 'Variation 1 Scene: luxury cloud resort', activity: 'Variation 1 Activity: lounging in a golden hammock' },
+      { scene: 'Variation 2 Scene: secluded hot spring cave', activity: 'Variation 2 Activity: soaking in steaming mineral waters' },
+      { scene: 'Variation 3 Scene: vintage jazz lounge on Mars', activity: 'Variation 3 Activity: sipping a cosmic mocktail' },
+    ]
+  },
+  { 
+    id: 'theme-skill', 
+    title: 'Learn a new skill', 
+    variations: [
+      { scene: 'Variation 1 Scene: master glassblower workshop', activity: 'Variation 1 Activity: shaping a molten glass phoenix' },
+      { scene: 'Variation 2 Scene: ancient samurai dojo', activity: 'Variation 2 Activity: practicing the art of the katana' },
+      { scene: 'Variation 3 Scene: digital neon arcade', activity: 'Variation 3 Activity: winning a pro-gaming championship' },
+    ]
+  },
+  { 
+    id: 'theme-creative', 
+    title: 'Get more creative', 
+    variations: [
+      { scene: 'Variation 1 Scene: rooftop garden studio', activity: 'Variation 1 Activity: sculpting a giant floral statue' },
+      { scene: 'Variation 2 Scene: street art alleyway', activity: 'Variation 2 Activity: spray painting a vibrant mural' },
+      { scene: 'Variation 3 Scene: grand symphony hall', activity: 'Variation 3 Activity: conducting an orchestra of lights' },
+    ]
+  },
+  { 
+    id: 'theme-imagination', 
+    title: 'Let my imagination loose', 
+    variations: [
+      { scene: 'Variation 1 Scene: steampunk airship bridge', activity: 'Variation 1 Activity: navigating through a thundercloud' },
+      { scene: 'Variation 2 Scene: giant mushroom kingdom', activity: 'Variation 2 Activity: talking to a curious dragon' },
+      { scene: 'Variation 3 Scene: floating clockwork city', activity: 'Variation 3 Activity: rewinding the gears of time' },
+    ]
+  },
 ];
 
 export default function KioskFlow() {
@@ -130,12 +185,13 @@ export default function KioskFlow() {
 
   const handleThemeSelect = (theme: typeof THEMES[0]) => {
     setSelectedTheme(theme);
-    setScene(theme.scene);
-    setActivity(theme.activity);
+    // Use the first variation as a placeholder for suggestions, 
+    // but the AI will pick the best one later.
+    const baseVariation = theme.variations[0];
     setStep('select-style');
     
     setIsSuggesting(true);
-    suggestDetails({ scene: theme.scene, activity: theme.activity })
+    suggestDetails({ scene: baseVariation.scene, activity: baseVariation.activity })
       .then(res => setSuggestedDetails(res.suggestions))
       .catch(err => console.error("Failed to suggest details", err))
       .finally(() => setIsSuggesting(false));
@@ -152,11 +208,18 @@ export default function KioskFlow() {
       
       const response = await generateThemedPhoto({
         photoDataUri: capturedImage,
-        scene,
-        activity,
+        // If we have manual edits (from 'refine' step), pass them directly.
+        // Otherwise, pass the 3 variations for Gemini to select from.
+        scene: scene || undefined,
+        activity: activity || undefined,
+        themeVariations: scene ? undefined : selectedTheme.variations,
         details: finalDetails,
       });
+      
       setResultImage(response.transformedPhotoDataUri);
+      // Update state with what Gemini chose
+      setScene(response.selectedScene);
+      setActivity(response.selectedActivity);
       setStep('results');
     } catch (error) {
       console.error("Generation failed", error);
