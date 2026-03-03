@@ -41,7 +41,7 @@ const STYLES = [
   },
   { 
     id: 'style-clay', 
-    title: 'Gothic Clay', 
+    title: 'Claymation', 
     detail: 'Transform the subject into a handcrafted stop-motion claymation miniature. Tim Burton style, expressive eyes, moody practical lighting, storybook palette.' 
   },
 ];
@@ -130,7 +130,6 @@ export default function KioskFlow() {
     setActivity(theme.activity);
     setStep('select-style');
     
-    // Prefetch suggested details based on the theme
     setIsSuggesting(true);
     suggestDetails({ scene: theme.scene, activity: theme.activity })
       .then(res => setSuggestedDetails(res.suggestions))
@@ -301,7 +300,7 @@ export default function KioskFlow() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
             {STYLES.map((style) => {
               const imageData = PlaceHolderImages.find(img => img.id === style.id);
-              const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${style.id}/600/600`;
+              const imageUrl = imageData?.imageUrl || `/images/${style.id.replace('style-', '')}_Style.png`;
               return (
                 <div 
                   key={style.id}
