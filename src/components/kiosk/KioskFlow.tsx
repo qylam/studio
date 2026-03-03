@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -19,6 +18,10 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
 
+/**
+ * ADMIN: Edit these prompts to change how Gemini stylizes the image.
+ * The 'detail' field is what is actually sent to the AI model.
+ */
 const STYLES = [
   { 
     id: 'style-keychain', 
@@ -66,6 +69,7 @@ export default function KioskFlow() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isWheelchairUser, setIsWheelchairUser] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<typeof THEMES[0] | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState<typeof STYLES[0] | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -125,6 +129,7 @@ export default function KioskFlow() {
     setActivity(theme.activity);
     setStep('select-style');
     
+    // Prefetch suggested details based on the theme
     setIsSuggesting(true);
     suggestDetails({ scene: theme.scene, activity: theme.activity })
       .then(res => setSuggestedDetails(res.suggestions))
@@ -134,6 +139,8 @@ export default function KioskFlow() {
 
   const handleStyleSelect = async (style: typeof STYLES[0]) => {
     if (!capturedImage || !selectedTheme) return;
+    setSelectedStyle(style);
+    
     setIsProcessing(true);
     setStep('processing');
     
@@ -163,7 +170,10 @@ export default function KioskFlow() {
     setStep('processing');
     
     try {
-      const finalDetails = isWheelchairUser ? [...details, 'subject is using a wheelchair'] : details;
+      const finalDetails = [...details];
+      if (selectedStyle) finalDetails.push(selectedStyle.detail);
+      if (isWheelchairUser) finalDetails.push('subject is using a wheelchair');
+      
       const response = await generateThemedPhoto({
         photoDataUri: capturedImage,
         scene,
@@ -191,6 +201,7 @@ export default function KioskFlow() {
     setSuggestedDetails([]);
     setIsWheelchairUser(false);
     setSelectedTheme(null);
+    setSelectedStyle(null);
   };
 
   const toggleDetail = (detail: string) => {
@@ -457,10 +468,10 @@ export default function KioskFlow() {
 
       {step === 'results' && resultImage && (
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
-          <div className="flex flex-col items-start w-full max-w-md mx-auto">
+          <div className="flex flex-col items-center w-full max-w-md mx-auto">
             <button 
               onClick={() => setStep('select-style')}
-              className="mb-6 p-2 text-white/60 hover:text-white transition-colors"
+              className="mb-6 p-2 text-white/60 hover:text-white transition-colors self-start"
             >
               <ArrowLeft className="w-10 h-10" />
             </button>
@@ -527,10 +538,10 @@ export default function KioskFlow() {
 
       {step === 'thanks' && resultImage && (
         <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
-          <div className="flex flex-col items-start w-full max-w-md mx-auto">
+          <div className="flex flex-col items-center w-full max-w-md mx-auto">
             <button 
               onClick={() => setStep('results')}
-              className="mb-6 p-2 text-white/60 hover:text-white transition-colors"
+              className="mb-6 p-2 text-white/60 hover:text-white transition-colors self-start"
             >
               <ArrowLeft className="w-10 h-10" />
             </button>
