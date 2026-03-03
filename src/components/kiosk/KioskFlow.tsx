@@ -185,8 +185,6 @@ export default function KioskFlow() {
 
   const handleThemeSelect = (theme: typeof THEMES[0]) => {
     setSelectedTheme(theme);
-    // Use the first variation as a placeholder for suggestions, 
-    // but the AI will pick the best one later.
     const baseVariation = theme.variations[0];
     setStep('select-style');
     
@@ -208,8 +206,6 @@ export default function KioskFlow() {
       
       const response = await generateThemedPhoto({
         photoDataUri: capturedImage,
-        // If we have manual edits (from 'refine' step), pass them directly.
-        // Otherwise, pass the 3 variations for Gemini to select from.
         scene: scene || undefined,
         activity: activity || undefined,
         themeVariations: scene ? undefined : selectedTheme.variations,
@@ -217,7 +213,6 @@ export default function KioskFlow() {
       });
       
       setResultImage(response.transformedPhotoDataUri);
-      // Update state with what Gemini chose
       setScene(response.selectedScene);
       setActivity(response.selectedActivity);
       setStep('results');
@@ -262,9 +257,8 @@ export default function KioskFlow() {
     }
   };
 
-  // Helper to strip "Variation X Activity: " prefix
-  const getDisplayActivity = (text: string) => {
-    return text.replace(/^Variation \d+ Activity: /i, '').trim();
+  const getCleanText = (text: string) => {
+    return text.replace(/^Variation \d+ (Scene|Activity): /i, '').trim();
   };
 
   return (
@@ -335,9 +329,6 @@ export default function KioskFlow() {
                         src={imageUrl} 
                         alt={theme.title} 
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://picsum.photos/seed/${theme.id}/600/600`;
-                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                       <div className="absolute bottom-6 left-6 right-6">
@@ -388,9 +379,6 @@ export default function KioskFlow() {
                     src={imageUrl} 
                     alt={style.title} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                    onError={(e) => {
-                      e.currentTarget.src = `https://picsum.photos/seed/${style.id}/600/600`;
-                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6">
@@ -419,11 +407,11 @@ export default function KioskFlow() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-8 sticky top-8">
               <button 
-                onClick={() => setStep('select-style')}
+                onClick={() => setStep('results')}
                 className="flex items-center text-white/60 hover:text-white transition-colors mb-4 group"
               >
                 <ChevronLeft className="w-6 h-6 mr-1 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-xl font-medium font-headline">Change Style</span>
+                <span className="text-xl font-medium font-headline">Back to result</span>
               </button>
 
               <div className="space-y-4">
@@ -533,7 +521,7 @@ export default function KioskFlow() {
         <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-8 animate-in fade-in zoom-in duration-700">
           <div className="w-full flex justify-center">
             <button 
-              onClick={() => setStep('refine')}
+              onClick={() => setStep('select-style')}
               className="p-2 text-white/60 hover:text-white transition-colors group"
             >
               <ArrowLeft className="w-10 h-10 group-hover:-translate-x-1 transition-transform" />
@@ -560,7 +548,7 @@ export default function KioskFlow() {
                 <div className="mt-10 text-center">
                   <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
                     {(() => {
-                      const cleanActivity = getDisplayActivity(activity);
+                      const cleanActivity = getCleanText(activity);
                       return cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1);
                     })()}, thanks to Gemini
                   </p>
@@ -637,7 +625,7 @@ export default function KioskFlow() {
                 <div className="mt-10 text-center">
                   <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
                     {(() => {
-                      const cleanActivity = getDisplayActivity(activity);
+                      const cleanActivity = getCleanText(activity);
                       return cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1);
                     })()}, thanks to Gemini
                   </p>

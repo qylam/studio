@@ -114,16 +114,22 @@ const generateThemedPhotoFlow = ai.defineFlow(
     }
 
     // Manual parsing of the text response to extract selections. 
-    // Fallback to input values if text is missing or parsing fails.
     const lines = text ? text.split('\n') : [];
     
-    const selectedScene = lines.find(l => l.startsWith('SELECTED_SCENE:'))?.replace('SELECTED_SCENE:', '').trim() 
+    // Helper to strip internal prefixes from theme strings
+    const cleanStr = (str: string) => str.replace(/^Variation \d+ (Scene|Activity): /i, '').trim();
+
+    const selectedScene = cleanStr(
+      lines.find(l => l.startsWith('SELECTED_SCENE:'))?.replace('SELECTED_SCENE:', '').trim() 
       || input.scene 
-      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].scene : 'Unknown Scene');
+      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].scene : 'Unknown Scene')
+    );
       
-    const selectedActivity = lines.find(l => l.startsWith('SELECTED_ACTIVITY:'))?.replace('SELECTED_ACTIVITY:', '').trim() 
+    const selectedActivity = cleanStr(
+      lines.find(l => l.startsWith('SELECTED_ACTIVITY:'))?.replace('SELECTED_ACTIVITY:', '').trim() 
       || input.activity 
-      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].activity : 'Unknown Activity');
+      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].activity : 'Unknown Activity')
+    );
       
     const description = lines.find(l => l.startsWith('DESCRIPTION:'))?.replace('DESCRIPTION:', '').trim() 
       || 'A personalized AI vision of your future free time.';
