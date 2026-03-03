@@ -141,38 +141,16 @@ export default function KioskFlow() {
   const handleStyleSelect = async (style: typeof STYLES[0]) => {
     if (!capturedImage || !selectedTheme) return;
     setSelectedStyle(style);
-    
-    setIsProcessing(true);
-    setStep('processing');
-    
-    try {
-      const finalDetails = [...details, style.detail];
-      if (isWheelchairUser) finalDetails.push('subject is using a wheelchair');
-      
-      const response = await generateThemedPhoto({
-        photoDataUri: capturedImage,
-        scene: selectedTheme.scene,
-        activity: selectedTheme.activity,
-        details: finalDetails,
-      });
-      setResultImage(response.transformedPhotoDataUri);
-      setStep('results');
-    } catch (error) {
-      console.error("Generation failed", error);
-      setStep('refine');
-    } finally {
-      setIsProcessing(false);
-    }
+    setStep('refine');
   };
 
   const handleGenerate = async () => {
-    if (!capturedImage) return;
+    if (!capturedImage || !selectedTheme || !selectedStyle) return;
     setIsProcessing(true);
     setStep('processing');
     
     try {
-      const finalDetails = [...details];
-      if (selectedStyle) finalDetails.push(selectedStyle.detail);
+      const finalDetails = [...details, selectedStyle.detail];
       if (isWheelchairUser) finalDetails.push('subject is using a wheelchair');
       
       const response = await generateThemedPhoto({
@@ -474,10 +452,10 @@ export default function KioskFlow() {
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
+        <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24 animate-in fade-in zoom-in duration-700">
           <div className="flex flex-col items-center w-full max-w-md mx-auto">
             <button 
-              onClick={() => setStep('select-style')}
+              onClick={() => setStep('refine')}
               className="mb-6 p-2 text-white/60 hover:text-white transition-colors self-start"
             >
               <ArrowLeft className="w-10 h-10" />
