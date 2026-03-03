@@ -449,7 +449,7 @@ export default function KioskFlow() {
           </div>
           <div className="space-y-4">
             <h2 className="text-5xl font-medium tracking-tight text-white font-headline">
-              AI is Dreaming...
+              Gemini is imagining your dream life...
             </h2>
             <p className="text-white/50 text-xl font-mono animate-pulse">Synthesizing your masterpiece...</p>
           </div>
