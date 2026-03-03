@@ -25,7 +25,7 @@ export default function KioskPage() {
       </main>
 
       <footer className="mt-12 text-center text-white/20 text-xs uppercase tracking-widest font-bold">
-        Designed for Modern Productivity • Confidential Prototype
+        Google for Education
       </footer>
     </div>
   );
