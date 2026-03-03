@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -35,7 +36,7 @@ const STYLES = [
     detail: 'Transform the perso or group of people in this photo into a high-detail steampunk character. Replace their clothing with Victorian-era explorer attire featuring leather straps, brass buckles, and goggles. Apply a warm, sepia-toned color palette with dramatic rim lighting and metallic reflections. Maintain the persons facial features.' 
   },
   { 
-    id: 'style-gothic', 
+    id: 'style-clay', 
     title: 'Gothic Clay', 
     detail: 'Transform the person or group of people in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons and Edward Goreys illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold.' 
   },
