@@ -44,9 +44,6 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
  * MASTER PROMPT TEMPLATE
  * Instructs Gemini to analyze the user's photo and either use the provided scene/activity 
  * or select the best fit from the provided variations.
- * 
- * NOTE: We remove the 'output' schema here because multimodal image generation models
- * often don't support strict JSON mode. We parse the text response instead.
  */
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
@@ -54,6 +51,24 @@ const themedPhotoPrompt = ai.definePrompt({
   model: 'googleai/gemini-2.5-flash-image',
   config: {
     responseModalities: ['TEXT', 'IMAGE'],
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+    ],
   },
   prompt: `You are an expert photo editor and artistic AI. Your task is to transform the provided photo into a stylized masterpiece.
 
@@ -94,15 +109,24 @@ const generateThemedPhotoFlow = ai.defineFlow(
   async (input) => {
     const { text, media } = await themedPhotoPrompt(input);
 
-    if (!media || !text) {
-      throw new Error('Failed to generate image or extract response text.');
+    if (!media) {
+      throw new Error('AI failed to generate the stylized image. Please try again.');
     }
 
-    // Manual parsing of the text response to extract selections
-    const lines = text.split('\n');
-    const selectedScene = lines.find(l => l.startsWith('SELECTED_SCENE:'))?.replace('SELECTED_SCENE:', '').trim() || input.scene || 'Unknown Scene';
-    const selectedActivity = lines.find(l => l.startsWith('SELECTED_ACTIVITY:'))?.replace('SELECTED_ACTIVITY:', '').trim() || input.activity || 'Unknown Activity';
-    const description = lines.find(l => l.startsWith('DESCRIPTION:'))?.replace('DESCRIPTION:', '').trim() || 'A personalized AI vision.';
+    // Manual parsing of the text response to extract selections. 
+    // Fallback to input values if text is missing or parsing fails.
+    const lines = text ? text.split('\n') : [];
+    
+    const selectedScene = lines.find(l => l.startsWith('SELECTED_SCENE:'))?.replace('SELECTED_SCENE:', '').trim() 
+      || input.scene 
+      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].scene : 'Unknown Scene');
+      
+    const selectedActivity = lines.find(l => l.startsWith('SELECTED_ACTIVITY:'))?.replace('SELECTED_ACTIVITY:', '').trim() 
+      || input.activity 
+      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].activity : 'Unknown Activity');
+      
+    const description = lines.find(l => l.startsWith('DESCRIPTION:'))?.replace('DESCRIPTION:', '').trim() 
+      || 'A personalized AI vision of your future free time.';
 
     return {
       transformedPhotoDataUri: media.url,
