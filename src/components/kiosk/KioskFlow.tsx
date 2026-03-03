@@ -23,22 +23,22 @@ const STYLES = [
   { 
     id: 'style-keychain', 
     title: 'Cute Keychain', 
-    detail: 'Transform the person or group of people in the image into a KEYCHAIN CHARACTER VERSION OF THEMSELVES, placed on a tabletop. Preserve recognizable features but redesign them in a kawaii, Pixar-inspired style — slightly oversized head, small body, soft rounded features, glossy expressive eyes, and a warm, heartwarming smile. The character should feel like a premium animated collectible toy, with smooth materials, soft shading, and subtle skin glow. Keep outfit colors and key visual identity, but simplify details into clean, cute shapes. Use soft cinematic lighting, shallow depth of field, warm tones, and a cozy tabletop setting. Ultra-detailed 3D render' 
+    detail: 'Transform the subject into a kawaii KEYCHAIN CHARACTER version of themselves. Pixar-inspired style, soft rounded features, glossy expressive eyes. High-detail 3D render.' 
   },
   { 
     id: 'style-oil', 
     title: 'Oil Painting', 
-    detail: 'Transform the person or group of people in this photo into a classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes and a rich, deep color palette. The lighting should be dramatic chiaroscuro, with soft shadows and a warm glow on the persons face. The background should be a soft, textured abstract landscape or a dark studio setting. Ensure the final result looks like a physical painting with subtle canvas texture visible. Maintain the person facial features.' 
+    detail: 'Transform the photo into a classic 19th-century oil painting on canvas. Thick impasto brushstrokes, dramatic chiaroscuro lighting, rich deep color palette.' 
   },
   { 
     id: 'style-steampunk', 
     title: 'Steampunk', 
-    detail: 'Transform the perso or group of people in this photo into a high-detail steampunk character. Replace their clothing with Victorian-era explorer attire featuring leather straps, brass buckles, and goggles. Apply a warm, sepia-toned color palette with dramatic rim lighting and metallic reflections. Maintain the persons facial features.' 
+    detail: 'Transform the subject into a high-detail steampunk character. Victorian-era explorer attire, brass buckles, goggles, sepia-toned palette, metallic reflections.' 
   },
   { 
     id: 'style-clay', 
     title: 'Gothic Clay', 
-    detail: 'Transform the person or group of people in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons and Edward Goreys illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold.' 
+    detail: 'Transform the subject into a handcrafted stop-motion claymation miniature. Tim Burton style, expressive eyes, moody practical lighting, storybook palette.' 
   },
 ];
 
@@ -125,7 +125,6 @@ export default function KioskFlow() {
     setActivity(theme.activity);
     setStep('select-style');
     
-    // Background suggest details so they're ready for refine step
     setIsSuggesting(true);
     suggestDetails({ scene: theme.scene, activity: theme.activity })
       .then(res => setSuggestedDetails(res.suggestions))
@@ -259,6 +258,7 @@ export default function KioskFlow() {
             <CarouselContent className="-ml-4">
               {THEMES.map((theme) => {
                 const imageData = PlaceHolderImages.find(img => img.id === theme.id);
+                const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${theme.id}/600/600`;
                 return (
                   <CarouselItem key={theme.id} className="pl-4 md:basis-1/4">
                     <div 
@@ -266,7 +266,7 @@ export default function KioskFlow() {
                       className="group cursor-pointer relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
                     >
                       <img 
-                        src={imageData?.imageUrl} 
+                        src={imageUrl} 
                         alt={theme.title} 
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                       />
@@ -308,6 +308,7 @@ export default function KioskFlow() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
             {STYLES.map((style) => {
               const imageData = PlaceHolderImages.find(img => img.id === style.id);
+              const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${style.id}/600/600`;
               return (
                 <div 
                   key={style.id}
@@ -315,7 +316,7 @@ export default function KioskFlow() {
                   className="group cursor-pointer relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
                 >
                   <img 
-                    src={imageData?.imageUrl} 
+                    src={imageUrl} 
                     alt={style.title} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                   />
