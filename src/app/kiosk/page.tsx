@@ -16,7 +16,7 @@ export default function KioskPage() {
           </span>
         </Link>
         <div className="text-xs font-mono text-[#ABDFE6]/60 uppercase tracking-widest hidden md:block">
-          System Active • Gemini 2.5 Flash
+          GEMINI • NANO BANANA 2
         </div>
       </header>
 
