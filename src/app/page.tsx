@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -46,7 +45,7 @@ export default function Home() {
                 </linearGradient>
               </defs>
             </svg>
-            <span className="text-xl font-medium tracking-tight">Gemini for Education</span>
+            <span className="text-xl font-medium tracking-tight">Chrome Connect</span>
           </div>
         </header>
 
