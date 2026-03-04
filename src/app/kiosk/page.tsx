@@ -25,7 +25,7 @@ export default function KioskPage() {
       </main>
 
       <footer className="mt-12 text-center text-white/20 text-xs uppercase tracking-widest font-bold">
-        Google for Education
+        Chrome Connect
       </footer>
     </div>
   );
