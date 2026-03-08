@@ -15,6 +15,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
 
@@ -130,25 +132,45 @@ export default function KioskFlow() {
   const [isWheelchairUser, setIsWheelchairUser] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<typeof THEMES[0] | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<typeof STYLES[0] | null>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (step === 'capture' && videoRef.current) {
-      navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } })
-        .then(stream => {
-          if (videoRef.current) videoRef.current.srcObject = stream;
-        })
-        .catch(err => console.error("Camera error:", err));
-    }
+    const getCameraPermission = async () => {
+      if (step !== 'capture') return;
+      
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { width: 1280, height: 720 } 
+        });
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this app.',
+        });
+      }
+    };
+
+    getCameraPermission();
+
     return () => {
       if (videoRef.current?.srcObject) {
         const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
         tracks.forEach(track => track.stop());
       }
     };
-  }, [step]);
+  }, [step, toast]);
 
   useEffect(() => {
     if (countdown === null) return;
@@ -165,7 +187,7 @@ export default function KioskFlow() {
   }, [countdown]);
 
   const startCountdown = () => {
-    if (countdown !== null) return;
+    if (countdown !== null || !hasCameraPermission) return;
     setCountdown(3);
   };
 
@@ -261,6 +283,10 @@ export default function KioskFlow() {
     return text.replace(/^Variation \d+ (Scene|Activity): /i, '').trim();
   };
 
+  const getDisplayActivity = (text: string) => {
+    return getCleanText(text).charAt(0).toUpperCase() + getCleanText(text).slice(1);
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center min-h-[80vh]">
       
@@ -278,13 +304,24 @@ export default function KioskFlow() {
                 </span>
               </div>
             )}
+
+            {hasCameraPermission === false && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60 p-8">
+                <Alert variant="destructive" className="max-w-md bg-zinc-900 border-destructive text-white">
+                  <AlertTitle className="text-xl font-bold font-headline mb-2">Camera Access Required</AlertTitle>
+                  <AlertDescription className="text-white/70">
+                    Please allow camera access in your browser settings to use the Free-Time Machine.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
           </div>
           <Button 
             onClick={startCountdown} 
-            disabled={countdown !== null}
+            disabled={countdown !== null || hasCameraPermission === false}
             className={cn(
               "btn-google-blue h-auto py-6 px-12 text-2xl rounded-full transition-all duration-300 font-bold tracking-tight font-headline",
-              countdown !== null && "opacity-50 grayscale scale-95"
+              (countdown !== null || hasCameraPermission === false) && "opacity-50 grayscale scale-95"
             )}
           >
             <Camera className="mr-3 h-8 w-8" />
@@ -547,10 +584,7 @@ export default function KioskFlow() {
                 
                 <div className="mt-10 text-center">
                   <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                    {(() => {
-                      const cleanActivity = getCleanText(activity);
-                      return cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1);
-                    })()}, thanks to Gemini
+                    {getDisplayActivity(activity)}, thanks to Gemini
                   </p>
                 </div>
               </div>
@@ -624,10 +658,7 @@ export default function KioskFlow() {
                 
                 <div className="mt-10 text-center">
                   <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                    {(() => {
-                      const cleanActivity = getCleanText(activity);
-                      return cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1);
-                    })()}, thanks to Gemini
+                    {getDisplayActivity(activity)}, thanks to Gemini
                   </p>
                 </div>
               </div>
