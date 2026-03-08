@@ -9,6 +9,7 @@ import { suggestDetails } from '@/ai/flows/suggest-details-flow';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { useRouter } from 'next/navigation';
 import {
   Carousel,
   CarouselContent,
@@ -137,6 +138,7 @@ export default function KioskFlow() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const getCameraPermission = async () => {
@@ -318,17 +320,28 @@ export default function KioskFlow() {
               </div>
             )}
           </div>
-          <Button 
-            onClick={startCountdown} 
-            disabled={countdown !== null || hasCameraPermission === false}
-            className={cn(
-              "btn-google-blue h-auto py-6 px-12 text-2xl rounded-full transition-all duration-300 font-bold tracking-tight font-headline",
-              (countdown !== null || hasCameraPermission === false) && "opacity-50 grayscale scale-95"
-            )}
-          >
-            <Camera className="mr-3 h-8 w-8" />
-            {countdown !== null ? 'Get Ready...' : 'Take your Photo'}
-          </Button>
+          <div className="flex flex-col items-center gap-6">
+            <Button 
+              onClick={startCountdown} 
+              disabled={countdown !== null || hasCameraPermission === false}
+              className={cn(
+                "btn-google-blue h-auto py-6 px-12 text-2xl rounded-full transition-all duration-300 font-bold tracking-tight font-headline",
+                (countdown !== null || hasCameraPermission === false) && "opacity-50 grayscale scale-95"
+              )}
+            >
+              <Camera className="mr-3 h-8 w-8" />
+              {countdown !== null ? 'Get Ready...' : 'Take your Photo'}
+            </Button>
+
+            <Button 
+              variant="ghost" 
+              onClick={() => router.push('/')}
+              className="text-white/40 hover:text-white hover:bg-transparent text-xl font-headline"
+            >
+              <ArrowLeft className="mr-2 h-6 w-6" />
+              Back to home
+            </Button>
+          </div>
         </div>
       )}
 
