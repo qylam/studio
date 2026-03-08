@@ -7,6 +7,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
 import { suggestDetails } from '@/ai/flows/suggest-details-flow';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import {
   Carousel,
   CarouselContent,
@@ -15,8 +17,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
 
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'refine' | 'processing' | 'results' | 'thanks';
 
@@ -187,7 +187,7 @@ export default function KioskFlow() {
   }, [countdown]);
 
   const startCountdown = () => {
-    if (countdown !== null || !hasCameraPermission) return;
+    if (countdown !== null || hasCameraPermission === false) return;
     setCountdown(3);
   };
 
@@ -241,6 +241,11 @@ export default function KioskFlow() {
     } catch (error) {
       console.error("Generation failed", error);
       setStep('select-style');
+      toast({
+        variant: 'destructive',
+        title: 'Generation Error',
+        description: 'Failed to generate your vision. Please try again.',
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -269,6 +274,7 @@ export default function KioskFlow() {
     setIsWheelchairUser(false);
     setSelectedTheme(null);
     setSelectedStyle(null);
+    setHasCameraPermission(null);
   };
 
   const toggleDetail = (detail: string) => {
@@ -283,10 +289,6 @@ export default function KioskFlow() {
     return text.replace(/^Variation \d+ (Scene|Activity): /i, '').trim();
   };
 
-  const getDisplayActivity = (text: string) => {
-    return getCleanText(text).charAt(0).toUpperCase() + getCleanText(text).slice(1);
-  };
-
   return (
     <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center min-h-[80vh]">
       
@@ -297,22 +299,22 @@ export default function KioskFlow() {
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
             <canvas ref={canvasRef} className="hidden" />
             
+            {hasCameraPermission === false && (
+              <div className="absolute inset-0 flex items-center justify-center p-8 bg-black/60 backdrop-blur-sm z-50">
+                <Alert variant="destructive" className="max-w-md bg-zinc-900 border-destructive text-white">
+                  <AlertTitle className="text-xl font-bold">Camera Access Required</AlertTitle>
+                  <AlertDescription className="text-lg">
+                    Please allow camera access in your browser settings to use the Free-Time Machine.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
             {countdown !== null && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-50">
                 <span className="text-[12rem] font-black italic font-headline text-white drop-shadow-[0_0_30px_rgba(66,133,244,0.8)] animate-in zoom-in duration-300">
                   {countdown > 0 ? countdown : "Smile!"}
                 </span>
-              </div>
-            )}
-
-            {hasCameraPermission === false && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/60 p-8">
-                <Alert variant="destructive" className="max-w-md bg-zinc-900 border-destructive text-white">
-                  <AlertTitle className="text-xl font-bold font-headline mb-2">Camera Access Required</AlertTitle>
-                  <AlertDescription className="text-white/70">
-                    Please allow camera access in your browser settings to use the Free-Time Machine.
-                  </AlertDescription>
-                </Alert>
               </div>
             )}
           </div>
@@ -584,7 +586,10 @@ export default function KioskFlow() {
                 
                 <div className="mt-10 text-center">
                   <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                    {getDisplayActivity(activity)}, thanks to Gemini
+                    {(() => {
+                      const cleanActivity = getCleanText(activity);
+                      return cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1);
+                    })()}, thanks to Gemini
                   </p>
                 </div>
               </div>
@@ -658,7 +663,10 @@ export default function KioskFlow() {
                 
                 <div className="mt-10 text-center">
                   <p className="text-4xl font-medium text-zinc-800 tracking-tight italic" style={{ fontFamily: 'var(--font-handwriting, cursive)' }}>
-                    {getDisplayActivity(activity)}, thanks to Gemini
+                    {(() => {
+                      const cleanActivity = getCleanText(activity);
+                      return cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1);
+                    })()}, thanks to Gemini
                   </p>
                 </div>
               </div>
