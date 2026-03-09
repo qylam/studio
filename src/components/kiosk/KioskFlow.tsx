@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -10,6 +11,8 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 import {
   Carousel,
   CarouselContent,
@@ -134,11 +137,13 @@ export default function KioskFlow() {
   const [selectedTheme, setSelectedTheme] = useState<typeof THEMES[0] | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<typeof STYLES[0] | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [visionId, setVisionId] = useState<string | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const db = useFirestore();
 
   useEffect(() => {
     const getCameraPermission = async () => {
@@ -220,7 +225,7 @@ export default function KioskFlow() {
   };
 
   const generateVision = async (style: typeof STYLES[0], currentDetails: string[]) => {
-    if (!capturedImage || !selectedTheme) return;
+    if (!capturedImage || !selectedTheme || !db) return;
     setIsProcessing(true);
     setStep('processing');
     
@@ -239,6 +244,16 @@ export default function KioskFlow() {
       setResultImage(response.transformedPhotoDataUri);
       setScene(response.selectedScene);
       setActivity(response.selectedActivity);
+
+      // Save to Firestore for sharing
+      const docRef = await addDoc(collection(db, 'visions'), {
+        imageData: response.transformedPhotoDataUri,
+        activity: response.selectedActivity,
+        theme: selectedTheme.title,
+        createdAt: serverTimestamp()
+      });
+      setVisionId(docRef.id);
+      
       setStep('results');
     } catch (error) {
       console.error("Generation failed", error);
@@ -277,6 +292,7 @@ export default function KioskFlow() {
     setSelectedTheme(null);
     setSelectedStyle(null);
     setHasCameraPermission(null);
+    setVisionId(null);
   };
 
   const toggleDetail = (detail: string) => {
@@ -614,7 +630,7 @@ export default function KioskFlow() {
               <div className="space-y-6">
                 <div className="bg-white p-4 rounded-2xl w-56 h-56 shadow-2xl mx-auto md:mx-0">
                   <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}/share/session-${Date.now()}`} 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/share/${visionId || 'unknown'}` : '')}`} 
                     alt="QR Code" 
                     className="w-full h-full"
                   />
