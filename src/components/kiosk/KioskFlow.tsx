@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles } from 'lucide-react';
+import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
@@ -225,7 +225,15 @@ export default function KioskFlow() {
   };
 
   const generateVision = async (style: typeof STYLES[0], currentDetails: string[]) => {
-    if (!capturedImage || !selectedTheme || !db) return;
+    if (!capturedImage || !selectedTheme) {
+      toast({
+        variant: 'destructive',
+        title: 'Selection Required',
+        description: 'Please capture a photo and select a theme first.',
+      });
+      return;
+    }
+
     setIsProcessing(true);
     setStep('processing');
     
@@ -245,23 +253,31 @@ export default function KioskFlow() {
       setScene(response.selectedScene);
       setActivity(response.selectedActivity);
 
-      // Save to Firestore for sharing
-      const docRef = await addDoc(collection(db, 'visions'), {
-        imageData: response.transformedPhotoDataUri,
-        activity: response.selectedActivity,
-        theme: selectedTheme.title,
-        createdAt: serverTimestamp()
-      });
-      setVisionId(docRef.id);
+      // Save to Firestore for sharing - only if DB is available
+      if (db) {
+        try {
+          const docRef = await addDoc(collection(db, 'visions'), {
+            imageData: response.transformedPhotoDataUri,
+            activity: response.selectedActivity,
+            theme: selectedTheme.title,
+            createdAt: serverTimestamp()
+          });
+          setVisionId(docRef.id);
+        } catch (dbError) {
+          console.warn("Firestore save failed, sharing may be limited.", dbError);
+        }
+      } else {
+        console.warn("Firestore not available. Skipping save.");
+      }
       
       setStep('results');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Generation failed", error);
       setStep('select-style');
       toast({
         variant: 'destructive',
         title: 'Generation Error',
-        description: 'Failed to generate your vision. Please try again.',
+        description: error.message || 'Failed to generate your vision. Please try again.',
       });
     } finally {
       setIsProcessing(false);
@@ -436,20 +452,20 @@ export default function KioskFlow() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
             {STYLES.map((style) => {
               const imageData = PlaceHolderImages.find(img => img.id === style.id);
-              const imageUrl = imageData?.imageUrl || `/images/${style.id.replace('style-', '')}_Style.png`;
+              const imageUrl = imageData?.imageUrl || `https://picsum.photos/seed/${style.id}/600/600`;
               return (
                 <div 
                   key={style.id}
                   onClick={() => handleStyleSelect(style)}
-                  className="group cursor-pointer relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300"
+                  className="group cursor-pointer relative aspect-square rounded-[1.5rem] overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all duration-300 z-10"
                 >
                   <img 
                     src={imageUrl} 
                     alt={style.title} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  <div className="absolute bottom-6 left-6 right-6">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
                     <h3 className="text-xl font-bold text-white font-headline leading-tight">{style.title}</h3>
                   </div>
                 </div>
@@ -559,7 +575,7 @@ export default function KioskFlow() {
                   disabled={isProcessing}
                   className="bg-[#4285F4] hover:bg-[#4285F4]/90 text-white rounded-full px-12 py-8 text-2xl font-bold shadow-lg shadow-[#4285F4]/20 font-headline h-auto w-full"
                 >
-                  <Zap className="mr-2 h-6 w-6" />
+                  {isProcessing ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <Zap className="mr-2 h-6 w-6" />}
                   Generate Vision
                 </Button>
               </div>
