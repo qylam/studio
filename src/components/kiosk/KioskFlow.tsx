@@ -153,7 +153,7 @@ export default function KioskFlow() {
         canvasRef.current.width = videoRef.current.videoWidth;
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
-        setCapturedImage(canvasRef.current.toDataURL('image/jpeg'));
+        setCapturedImage(canvasRef.current.toDataURL('image/jpeg', 0.8));
         setStep('select-theme');
       }
     }
@@ -166,8 +166,9 @@ export default function KioskFlow() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return imageUrl;
 
-    canvas.width = 1080;
-    canvas.height = 1350;
+    // Reduced resolution to stay safely under Firestore 1MB document limit
+    canvas.width = 800;
+    canvas.height = 1000;
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -178,21 +179,22 @@ export default function KioskFlow() {
       img.src = imageUrl;
     });
 
-    const margin = 60;
+    const margin = 40;
     const imgWidth = canvas.width - (margin * 2);
     ctx.drawImage(img, margin, margin, imgWidth, imgWidth);
 
     ctx.fillStyle = '#27272a';
-    ctx.font = 'italic 75px Caveat, cursive';
+    ctx.font = 'italic 50px Caveat, cursive';
     ctx.textAlign = 'center';
     
     const cleanActivity = getCleanText(rawActivity);
     const caption = `${cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1)}, thanks to Gemini`;
     
     await document.fonts.ready;
-    ctx.fillText(caption, canvas.width / 2, imgWidth + margin + 180);
+    ctx.fillText(caption, canvas.width / 2, imgWidth + margin + 120);
 
-    return canvas.toDataURL('image/jpeg', 0.9);
+    // Using lower quality (0.7) to ensure Base64 string is < 1MB
+    return canvas.toDataURL('image/jpeg', 0.7);
   };
 
   const handleThemeSelect = (theme: typeof THEMES[0]) => {
@@ -205,9 +207,14 @@ export default function KioskFlow() {
     
     setIsProcessing(true);
     setStep('processing');
-    setVisionId(null); // Reset for new generation
+    setVisionId(null);
 
     try {
+      // Ensure user is signed in anonymously before proceeding
+      if (auth && !auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+
       const details = [style.detail];
       if (isWheelchairUser) details.push('subject is using a wheelchair');
       
@@ -221,26 +228,35 @@ export default function KioskFlow() {
       setResultImage(bakedPolaroid);
       setStep('results');
 
-      // Save to Firestore asynchronously
+      // Save to Firestore
       if (db) {
         setIsSaving(true);
-        addDoc(collection(db, 'visions'), {
-          imageData: bakedPolaroid,
-          activity: response.selectedActivity,
-          theme: selectedTheme.title,
-          createdAt: serverTimestamp()
-        }).then((docRef) => {
+        try {
+          const docRef = await addDoc(collection(db, 'visions'), {
+            imageData: bakedPolaroid,
+            activity: response.selectedActivity,
+            theme: selectedTheme.title,
+            createdAt: serverTimestamp()
+          });
           setVisionId(docRef.id);
           setIsSaving(false);
-        }).catch((err) => {
+        } catch (err: any) {
           console.error("Firestore save error:", err);
           setIsSaving(false);
-          toast({ variant: 'destructive', title: 'Save Failed', description: "Could not generate shareable link." });
-        });
+          toast({ 
+            variant: 'destructive', 
+            title: 'Database Save Failed', 
+            description: err.message || "The image might be too large or permissions are missing." 
+          });
+        }
       }
     } catch (error: any) {
       setStep('select-style');
-      toast({ variant: 'destructive', title: 'Generation Error', description: error.message || 'AI failed to generate vision.' });
+      toast({ 
+        variant: 'destructive', 
+        title: 'AI Generation Error', 
+        description: error.message || 'AI failed to generate vision.' 
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -255,7 +271,6 @@ export default function KioskFlow() {
     setSelectedStyle(null);
   };
 
-  // Helper for QR generation
   const getShareUrl = () => {
     if (typeof window === 'undefined' || !visionId) return '';
     return `${window.location.origin}/share/${visionId}`;
