@@ -3,29 +3,44 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
-import { firebaseConfig } from './config';
+import { firebaseConfig, isFirebaseConfigValid } from './config';
 
+/**
+ * Initializes Firebase services safely.
+ * Returns null for services if configuration is invalid or initialization fails.
+ */
 export function initializeFirebase(): {
   firebaseApp: FirebaseApp | null;
   firestore: Firestore | null;
   auth: Auth | null;
 } {
   try {
-    const isConfigValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
-    
-    if (!isConfigValid) {
-      console.warn('Firebase configuration is missing or incomplete. Check your .env file.');
+    if (!isFirebaseConfigValid()) {
+      console.warn('Firebase configuration is missing or invalid. Check your environment variables.');
       return { firebaseApp: null, firestore: null, auth: null };
     }
 
-    const firebaseApp =
-      getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-    const firestore = getFirestore(firebaseApp);
-    const auth = getAuth(firebaseApp);
+    const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    
+    // Initialize services individually to handle partial failures
+    let firestore: Firestore | null = null;
+    let auth: Auth | null = null;
+
+    try {
+      firestore = getFirestore(firebaseApp);
+    } catch (e) {
+      console.error('Failed to initialize Firestore:', e);
+    }
+
+    try {
+      auth = getAuth(firebaseApp);
+    } catch (e) {
+      console.error('Failed to initialize Auth:', e);
+    }
 
     return { firebaseApp, firestore, auth };
   } catch (error) {
-    console.error('Error initializing Firebase:', error);
+    console.error('Critical error during Firebase initialization:', error);
     return { firebaseApp: null, firestore: null, auth: null };
   }
 }

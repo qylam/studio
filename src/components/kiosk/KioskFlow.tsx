@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -253,7 +252,7 @@ export default function KioskFlow() {
       setScene(response.selectedScene);
       setActivity(response.selectedActivity);
 
-      // Save to Firestore for sharing - only if DB is available
+      // Save to Firestore for sharing - ensure db is valid
       if (db) {
         try {
           const docRef = await addDoc(collection(db, 'visions'), {
@@ -264,10 +263,15 @@ export default function KioskFlow() {
           });
           setVisionId(docRef.id);
         } catch (dbError) {
-          console.warn("Firestore save failed, sharing may be limited.", dbError);
+          console.warn("Firestore save failed, sharing link may be broken.", dbError);
+          toast({
+            variant: "destructive",
+            title: "Sharing unavailable",
+            description: "The photo was generated, but we couldn't create a sharing link. You can still download it manually."
+          });
         }
       } else {
-        console.warn("Firestore not available. Skipping save.");
+        console.warn("Firestore not initialized. Skipping save.");
       }
       
       setStep('results');
@@ -276,7 +280,7 @@ export default function KioskFlow() {
       setStep('select-style');
       toast({
         variant: 'destructive',
-        title: 'Generation Error',
+        title: 'AI Generation Error',
         description: error.message || 'Failed to generate your vision. Please try again.',
       });
     } finally {
@@ -307,7 +311,6 @@ export default function KioskFlow() {
     setIsWheelchairUser(false);
     setSelectedTheme(null);
     setSelectedStyle(null);
-    setHasCameraPermission(null);
     setVisionId(null);
   };
 
