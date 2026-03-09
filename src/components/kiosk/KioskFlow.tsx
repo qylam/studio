@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -11,7 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { signInAnonymously } from 'firebase/auth';
+import { useFirestore, useAuth } from '@/firebase';
 import {
   Carousel,
   CarouselContent,
@@ -103,6 +105,16 @@ export default function KioskFlow() {
   const { toast } = useToast();
   const router = useRouter();
   const db = useFirestore();
+  const auth = useAuth();
+
+  // Ensure user is signed in anonymously to allow Firestore writes
+  useEffect(() => {
+    if (auth) {
+      signInAnonymously(auth).catch((err) => {
+        console.warn("Anonymous sign-in failed, database features might be limited:", err);
+      });
+    }
+  }, [auth]);
 
   useEffect(() => {
     const getCameraPermission = async () => {
@@ -156,9 +168,6 @@ export default function KioskFlow() {
 
   const getCleanText = (text: string) => text.replace(/^Variation \d+ (Scene|Activity): /i, '').trim();
 
-  /**
-   * Bakes the raw AI image into a Polaroid frame with a caption.
-   */
   const composePolaroid = async (imageUrl: string, rawActivity: string): Promise<string> => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -187,7 +196,6 @@ export default function KioskFlow() {
     const cleanActivity = getCleanText(rawActivity);
     const caption = `${cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1)}, thanks to Gemini`;
     
-    // Ensure fonts are loaded or wait a bit
     await document.fonts.ready;
     ctx.fillText(caption, canvas.width / 2, imgWidth + margin + 180);
 
@@ -197,11 +205,11 @@ export default function KioskFlow() {
   const handleThemeSelect = (theme: typeof THEMES[0]) => {
     setSelectedTheme(theme);
     setStep('select-style');
-    setIsSuggesting(true);
-    suggestDetails({ scene: theme.variations[0].scene, activity: theme.variations[0].activity })
-      .then(res => setSuggestedDetails(res.suggestions))
-      .catch(() => {})
-      .finally(() => setIsSuggesting(false));
+  };
+
+  const handleStyleSelect = (style: typeof STYLES[0]) => {
+    setSelectedStyle(style);
+    generateVision(style, []);
   };
 
   const generateVision = async (style: typeof STYLES[0], currentDetails: string[]) => {
