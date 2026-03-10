@@ -9,7 +9,7 @@ import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -95,7 +95,6 @@ export default function KioskFlow() {
   const db = useFirestore();
   const auth = useAuth();
 
-  // Initialize Anonymous Auth for Security Rules compliance
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -186,14 +185,14 @@ export default function KioskFlow() {
     ctx.drawImage(img, margin, margin, imgWidth, imgWidth);
 
     ctx.fillStyle = '#27272a';
-    ctx.font = 'italic 50px Caveat, cursive';
+    ctx.font = 'italic 40px Caveat, cursive';
     ctx.textAlign = 'center';
     
     const cleanActivity = getCleanText(rawActivity);
     const caption = `${cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1)}, thanks to Gemini`;
     
     await document.fonts.ready;
-    ctx.fillText(caption, canvas.width / 2, imgWidth + margin + 120);
+    ctx.fillText(caption, canvas.width / 2, imgWidth + margin + 100);
 
     return canvas.toDataURL('image/jpeg', 0.7);
   };
@@ -211,11 +210,6 @@ export default function KioskFlow() {
     setVisionId(null);
 
     try {
-      // Ensure user is signed in before write
-      if (auth && !auth.currentUser) {
-        await signInAnonymously(auth);
-      }
-
       const details = [style.detail];
       if (isWheelchairUser) details.push('subject is using a wheelchair');
       
@@ -229,14 +223,14 @@ export default function KioskFlow() {
       setResultImage(bakedPolaroid);
       setStep('results');
 
-      // Save to Firestore
       if (db) {
         setIsSaving(true);
+        // Using ISO string to match schema's "string" type for createdAt
         const data = {
           imageData: bakedPolaroid,
           activity: response.selectedActivity,
           theme: selectedTheme.title,
-          createdAt: serverTimestamp()
+          createdAt: new Date().toISOString()
         };
         const visionsRef = collection(db, 'visions');
 
