@@ -58,3 +58,27 @@
   font-family: var(--font-handwriting);
 }
 
+/* Subtle Scrollbar Styling */
+.scrollbar-subtle {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(66, 144, 255, 0.3) rgba(255, 255, 255, 0.05);
+}
+
+.scrollbar-subtle::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-thumb {
+  background: rgba(66, 144, 255, 0.3);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-thumb:hover {
+  background: rgba(66, 144, 255, 0.5);
+}

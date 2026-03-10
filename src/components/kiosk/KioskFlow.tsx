@@ -1,8 +1,7 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles, Loader2, QrCode, RefreshCcw, Check } from 'lucide-react';
+import { Camera, Zap, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
@@ -13,13 +12,6 @@ import { collection, addDoc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'thanks';
 
@@ -225,7 +217,6 @@ export default function KioskFlow() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return imageUrl;
 
-    // Define Layout Constants
     const CANVAS_WIDTH = 800;
     const CANVAS_HEIGHT = 1000;
     const TOP_PADDING = 110; 
@@ -236,35 +227,33 @@ export default function KioskFlow() {
     canvas.width = CANVAS_WIDTH;
     canvas.height = CANVAS_HEIGHT;
     
-    // 1. Draw Background
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // 2. Draw Branding (Top Left)
+    // Branding
     ctx.save();
     const logoX = SIDE_MARGIN;
     const logoY = 40;
-    
     ctx.fillStyle = '#4285F4';
     ctx.beginPath();
-    ctx.moveTo(logoX + 15, logoY);
-    ctx.lineTo(logoX + 18, logoY + 12);
-    ctx.lineTo(logoX + 30, logoY + 15);
-    ctx.lineTo(logoX + 18, logoY + 18);
-    ctx.lineTo(logoX + 15, logoY + 30);
-    ctx.lineTo(logoX + 12, logoY + 18);
-    ctx.lineTo(logoX, logoY + 15);
-    ctx.lineTo(logoX + 12, logoY + 12);
+    ctx.moveTo(logoX + 18, logoY);
+    ctx.lineTo(logoX + 22, logoY + 14);
+    ctx.lineTo(logoX + 36, logoY + 18);
+    ctx.lineTo(logoX + 22, logoY + 22);
+    ctx.lineTo(logoX + 18, logoY + 36);
+    ctx.lineTo(logoX + 14, logoY + 22);
+    ctx.lineTo(logoX, logoY + 18);
+    ctx.lineTo(logoX + 14, logoY + 14);
     ctx.closePath();
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
-    ctx.font = 'bold 28px Inter, sans-serif'; 
+    ctx.font = 'bold 32px Inter, sans-serif'; 
     ctx.textAlign = 'left';
-    ctx.fillText('Chrome Connect', logoX + 45, logoY + 24);
+    ctx.fillText('Chrome Connect', logoX + 50, logoY + 28);
     ctx.restore();
 
-    // 3. Draw Main AI Image
+    // AI Image
     const img = new Image();
     img.crossOrigin = "anonymous";
     await new Promise((resolve) => {
@@ -273,7 +262,7 @@ export default function KioskFlow() {
     });
     ctx.drawImage(img, SIDE_MARGIN, TOP_PADDING, IMG_SIZE, IMG_SIZE);
 
-    // 4. Draw Handwritten Caption with Wrapping
+    // Caption Wrapping
     ctx.fillStyle = '#27272a';
     ctx.font = 'italic 38px Caveat, cursive';
     ctx.textAlign = 'center';
@@ -466,23 +455,25 @@ export default function KioskFlow() {
             </div>
           </div>
           
-          <div className="relative px-12 md:px-20 w-full max-w-7xl mx-auto">
-            <Carousel opts={{ align: "start", loop: false }} className="w-full">
-              <CarouselContent className="-ml-6">
-                {THEMES.map((theme) => (
-                  <CarouselItem key={theme.id} className="pl-6 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
-                    <div onClick={() => handleThemeSelect(theme)} className="group cursor-pointer relative aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900">
-                      <img src={PlaceHolderImages.find(i => i.id === theme.id)?.imageUrl || ''} alt={theme.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                      <div className="absolute inset-0 bg-black/40 flex items-end p-6">
-                        <h3 className="text-xl font-bold text-white font-headline">{theme.title}</h3>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-12 h-12 w-12" />
-              <CarouselNext className="hidden md:flex -right-12 h-12 w-12" />
-            </Carousel>
+          <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
+            <div className="flex gap-6 px-12 min-w-full">
+              {THEMES.map((theme) => (
+                <div 
+                  key={theme.id} 
+                  onClick={() => handleThemeSelect(theme)} 
+                  className="group flex-shrink-0 cursor-pointer relative w-[280px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
+                >
+                  <img 
+                    src={PlaceHolderImages.find(i => i.id === theme.id)?.imageUrl || ''} 
+                    alt={theme.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-end p-6">
+                    <h3 className="text-xl font-bold text-white font-headline">{theme.title}</h3>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-center pt-8">
@@ -500,23 +491,25 @@ export default function KioskFlow() {
             <h2 className="text-6xl font-bold text-white font-headline">Select your style</h2>
           </div>
 
-          <div className="relative px-12 md:px-20 w-full max-w-7xl mx-auto">
-            <Carousel opts={{ align: "start", loop: false }} className="w-full">
-              <CarouselContent className="-ml-6">
-                {STYLES.map((style) => (
-                  <CarouselItem key={style.id} className="pl-6 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
-                    <div key={style.id} onClick={() => generateVision(style)} className="group cursor-pointer relative aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900">
-                      <img src={PlaceHolderImages.find(i => i.id === style.id)?.imageUrl || ''} alt={style.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                      <div className="absolute inset-0 bg-black/40 flex items-end p-6">
-                        <h3 className="text-xl font-bold text-white font-headline">{style.title}</h3>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-12 h-12 w-12" />
-              <CarouselNext className="hidden md:flex -right-12 h-12 w-12" />
-            </Carousel>
+          <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
+            <div className="flex gap-6 px-12 min-w-full">
+              {STYLES.map((style) => (
+                <div 
+                  key={style.id} 
+                  onClick={() => generateVision(style)} 
+                  className="group flex-shrink-0 cursor-pointer relative w-[280px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
+                >
+                  <img 
+                    src={PlaceHolderImages.find(i => i.id === style.id)?.imageUrl || ''} 
+                    alt={style.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-end p-6">
+                    <h3 className="text-xl font-bold text-white font-headline">{style.title}</h3>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-center pt-8">
