@@ -221,7 +221,7 @@ export default function KioskFlow() {
     // Define Layout Constants
     const CANVAS_WIDTH = 800;
     const CANVAS_HEIGHT = 1000;
-    const TOP_PADDING = 80;
+    const TOP_PADDING = 110; // Increased to accommodate larger logo
     const SIDE_MARGIN = 40;
     const IMG_SIZE = CANVAS_WIDTH - (SIDE_MARGIN * 2);
     const BOTTOM_AREA_START = TOP_PADDING + IMG_SIZE;
@@ -233,29 +233,29 @@ export default function KioskFlow() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // 2. Draw Branding (Top Left)
+    // 2. Draw Branding (Top Left) - Made Bigger
     ctx.save();
     const logoX = SIDE_MARGIN;
-    const logoY = 30;
+    const logoY = 40;
     
-    // Draw simple star-ish logo
+    // Draw enlarged star-ish logo
     ctx.fillStyle = '#4285F4';
     ctx.beginPath();
-    ctx.moveTo(logoX + 10, logoY);
-    ctx.lineTo(logoX + 12, logoY + 8);
-    ctx.lineTo(logoX + 20, logoY + 10);
+    ctx.moveTo(logoX + 15, logoY);
+    ctx.lineTo(logoX + 18, logoY + 12);
+    ctx.lineTo(logoX + 30, logoY + 15);
+    ctx.lineTo(logoX + 18, logoY + 18);
+    ctx.lineTo(logoX + 15, logoY + 30);
+    ctx.lineTo(logoX + 12, logoY + 18);
+    ctx.lineTo(logoX, logoY + 15);
     ctx.lineTo(logoX + 12, logoY + 12);
-    ctx.lineTo(logoX + 10, logoY + 20);
-    ctx.lineTo(logoX + 8, logoY + 12);
-    ctx.lineTo(logoX, logoY + 10);
-    ctx.lineTo(logoX + 8, logoY + 8);
     ctx.closePath();
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
-    ctx.font = 'bold 20px Inter, sans-serif';
+    ctx.font = 'bold 28px Inter, sans-serif'; // Bigger font
     ctx.textAlign = 'left';
-    ctx.fillText('Chrome Connect', logoX + 30, logoY + 15);
+    ctx.fillText('Chrome Connect', logoX + 45, logoY + 24);
     ctx.restore();
 
     // 3. Draw Main AI Image
@@ -300,8 +300,9 @@ export default function KioskFlow() {
     const lines = wrapText(caption, maxTextWidth);
     const lineHeight = 45;
     
+    // Increased gap between image and text start (from 60 to 100)
     lines.forEach((line, index) => {
-      const yOffset = BOTTOM_AREA_START + 60 + (index * lineHeight);
+      const yOffset = BOTTOM_AREA_START + 100 + (index * lineHeight);
       ctx.fillText(line, CANVAS_WIDTH / 2, yOffset);
     });
 
