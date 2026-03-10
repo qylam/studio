@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from 'next/link';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,7 +16,13 @@ import {
 
 export default function Home() {
   const [showConsent, setShowConsent] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
+
+  const handleProceed = () => {
+    setIsNavigating(true);
+    router.push('/kiosk');
+  };
 
   const polaroids = [
     { seed: '10', rotate: '-6deg', delay: '0ms' },
@@ -45,12 +52,12 @@ export default function Home() {
                 </linearGradient>
               </defs>
             </svg>
-            <span className="text-xl font-medium tracking-tight">Chrome Connect</span>
+            <span className="text-xl font-medium tracking-tight text-white">Chrome Connect</span>
           </div>
         </header>
 
         <div className="space-y-8 animate-in fade-in slide-in-from-left duration-1000">
-          <h1 className="text-6xl md:text-8xl font-bold leading-[0.9] tracking-tighter">
+          <h1 className="text-6xl md:text-8xl font-bold leading-[0.9] tracking-tighter text-white">
             The free-time machine
           </h1>
           
@@ -127,22 +134,31 @@ export default function Home() {
                   Before you begin
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-lg leading-relaxed text-zinc-600 font-medium">
-                  The Gemini Free-Time Machine is an experiment using Nano Banana Pro, Google's latest generative image model.
+                  The Gemini Free-Time Machine is an experiment using Gemini 2.5, Google's latest generative model.
                   <br /><br />
-                  Take a photo and we'll create a picture using your selected effect. By submitting your photo, you confirm that you are 18 or older and consent to Google processing your image to generate your picture. To download it, simply scan the QR code provided at the end and check back to see when it's ready.
+                  Take a photo and we'll create a picture using your selected effect. By submitting your photo, you confirm that you are 18 or older and consent to Google processing your image to generate your picture. To download it, simply scan the QR code provided at the end.
                 </AlertDialogDescription>
               </AlertDialogHeader>
             </div>
             
             <div className="flex flex-col gap-4 min-w-[280px]">
               <Button 
-                onClick={() => router.push('/kiosk')}
-                className="w-full py-8 text-xl font-bold rounded-full bg-[#4285F4] hover:bg-[#4285F4]/90 text-white shadow-lg shadow-blue-500/20"
+                onClick={handleProceed}
+                disabled={isNavigating}
+                className="w-full py-8 text-xl font-bold rounded-full bg-[#4285F4] hover:bg-[#4285F4]/90 text-white shadow-lg shadow-blue-500/20 flex items-center justify-center gap-3"
               >
-                Accept and proceed
+                {isNavigating ? (
+                  <>
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  'Accept and proceed'
+                )}
               </Button>
               <Button 
                 variant="outline"
+                disabled={isNavigating}
                 onClick={() => setShowConsent(false)}
                 className="w-full py-8 text-xl font-bold rounded-full border-2 border-[#4285F4] text-[#4285F4] hover:bg-zinc-100 bg-white"
               >
