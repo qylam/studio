@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -11,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { useFirestore, useAuth } from '@/firebase';
+import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'thanks';
@@ -94,7 +93,6 @@ export default function KioskFlow() {
   const db = useFirestore();
   const auth = useAuth();
 
-  // Handle Anonymous Authentication for Firestore Writes
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -107,7 +105,6 @@ export default function KioskFlow() {
     return () => unsubscribe();
   }, [auth]);
 
-  // Camera initialization
   useEffect(() => {
     const getCameraPermission = async () => {
       if (step !== 'capture') return;
@@ -134,7 +131,6 @@ export default function KioskFlow() {
     };
   }, [step, toast]);
 
-  // Capture Countdown
   useEffect(() => {
     if (countdown === null) return;
     if (countdown > 0) {
@@ -166,7 +162,6 @@ export default function KioskFlow() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return imageUrl;
 
-    // Reduced resolution to stay safely under Firestore 1MB document limit
     canvas.width = 800;
     canvas.height = 1000;
     ctx.fillStyle = 'white';
@@ -193,7 +188,6 @@ export default function KioskFlow() {
     await document.fonts.ready;
     ctx.fillText(caption, canvas.width / 2, imgWidth + margin + 120);
 
-    // Using lower quality (0.7) to ensure Base64 string is < 1MB
     return canvas.toDataURL('image/jpeg', 0.7);
   };
 
@@ -210,7 +204,6 @@ export default function KioskFlow() {
     setVisionId(null);
 
     try {
-      // Ensure user is signed in anonymously before proceeding
       if (auth && !auth.currentUser) {
         await signInAnonymously(auth);
       }
@@ -228,27 +221,30 @@ export default function KioskFlow() {
       setResultImage(bakedPolaroid);
       setStep('results');
 
-      // Save to Firestore
       if (db) {
         setIsSaving(true);
-        try {
-          const docRef = await addDoc(collection(db, 'visions'), {
-            imageData: bakedPolaroid,
-            activity: response.selectedActivity,
-            theme: selectedTheme.title,
-            createdAt: serverTimestamp()
+        const data = {
+          imageData: bakedPolaroid,
+          activity: response.selectedActivity,
+          theme: selectedTheme.title,
+          createdAt: serverTimestamp()
+        };
+        const visionsRef = collection(db, 'visions');
+
+        addDoc(visionsRef, data)
+          .then((docRef) => {
+            setVisionId(docRef.id);
+            setIsSaving(false);
+          })
+          .catch(async (serverError) => {
+            setIsSaving(false);
+            const permissionError = new FirestorePermissionError({
+              path: 'visions',
+              operation: 'create',
+              requestResourceData: data,
+            });
+            errorEmitter.emit('permission-error', permissionError);
           });
-          setVisionId(docRef.id);
-          setIsSaving(false);
-        } catch (err: any) {
-          console.error("Firestore save error:", err);
-          setIsSaving(false);
-          toast({ 
-            variant: 'destructive', 
-            title: 'Database Save Failed', 
-            description: err.message || "The image might be too large or permissions are missing." 
-          });
-        }
       }
     } catch (error: any) {
       setStep('select-style');
