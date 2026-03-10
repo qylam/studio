@@ -98,7 +98,7 @@ export default function KioskFlow() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         signInAnonymously(auth).catch((err) => {
-          console.error("Auth failed:", err);
+          console.error("Auth initialization failed:", err);
         });
       }
     });
@@ -204,6 +204,7 @@ export default function KioskFlow() {
     setVisionId(null);
 
     try {
+      // Ensure we are signed in before proceeding
       if (auth && !auth.currentUser) {
         await signInAnonymously(auth);
       }
