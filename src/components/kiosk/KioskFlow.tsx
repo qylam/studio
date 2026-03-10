@@ -296,12 +296,11 @@ export default function KioskFlow() {
     const lineHeight = 45;
     
     lines.forEach((line, index) => {
-      // Increased vertical offset for more space between image and text
       const yOffset = BOTTOM_AREA_START + 100 + (index * lineHeight);
       ctx.fillText(line, CANVAS_WIDTH / 2, yOffset);
     });
 
-    return canvas.toDataURL('image/jpeg', 0.7); // 0.7 quality to stay well under 1MB
+    return canvas.toDataURL('image/jpeg', 0.7);
   };
 
   const handleThemeSelect = (theme: typeof THEMES[0]) => {
@@ -336,7 +335,7 @@ export default function KioskFlow() {
           imageData: bakedPolaroid,
           activity: response.selectedActivity,
           theme: selectedTheme.title,
-          createdAt: new Date().toISOString() // Using ISO string to match schema and avoid permission issues
+          createdAt: new Date().toISOString()
         };
         const visionsRef = collection(db, 'visions');
 
