@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -94,6 +95,7 @@ export default function KioskFlow() {
   const db = useFirestore();
   const auth = useAuth();
 
+  // Initialize Anonymous Auth for Security Rules compliance
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -209,6 +211,7 @@ export default function KioskFlow() {
     setVisionId(null);
 
     try {
+      // Ensure user is signed in before write
       if (auth && !auth.currentUser) {
         await signInAnonymously(auth);
       }
@@ -226,6 +229,7 @@ export default function KioskFlow() {
       setResultImage(bakedPolaroid);
       setStep('results');
 
+      // Save to Firestore
       if (db) {
         setIsSaving(true);
         const data = {
@@ -294,7 +298,11 @@ export default function KioskFlow() {
             )}
           </div>
           <div className="flex flex-col items-center gap-6">
-            <Button onClick={() => setCountdown(3)} disabled={countdown !== null || hasCameraPermission === false || !isAuthReady} className="btn-google-blue h-auto py-6 px-12 text-2xl rounded-full">
+            <Button 
+              onClick={() => setCountdown(3)} 
+              disabled={countdown !== null || hasCameraPermission === false || !isAuthReady} 
+              className="btn-google-blue h-auto py-6 px-12 text-2xl rounded-full"
+            >
               <Camera className="mr-3 h-8 w-8" />
               {countdown !== null ? 'Get Ready...' : 'Take your Photo'}
             </Button>
