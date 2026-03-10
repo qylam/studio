@@ -7,12 +7,50 @@ import { useDoc, useFirestore } from '@/firebase';
 import { useParams } from 'next/navigation';
 
 export default function SharePortal() {
-  const { id } = useParams();
+  const params = useParams();
   const db = useFirestore();
-  const { data: vision, loading, error } = useDoc(db ? `visions/${id}` : null);
 
-  const handleDownload = () => {
+  const docId = (params?.id || params?.visionId) as string;
+
+  const { data: vision, loading, error } = useDoc(db, docId ? `visions/${docId}` : null);
+
+  // Helper function to convert base64 to a File object
+  const dataURLtoFile = (dataurl: string, filename: string) => {
+    let arr = dataurl.split(','),
+        mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg',
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type: mime});
+  }
+
+  const handleDownload = async () => {
     if (!vision?.imageData) return;
+
+    try {
+      // 1. Try native mobile sharing first (Best for iOS/Android)
+      if (navigator.share) {
+        const file = dataURLtoFile(vision.imageData, 'my-free-time-vision.jpg');
+        // Check if the browser allows sharing files
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'My Free-Time Vision',
+            text: 'Check out my AI-generated vision!',
+          });
+          return; // Success! Stop here.
+        }
+      }
+    } catch (err) {
+      console.log('Sharing failed or was cancelled by user', err);
+      // If they just cancelled the share sheet, we can return early
+      if ((err as Error).name === 'AbortError') return; 
+    }
+
+    // 2. Fallback for Desktop browsers or incompatible devices
     const link = document.createElement('a');
     link.href = vision.imageData;
     link.download = `my-free-time-vision.jpg`;
@@ -21,7 +59,7 @@ export default function SharePortal() {
     document.body.removeChild(link);
   };
 
-  if (loading) {
+  if (!docId || loading) {
     return (
       <div className="min-h-screen bg-[#16181B] flex items-center justify-center">
         <Loader2 className="w-12 h-12 text-[#4290FF] animate-spin" />
@@ -51,7 +89,7 @@ export default function SharePortal() {
         {/* Polaroid Vision - Displayed directly as stored */}
         <div className="relative group">
           <div className="absolute -inset-1 bg-[#4290FF]/20 rounded-lg blur-lg"></div>
-          <div className="relative bg-white p-2 rounded-sm shadow-2xl">
+          <div className="relative rounded-sm shadow-2xl overflow-hidden">
             <img src={vision.imageData} alt="Your AI Vision" className="w-full h-auto" />
           </div>
         </div>

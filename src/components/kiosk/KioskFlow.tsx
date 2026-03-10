@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles, Loader2, QrCode } from 'lucide-react';
+import { Camera, Zap, ChevronLeft, ArrowLeft, Sparkles, Loader2, QrCode, RefreshCcw, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
@@ -14,7 +14,7 @@ import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-type KioskStep = 'capture' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'thanks';
+type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'thanks';
 
 const STYLES = [
   { 
@@ -156,7 +156,7 @@ export default function KioskFlow() {
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
         setCapturedImage(canvasRef.current.toDataURL('image/jpeg', 0.8));
-        setStep('select-theme');
+        setStep('review');
       }
     }
   };
@@ -225,7 +225,6 @@ export default function KioskFlow() {
 
       if (db) {
         setIsSaving(true);
-        // Using ISO string to match schema's "string" type for createdAt
         const data = {
           imageData: bakedPolaroid,
           activity: response.selectedActivity,
@@ -272,7 +271,8 @@ export default function KioskFlow() {
 
   const getShareUrl = () => {
     if (typeof window === 'undefined' || !visionId) return '';
-    return `${window.location.origin}/share/${visionId}`;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    return `${baseUrl}/share/${visionId}`;
   };
 
   return (
@@ -308,6 +308,35 @@ export default function KioskFlow() {
         </div>
       )}
 
+      {step === 'review' && capturedImage && (
+        <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
+          <h2 className="text-7xl font-bold text-white font-headline">Looking good?</h2>
+          <div className="relative max-w-4xl mx-auto rounded-[2rem] border-2 border-white/10 bg-zinc-900 overflow-hidden aspect-video">
+             <img src={capturedImage} alt="Captured" className="w-full h-full object-cover transform -scale-x-100" />
+          </div>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setCapturedImage(null);
+                setStep('capture');
+              }}
+              className="h-auto py-6 px-10 text-2xl rounded-full border-white/20 text-white hover:bg-white/10"
+            >
+              <RefreshCcw className="mr-3 h-6 w-6" />
+              Retake Photo
+            </Button>
+            <Button 
+              onClick={() => setStep('select-theme')}
+              className="btn-google-blue h-auto py-6 px-12 text-2xl rounded-full"
+            >
+              <Check className="mr-3 h-8 w-8" />
+              Looks Great!
+            </Button>
+          </div>
+        </div>
+      )}
+
       {step === 'select-theme' && (
         <div className="w-full space-y-12 animate-in fade-in duration-500">
           <div className="text-center space-y-4">
@@ -329,6 +358,12 @@ export default function KioskFlow() {
               </div>
             ))}
           </div>
+          <div className="flex justify-center pt-8">
+             <Button variant="ghost" onClick={() => setStep('review')} className="text-white/40 text-xl font-headline">
+               <ChevronLeft className="mr-2 h-6 w-6" />
+               Back to photo
+             </Button>
+          </div>
         </div>
       )}
 
@@ -346,6 +381,12 @@ export default function KioskFlow() {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="flex justify-center pt-8">
+             <Button variant="ghost" onClick={() => setStep('select-theme')} className="text-white/40 text-xl font-headline">
+               <ChevronLeft className="mr-2 h-6 w-6" />
+               Back to themes
+             </Button>
           </div>
         </div>
       )}
@@ -372,11 +413,19 @@ export default function KioskFlow() {
                   <span className="text-sm font-bold uppercase tracking-widest">Generating Link...</span>
                 </div>
               ) : (
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
-                  alt="QR Code" 
-                  className="w-full h-full" 
-                />
+                <a 
+                  href={getShareUrl()} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                  title="Tap to download"
+                >
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
+                    alt="QR Code" 
+                    className="w-full h-full" 
+                  />
+                </a>
               )}
             </div>
             
