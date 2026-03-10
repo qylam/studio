@@ -13,6 +13,13 @@ import { collection, addDoc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'thanks';
 
@@ -221,7 +228,7 @@ export default function KioskFlow() {
     // Define Layout Constants
     const CANVAS_WIDTH = 800;
     const CANVAS_HEIGHT = 1000;
-    const TOP_PADDING = 110; // Increased to accommodate larger logo
+    const TOP_PADDING = 110; 
     const SIDE_MARGIN = 40;
     const IMG_SIZE = CANVAS_WIDTH - (SIDE_MARGIN * 2);
     const BOTTOM_AREA_START = TOP_PADDING + IMG_SIZE;
@@ -233,12 +240,11 @@ export default function KioskFlow() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // 2. Draw Branding (Top Left) - Made Bigger
+    // 2. Draw Branding (Top Left)
     ctx.save();
     const logoX = SIDE_MARGIN;
     const logoY = 40;
     
-    // Draw enlarged star-ish logo
     ctx.fillStyle = '#4285F4';
     ctx.beginPath();
     ctx.moveTo(logoX + 15, logoY);
@@ -253,7 +259,7 @@ export default function KioskFlow() {
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
-    ctx.font = 'bold 28px Inter, sans-serif'; // Bigger font
+    ctx.font = 'bold 28px Inter, sans-serif'; 
     ctx.textAlign = 'left';
     ctx.fillText('Chrome Connect', logoX + 45, logoY + 24);
     ctx.restore();
@@ -300,7 +306,6 @@ export default function KioskFlow() {
     const lines = wrapText(caption, maxTextWidth);
     const lineHeight = 45;
     
-    // Increased gap between image and text start (from 60 to 100)
     lines.forEach((line, index) => {
       const yOffset = BOTTOM_AREA_START + 100 + (index * lineHeight);
       ctx.fillText(line, CANVAS_WIDTH / 2, yOffset);
@@ -460,16 +465,26 @@ export default function KioskFlow() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto px-4">
-            {THEMES.map((theme) => (
-              <div key={theme.id} onClick={() => handleThemeSelect(theme)} className="group cursor-pointer relative aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all">
-                <img src={PlaceHolderImages.find(i => i.id === theme.id)?.imageUrl || ''} alt={theme.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                <div className="absolute inset-0 bg-black/40 flex items-end p-6">
-                  <h3 className="text-xl font-bold text-white font-headline">{theme.title}</h3>
-                </div>
-              </div>
-            ))}
+          
+          <div className="relative px-12 md:px-20 w-full max-w-7xl mx-auto">
+            <Carousel opts={{ align: "start", loop: false }} className="w-full">
+              <CarouselContent className="-ml-6">
+                {THEMES.map((theme) => (
+                  <CarouselItem key={theme.id} className="pl-6 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <div onClick={() => handleThemeSelect(theme)} className="group cursor-pointer relative aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900">
+                      <img src={PlaceHolderImages.find(i => i.id === theme.id)?.imageUrl || ''} alt={theme.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      <div className="absolute inset-0 bg-black/40 flex items-end p-6">
+                        <h3 className="text-xl font-bold text-white font-headline">{theme.title}</h3>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 h-12 w-12" />
+              <CarouselNext className="hidden md:flex -right-12 h-12 w-12" />
+            </Carousel>
           </div>
+
           <div className="flex justify-center pt-8">
              <Button variant="ghost" onClick={() => setStep('review')} className="text-white/40 text-xl font-headline">
                <ChevronLeft className="mr-2 h-6 w-6" />
@@ -484,16 +499,26 @@ export default function KioskFlow() {
           <div className="text-center">
             <h2 className="text-6xl font-bold text-white font-headline">Select your style</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
-            {STYLES.map((style) => (
-              <div key={style.id} onClick={() => generateVision(style)} className="group cursor-pointer relative aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all">
-                <img src={PlaceHolderImages.find(i => i.id === style.id)?.imageUrl || ''} alt={style.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                <div className="absolute inset-0 bg-black/40 flex items-end p-6">
-                  <h3 className="text-xl font-bold text-white font-headline">{style.title}</h3>
-                </div>
-              </div>
-            ))}
+
+          <div className="relative px-12 md:px-20 w-full max-w-7xl mx-auto">
+            <Carousel opts={{ align: "start", loop: false }} className="w-full">
+              <CarouselContent className="-ml-6">
+                {STYLES.map((style) => (
+                  <CarouselItem key={style.id} className="pl-6 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <div key={style.id} onClick={() => generateVision(style)} className="group cursor-pointer relative aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900">
+                      <img src={PlaceHolderImages.find(i => i.id === style.id)?.imageUrl || ''} alt={style.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      <div className="absolute inset-0 bg-black/40 flex items-end p-6">
+                        <h3 className="text-xl font-bold text-white font-headline">{style.title}</h3>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 h-12 w-12" />
+              <CarouselNext className="hidden md:flex -right-12 h-12 w-12" />
+            </Carousel>
           </div>
+
           <div className="flex justify-center pt-8">
              <Button variant="ghost" onClick={() => setStep('select-theme')} className="text-white/40 text-xl font-headline">
                <ChevronLeft className="mr-2 h-6 w-6" />
