@@ -38,7 +38,7 @@
   "firestore": {
     "/visions/{visionId}": {
       "schema": "#/backend/entities/SharedVision",
-      "description": "Collection of generated visions. Rules: allow read: if true; allow create: if request.auth != null; // Deployment Trigger: 2024-05-24-12-00"
+      "description": "Collection of generated visions. Rules: allow read: if true; allow create: if request.auth != null; // Deployment Trigger: 2024-05-25-14-30"
     }
   }
 }

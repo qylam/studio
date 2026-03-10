@@ -85,6 +85,7 @@ export default function KioskFlow() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [visionId, setVisionId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isAuthReady, setIsAuthReady] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -97,9 +98,13 @@ export default function KioskFlow() {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        signInAnonymously(auth).catch((err) => {
+        signInAnonymously(auth).then(() => {
+          setIsAuthReady(true);
+        }).catch((err) => {
           console.error("Auth initialization failed:", err);
         });
+      } else {
+        setIsAuthReady(true);
       }
     });
     return () => unsubscribe();
@@ -204,7 +209,6 @@ export default function KioskFlow() {
     setVisionId(null);
 
     try {
-      // Ensure we are signed in before proceeding
       if (auth && !auth.currentUser) {
         await signInAnonymously(auth);
       }
@@ -290,7 +294,7 @@ export default function KioskFlow() {
             )}
           </div>
           <div className="flex flex-col items-center gap-6">
-            <Button onClick={() => setCountdown(3)} disabled={countdown !== null || hasCameraPermission === false} className="btn-google-blue h-auto py-6 px-12 text-2xl rounded-full">
+            <Button onClick={() => setCountdown(3)} disabled={countdown !== null || hasCameraPermission === false || !isAuthReady} className="btn-google-blue h-auto py-6 px-12 text-2xl rounded-full">
               <Camera className="mr-3 h-8 w-8" />
               {countdown !== null ? 'Get Ready...' : 'Take your Photo'}
             </Button>
@@ -362,7 +366,7 @@ export default function KioskFlow() {
             <div className="relative bg-white p-4 rounded-2xl w-64 h-64 mx-auto md:mx-0 shadow-2xl flex items-center justify-center">
               {isSaving || !visionId ? (
                 <div className="flex flex-col items-center gap-3 text-zinc-400">
-                  <Loader2 className="w-10 h-10 animate-spin text-[#4285F4]" />
+                  <Loader2 className="w-10 h-10 animate-spin text-[#4290FF]" />
                   <span className="text-sm font-bold uppercase tracking-widest">Generating Link...</span>
                 </div>
               ) : (
