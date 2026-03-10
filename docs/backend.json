@@ -38,7 +38,7 @@
   "firestore": {
     "/visions/{visionId}": {
       "schema": "#/backend/entities/SharedVision",
-      "description": "Collection of generated visions shareable via unique IDs. Optimized for storage below 1MB per document. Note: Anonymous users are allowed to create these visions."
+      "description": "Collection of generated visions. Rules: Allow create if user is authenticated (including anonymous). Allow get (read) for everyone to enable sharing via ID."
     }
   }
 }
