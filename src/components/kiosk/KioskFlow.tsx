@@ -230,27 +230,27 @@ export default function KioskFlow() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Branding
+    // Branding - Larger & Professional
     ctx.save();
     const logoX = SIDE_MARGIN;
     const logoY = 40;
     ctx.fillStyle = '#4285F4';
     ctx.beginPath();
-    ctx.moveTo(logoX + 18, logoY);
-    ctx.lineTo(logoX + 22, logoY + 14);
-    ctx.lineTo(logoX + 36, logoY + 18);
-    ctx.lineTo(logoX + 22, logoY + 22);
-    ctx.lineTo(logoX + 18, logoY + 36);
-    ctx.lineTo(logoX + 14, logoY + 22);
-    ctx.lineTo(logoX, logoY + 18);
-    ctx.lineTo(logoX + 14, logoY + 14);
+    ctx.moveTo(logoX + 22, logoY);
+    ctx.lineTo(logoX + 28, logoY + 18);
+    ctx.lineTo(logoX + 46, logoY + 22);
+    ctx.lineTo(logoX + 28, logoY + 26);
+    ctx.lineTo(logoX + 22, logoY + 46);
+    ctx.lineTo(logoX + 16, logoY + 26);
+    ctx.lineTo(logoX, logoY + 22);
+    ctx.lineTo(logoX + 16, logoY + 18);
     ctx.closePath();
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
-    ctx.font = 'bold 32px Inter, sans-serif'; 
+    ctx.font = 'bold 36px Inter, sans-serif'; 
     ctx.textAlign = 'left';
-    ctx.fillText('Chrome Connect', logoX + 50, logoY + 28);
+    ctx.fillText('Chrome Connect', logoX + 60, logoY + 36);
     ctx.restore();
 
     // AI Image
@@ -262,7 +262,7 @@ export default function KioskFlow() {
     });
     ctx.drawImage(img, SIDE_MARGIN, TOP_PADDING, IMG_SIZE, IMG_SIZE);
 
-    // Caption Wrapping
+    // Caption Wrapping - Better spacing
     ctx.fillStyle = '#27272a';
     ctx.font = 'italic 38px Caveat, cursive';
     ctx.textAlign = 'center';
@@ -296,11 +296,12 @@ export default function KioskFlow() {
     const lineHeight = 45;
     
     lines.forEach((line, index) => {
+      // Increased vertical offset for more space between image and text
       const yOffset = BOTTOM_AREA_START + 100 + (index * lineHeight);
       ctx.fillText(line, CANVAS_WIDTH / 2, yOffset);
     });
 
-    return canvas.toDataURL('image/jpeg', 0.7);
+    return canvas.toDataURL('image/jpeg', 0.7); // 0.7 quality to stay well under 1MB
   };
 
   const handleThemeSelect = (theme: typeof THEMES[0]) => {
@@ -309,7 +310,7 @@ export default function KioskFlow() {
   };
 
   const generateVision = async (style: typeof STYLES[0]) => {
-    if (!capturedImage || !selectedTheme) return;
+    if (!capturedImage || !selectedTheme || !isAuthReady) return;
     
     setIsProcessing(true);
     setStep('processing');
@@ -335,7 +336,7 @@ export default function KioskFlow() {
           imageData: bakedPolaroid,
           activity: response.selectedActivity,
           theme: selectedTheme.title,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString() // Using ISO string to match schema and avoid permission issues
         };
         const visionsRef = collection(db, 'visions');
 
@@ -377,7 +378,7 @@ export default function KioskFlow() {
 
   const getShareUrl = () => {
     if (typeof window === 'undefined' || !visionId) return '';
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const baseUrl = window.location.origin;
     return `${baseUrl}/share/${visionId}`;
   };
 

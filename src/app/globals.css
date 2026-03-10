@@ -58,10 +58,10 @@
   font-family: var(--font-handwriting);
 }
 
-/* Subtle Scrollbar Styling */
+/* Subtle Grey Scrollbar Styling */
 .scrollbar-subtle {
   scrollbar-width: thin;
-  scrollbar-color: rgba(66, 144, 255, 0.3) rgba(255, 255, 255, 0.05);
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
 .scrollbar-subtle::-webkit-scrollbar {
@@ -69,16 +69,19 @@
 }
 
 .scrollbar-subtle::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  background: transparent;
 }
 
 .scrollbar-subtle::-webkit-scrollbar-thumb {
-  background: rgba(66, 144, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05); /* Almost invisible grey */
   border-radius: 10px;
-  transition: background 0.2s ease;
+  transition: background 0.3s ease;
+}
+
+.scrollbar-subtle:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2); /* Becomes visible on container hover */
 }
 
 .scrollbar-subtle::-webkit-scrollbar-thumb:hover {
-  background: rgba(66, 144, 255, 0.5);
+  background: rgba(255, 255, 255, 0.4); /* Darker grey on direct hover */
 }
