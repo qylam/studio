@@ -18,58 +18,108 @@ type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'proce
 
 const STYLES = [
   { 
-    id: 'style-keychain', 
-    title: 'Cute Keychain', 
-    detail: 'Kawaii KEYCHAIN CHARACTER, Pixar-inspired style, soft rounded features, glossy eyes, high-detail 3D render.' 
+    id: 'style-editorial', 
+    title: 'Magazine Editorial', 
+    detail: 'High-end business magazine cover photoshoot, crisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
   },
   { 
-    id: 'style-oil', 
-    title: 'Oil Painting', 
-    detail: 'Classic 19th-century oil painting on canvas, thick impasto brushstrokes, dramatic chiaroscuro lighting.' 
+    id: 'style-cinematic', 
+    title: 'Cinematic Epic', 
+    detail: 'Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
   },
   { 
-    id: 'style-steampunk', 
-    title: 'Steampunk', 
-    detail: 'High-detail steampunk character, Victorian attire, brass buckles, goggles, sepia palette.' 
+    id: 'style-noir', 
+    title: 'Timeless Noir', 
+    detail: 'Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage Leica camera aesthetic, sophisticated and powerful.' 
   },
   { 
-    id: 'style-clay', 
-    title: 'Claymation', 
-    detail: 'Handcrafted stop-motion claymation miniature, Tim Burton style, expressive eyes, moody lighting.' 
+    id: 'style-masterpiece', 
+    title: 'Museum Masterpiece', 
+    detail: 'Classic 19th-century oil painting on canvas, thick impasto brushstrokes, dramatic chiaroscuro lighting, regal and prestigious atmosphere, gallery-quality art.' 
   },
+  { 
+    id: 'style-visionary', 
+    title: 'Tech Visionary', 
+    detail: 'Sleek futuristic aesthetic, subtle glowing neon accents, clean high-tech environment, hyper-realistic 3D render, forward-thinking corporate leadership vibe.' 
+  },
+  { 
+    id: 'style-popart', 
+    title: 'Modern Art Collector', 
+    detail: 'Vibrant pop art style inspired by Andy Warhol, bold flat colors, high-contrast graphic aesthetic, iconic and modern.' 
+  }
 ];
 
 const THEMES = [
   { 
-    id: 'theme-teaching', 
-    title: 'Level up my teaching', 
+    id: 'theme-green', 
+    title: 'Master the Green', 
     variations: [
-      { scene: 'modern high-tech classroom', activity: 'demonstrating holographic physics' },
-      { scene: 'cozy storybook library', activity: 'reading an enchanted glowing book' },
+      { scene: 'lush, sun-drenched championship golf course', activity: 'sinking a perfect tournament-winning putt' },
+      { scene: 'exclusive private grass tennis court at golden hour', activity: 'executing a flawless jumping backhand smash' },
+      { scene: 'dramatic cliffside golf hole overlooking a crashing ocean', activity: 'teeing off into a spectacular sunset' }
     ]
   },
   { 
-    id: 'theme-recipe', 
-    title: 'Learn a new recipe', 
+    id: 'theme-culinary', 
+    title: 'Indulge my inner foodie', 
     variations: [
-      { scene: 'rustic Italian villa kitchen', activity: 'kneading fresh pasta dough' },
-      { scene: 'molecular gastronomy lab', activity: 'creating edible liquid nitrogen art' },
+      { scene: 'exclusive Chef\'s table in a Michelin-star kitchen', activity: 'tasting a masterpiece of molecular gastronomy' },
+      { scene: 'sunlit luxury terrace overlooking the Amalfi coast', activity: 'enjoying a perfectly plated truffle risotto' },
+      { scene: 'misty, ancient forest in the Piedmont region', activity: 'foraging for rare white truffles with a master guide' }
     ]
   },
   { 
-    id: 'theme-zen', 
-    title: 'Find my zen', 
+    id: 'theme-warrior', 
+    title: 'Unleash the weekend warrior', 
     variations: [
-      { scene: 'misty mountaintop temple', activity: 'performing slow Tai Chi' },
-      { scene: 'glowing bioluminescent forest', activity: 'listening to whispers of ancient trees' },
+      { scene: 'rugged, pine-covered mountain bike trail', activity: 'catching air over a massive dirt jump' },
+      { scene: 'remote, untouched backcountry mountain peak', activity: 'carving fresh powder tracks on a snowboard' },
+      { scene: 'roaring, crystal-clear white-water canyon river', activity: 'expertly navigating a sleek carbon-fiber kayak' }
     ]
   },
   { 
-    id: 'theme-active', 
-    title: 'Get more active', 
+    id: 'theme-deepsea', 
+    title: 'Explore the deep sea', 
     variations: [
-      { scene: 'neon-lit urban rooftop', activity: 'mastering high-speed parkour' },
-      { scene: 'desert canyon adventure', activity: 'rock climbing up a mesa' },
+      { scene: 'panoramic glass bubble of a high-tech submersible', activity: 'navigating through glowing bioluminescent coral reefs' },
+      { scene: 'ancient, submerged shipwreck in crystal-clear water', activity: 'swimming alongside a majestic giant manta ray' },
+      { scene: 'mysterious, illuminated underwater cenote cave', activity: 'free-diving gracefully through beams of sunlight' }
+    ]
+  },
+  { 
+    id: 'theme-racing', 
+    title: 'Chase the Grand Prix thrill', 
+    variations: [
+      { scene: 'sweeping corner of a sunlit private race circuit', activity: 'steering a roaring vintage Ferrari' },
+      { scene: 'glamorous Monaco street circuit at dusk', activity: 'celebrating a first-place podium finish' },
+      { scene: 'pristine, high-tech luxury racing garage', activity: 'analyzing telemetry data next to a Le Mans hypercar' }
+    ]
+  },
+  { 
+    id: 'theme-vineyard', 
+    title: 'Tend to my private vineyard', 
+    variations: [
+      { scene: 'rolling hills of a Tuscan private estate', activity: 'inspecting sun-ripened Sangiovese grapes' },
+      { scene: 'rustic, candlelit Napa Valley wine cave', activity: 'expertly blending a custom reserve vintage' },
+      { scene: 'elegant, sun-dappled chateau courtyard', activity: 'hosting an exclusive tasting of a private reserve vintage' }
+    ]
+  },
+  { 
+    id: 'theme-alpine', 
+    title: 'Conquer the Alpine peaks', 
+    variations: [
+      { scene: 'dramatic, snow-capped Swiss summit', activity: 'standing victorious with an ice axe in hand' },
+      { scene: 'sheer, vertical granite rock face above the clouds', activity: 'free-climbing with intense focus and grip' },
+      { scene: 'remote, untouched glacier in British Columbia', activity: 'carving the first tracks after a thrilling heli-drop' }
+    ]
+  },
+  { 
+    id: 'theme-space', 
+    title: 'Oversee from orbit', 
+    variations: [
+      { scene: 'luxurious private space module with a massive window', activity: 'floating weightlessly while gazing at the Earth\'s curvature' },
+      { scene: 'futuristic lunar resort lounge', activity: 'sipping espresso while watching a brilliant Earthrise' },
+      { scene: 'sleek, zero-gravity orbital botanical garden', activity: 'tending to futuristic glowing plants while floating' }
     ]
   },
 ];
@@ -168,31 +218,92 @@ export default function KioskFlow() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return imageUrl;
 
-    canvas.width = 800;
-    canvas.height = 1000;
+    // Define Layout Constants
+    const CANVAS_WIDTH = 800;
+    const CANVAS_HEIGHT = 1000;
+    const TOP_PADDING = 80;
+    const SIDE_MARGIN = 40;
+    const IMG_SIZE = CANVAS_WIDTH - (SIDE_MARGIN * 2);
+    const BOTTOM_AREA_START = TOP_PADDING + IMG_SIZE;
+    
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+    
+    // 1. Draw Background
     ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+    // 2. Draw Branding (Top Left)
+    ctx.save();
+    const logoX = SIDE_MARGIN;
+    const logoY = 30;
+    
+    // Draw simple star-ish logo
+    ctx.fillStyle = '#4285F4';
+    ctx.beginPath();
+    ctx.moveTo(logoX + 10, logoY);
+    ctx.lineTo(logoX + 12, logoY + 8);
+    ctx.lineTo(logoX + 20, logoY + 10);
+    ctx.lineTo(logoX + 12, logoY + 12);
+    ctx.lineTo(logoX + 10, logoY + 20);
+    ctx.lineTo(logoX + 8, logoY + 12);
+    ctx.lineTo(logoX, logoY + 10);
+    ctx.lineTo(logoX + 8, logoY + 8);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#27272a';
+    ctx.font = 'bold 20px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Chrome Connect', logoX + 30, logoY + 15);
+    ctx.restore();
+
+    // 3. Draw Main AI Image
     const img = new Image();
     img.crossOrigin = "anonymous";
     await new Promise((resolve) => {
       img.onload = resolve;
       img.src = imageUrl;
     });
+    ctx.drawImage(img, SIDE_MARGIN, TOP_PADDING, IMG_SIZE, IMG_SIZE);
 
-    const margin = 40;
-    const imgWidth = canvas.width - (margin * 2);
-    ctx.drawImage(img, margin, margin, imgWidth, imgWidth);
-
+    // 4. Draw Handwritten Caption with Wrapping
     ctx.fillStyle = '#27272a';
-    ctx.font = 'italic 40px Caveat, cursive';
+    ctx.font = 'italic 38px Caveat, cursive';
     ctx.textAlign = 'center';
     
     const cleanActivity = getCleanText(rawActivity);
     const caption = `${cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1)}, thanks to Gemini`;
     
     await document.fonts.ready;
-    ctx.fillText(caption, canvas.width / 2, imgWidth + margin + 100);
+
+    const wrapText = (text: string, maxWidth: number) => {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = words[0];
+
+      for (let i = 1; i < words.length; i++) {
+        const word = words[i];
+        const width = ctx.measureText(currentLine + " " + word).width;
+        if (width < maxWidth) {
+          currentLine += " " + word;
+        } else {
+          lines.push(currentLine);
+          currentLine = word;
+        }
+      }
+      lines.push(currentLine);
+      return lines;
+    };
+
+    const maxTextWidth = IMG_SIZE - 20;
+    const lines = wrapText(caption, maxTextWidth);
+    const lineHeight = 45;
+    
+    lines.forEach((line, index) => {
+      const yOffset = BOTTOM_AREA_START + 60 + (index * lineHeight);
+      ctx.fillText(line, CANVAS_WIDTH / 2, yOffset);
+    });
 
     return canvas.toDataURL('image/jpeg', 0.7);
   };

@@ -2,81 +2,93 @@
   "placeholderImages": [
     {
       "id": "hero-example",
-      "description": "A sophisticated lifestyle shot representing free time",
-      "imageUrl": "https://images.unsplash.com/photo-1503209876239-eeec5bbce0eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxyZWxheGluZyUyMGxpZmVzdHlsZXxlbnwwfHx8fDE3NzI0MTY3MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "relaxing lifestyle"
+      "description": "A sophisticated luxury lifestyle shot representing executive free time",
+      "imageUrl": "https://images.unsplash.com/photo-1566073771259-6a8506099945?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "luxury resort lifestyle"
     },
     {
-      "id": "theme-teaching",
-      "description": "Level up my teaching theme",
-      "imageUrl": "https://images.unsplash.com/photo-1760121788536-9797394e210e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw8fHx0ZWFjaGluZyUyMGNsYXNzcm9vbXxlbnwwfHx8fDE3NzI0Mjk1ODR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "teaching classroom"
+      "id": "theme-green",
+      "description": "Master the Green theme",
+      "imageUrl": "https://images.unsplash.com/photo-1587329310686-91414b8e3cb7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "championship golf course"
     },
     {
-      "id": "theme-recipe",
-      "description": "Learn a new recipe theme",
-      "imageUrl": "https://images.unsplash.com/photo-1557573791-7ab7d3d68932?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb29raW5nJTIwa2l0Y2hlbnxlbnwwfHx8fDE3NzIzNTA5ODF8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "cooking kitchen"
+      "id": "theme-culinary",
+      "description": "Indulge my inner foodie theme",
+      "imageUrl": "https://images.unsplash.com/photo-1590846406792-0adc7f138fbc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "fine dining michelin table"
     },
     {
-      "id": "theme-zen",
-      "description": "Find my zen theme",
-      "imageUrl": "https://images.unsplash.com/photo-1737639441322-8d083c13eb6a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtZWRpdGF0aW9uJTIwZ2FyZGVufGVufDB8fHx8MTc3MjQyOTU4NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "meditation garden"
+      "id": "theme-warrior",
+      "description": "Unleash the weekend warrior theme",
+      "imageUrl": "https://images.unsplash.com/photo-1565992441121-4367c2967103?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "mountain biking extreme"
     },
     {
-      "id": "theme-active",
-      "description": "Get more active theme",
-      "imageUrl": "https://images.unsplash.com/photo-1758520705390-ccfc66f2b18a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmaXRuZXNzJTIwcnVubmluZ3xlbnwwfHx8fDE3NzI0Mjk1ODR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fitness running"
+      "id": "theme-deepsea",
+      "description": "Explore the deep sea theme",
+      "imageUrl": "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "underwater coral reef"
     },
     {
-      "id": "theme-break",
-      "description": "Take a well-earned break theme",
-      "imageUrl": "https://images.unsplash.com/photo-1555895357-1c6cae6c6cce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiZWFjaCUyMGhhbW1vY2t8ZW58MHx8fHwxNzcyNDI5NTg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "beach hammer"
+      "id": "theme-racing",
+      "description": "Chase the Grand Prix thrill theme",
+      "imageUrl": "https://images.unsplash.com/photo-1532980400857-e8d9d275d858?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "race track grand prix"
     },
     {
-      "id": "theme-skill",
-      "description": "Learn a new skill theme",
-      "imageUrl": "https://images.unsplash.com/photo-1554881070-0f77dbb0f2b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3b3Jrc2hvcCUyMGxlYXJuaW5nfGVufDB8fHx8MTc3MjM2NTIxNXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "workshop learning"
+      "id": "theme-vineyard",
+      "description": "Tend to my private vineyard theme",
+      "imageUrl": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "tuscany vineyard estate"
     },
     {
-      "id": "theme-creative",
-      "description": "Get more creative theme",
-      "imageUrl": "https://images.unsplash.com/photo-1708941432245-289f6add01c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YXJ0JTIwcGFpbnRpbmd8ZW58MHx8fHwxNzcyNDI5NTg0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "art painting"
+      "id": "theme-alpine",
+      "description": "Conquer the Alpine peaks theme",
+      "imageUrl": "https://images.unsplash.com/photo-1522163182402-834f871fd851?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "alpine mountain climbing"
     },
     {
-      "id": "theme-imagination",
-      "description": "Let my imagination loose theme",
-      "imageUrl": "https://images.unsplash.com/photo-1761762678285-db493138783d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYW50YXN5JTIwc3RlYW1wdW5rfGVufDB8fHx8MTc3MjQyOTU4NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fantasy steampunk"
+      "id": "theme-space",
+      "description": "Oversee from orbit theme",
+      "imageUrl": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "earth from orbit space"
     },
     {
-      "id": "style-keychain",
-      "description": "Cute Keychain style preview",
-      "imageUrl": "/images/Keychain_Style.png",
-      "imageHint": "cute toy"
+      "id": "style-editorial",
+      "description": "Magazine Editorial style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "magazine cover portrait"
     },
     {
-      "id": "style-oil",
-      "description": "Oil Painting style preview",
-      "imageUrl": "/images/Oil_Painting_Style.png",
-      "imageHint": "oil painting"
+      "id": "style-cinematic",
+      "description": "Cinematic Epic style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "hollywood epic lighting portrait"
     },
     {
-      "id": "style-steampunk",
-      "description": "Steampunk style preview",
-      "imageUrl": "/images/Steampunk_Style.png",
-      "imageHint": "steampunk"
+      "id": "style-noir",
+      "description": "Timeless Noir style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "black and white film noir portrait"
     },
     {
-      "id": "style-clay",
-      "description": "Claymation style preview",
-      "imageUrl": "/images/Claymation_Style.png",
-      "imageHint": "clay"
+      "id": "style-masterpiece",
+      "description": "Museum Masterpiece style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "classic oil painting"
+    },
+    {
+      "id": "style-visionary",
+      "description": "Tech Visionary style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "futuristic tech leader neon"
+    },
+    {
+      "id": "style-popart",
+      "description": "Modern Art Collector style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1557672172-298e090bd0f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "vibrant pop art colors"
     }
   ]
 }

@@ -48,9 +48,13 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
   input: { schema: GenerateThemedPhotoInputSchema },
-  model: 'googleai/gemini-2.5-flash-image',
+  model: 'googleai/gemini-3.1-flash-image-preview',
   config: {
     responseModalities: ['TEXT', 'IMAGE'],
+    imageConfig: {
+      aspectRatio: '1:1',
+      imageSize: "2K"
+    },
     safetySettings: [
       {
         category: 'HARM_CATEGORY_HATE_SPEECH',
@@ -70,7 +74,7 @@ const themedPhotoPrompt = ai.definePrompt({
       },
     ],
   },
-  prompt: `You are an expert photo editor and artistic AI. Your task is to transform the provided photo into a stylized masterpiece.
+  prompt: `You are an expert high-end photo editor and cinematic AI artist working for a luxury lifestyle magazine. Your task is to transform the provided photo of an executive into a stylized, aspirational masterpiece.
 
 STEP 1: IDENTIFY THE THEME
 {{#if scene}}
@@ -82,20 +86,24 @@ Option {{@index}}: Scene: "{{{this.scene}}}", Activity: "{{{this.activity}}}"
 {{/each}}
 {{/if}}
 
-STEP 2: APPLY ARTISTIC STYLE
-Transform the subject based on the chosen theme.
+STEP 2: APPLY ARTISTIC STYLE & INTEGRATION
+Transform the subject based on the chosen theme. You MUST adhere to these strict constraints:
+1. IDENTITY PRESERVATION: Do NOT alter the subject's facial features, identity, gender, age, or ethnicity. The face must remain instantly recognizable.
+2. POSE MATCHING: Keep the subject's original body pose and structural silhouette intact.
+3. ENVIRONMENTAL BLENDING: Seamlessly integrate the subject into the new scene. Cast appropriate environmental lighting, reflections, and shadows onto the subject so they do not look like a pasted sticker.
+4. PREMIUM TONE: The final image must feel expensive, aspirational, and high-quality.
+
 Include these specific stylistic details:
 {{#each details}}
 - {{{this}}}
 {{/each}}
 
-Strictly maintain the subject's likeness and original pose. The style should be cinematic and high-quality.
-
 TEXT OUTPUT FORMAT:
-You MUST provide the following three lines at the very beginning of your text response:
+You MUST output ONLY the following three lines at the very beginning of your response. Do not include any conversational filler, markdown formatting, or greetings.
+
 SELECTED_SCENE: [The chosen scene]
 SELECTED_ACTIVITY: [The chosen activity]
-DESCRIPTION: [A short, 1-sentence description of the final image]
+DESCRIPTION: [A highly detailed, 2-sentence visual description of the final image, integrating the subject, the scene, and the lighting]
 
 Photo: {{media url=photoDataUri}}`,
 });
