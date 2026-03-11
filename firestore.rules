@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY
+     * This ruleset enforces a strict Path-Based Ownership model. Access to data is 
+     * fundamentally tied to the user's authenticated UID matching the document path.
+     *
+     * DATA STRUCTURE
+     * The primary data hierarchy is nested under /users/{userId}. 
+     * Specifically: /users/{userId}/photoBoothSessions/{sessionId}.
+     *
+     * KEY SECURITY DECISIONS
+     * 1. Authorization Independence: Every PhotoBoothSession document includes a denormalized 
+     *    'ownerId' field. Rules validate that this field matches the path and the 
+     *    authenticated user, ensuring security logic is self-contained.
+     * 2. Private by Default: No public read or write access is granted to any session data. 
+     *    Users can only access their own photo booth history.
+     * 3. Prototyping Flexibility: While authorization is strictly enforced (who can access), 
+     *    the internal shape of the data (attributes like themeName, sessionStatus) is 
+     *    not restricted to allow for rapid frontend iteration.
+     *
+     * DENORMALIZATION FOR AUTHORIZATION
+     * To avoid expensive and slow get() calls, the 'ownerId' is stored directly on 
+     * every session document. This allows for immediate, low-cost ownership verification.
+     */
+
+    // --- Helper Functions ---
+
+    /** @description Checks if the request is from an authenticated user. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the authenticated user's UID matches the provided userId. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Checks ownership and ensures the document already exists for modifications. */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --- Rules ---
+
+    /**
+     * @description Represents the root user document for profile information.
+     * @path /users/{userId}
+     * @allow (create) if the user's auth UID matches the document ID.
+     * @deny (create) if a user attempts to create a profile for a different UID.
+     * @principle Self-creation and strict ownership of the user root.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Users cannot be listed for privacy.
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Individual photo booth sessions including capture data and AI status.
+       * @path /users/{userId}/photoBoothSessions/{sessionId}
+       * @allow (list) if the user is requesting their own session subcollection.
+       * @allow (create) if the user is authenticated as {userId} and provides a matching ownerId.
+       * @deny (update) if the user attempts to change the ownerId field.
+       * @principle Path-based ownership with relational integrity via denormalized ownerId.
+       */
+      match /photoBoothSessions/{sessionId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        
+        // On create, ensure the internal ownerId matches the user path to maintain integrity.
+        allow create: if isOwner(userId) && request.resource.data.ownerId == userId;
+        
+        // On update, ensure the ownerId is immutable to prevent session hijacking.
+        allow update: if isExistingOwner(userId) && request.resource.data.ownerId == resource.data.ownerId;
+        
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    // Global Deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

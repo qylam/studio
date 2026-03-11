@@ -21,19 +21,19 @@
     {
       "id": "theme-active",
       "description": "Get more active theme",
-      "imageUrl": "https://images.unsplash.com/photo-1533681436-b51e06fa6f69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      "imageHint": "urban rooftop parkour"
+      "imageUrl": "https://images.unsplash.com/photo-1554924821-06226b7202e6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "urban parkour jumping"
     },
     {
       "id": "theme-break",
       "description": "Take a well-earned break theme",
-      "imageUrl": "https://images.unsplash.com/photo-1540541338-2c4f0051a66f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      "imageHint": "luxury hot spring pool"
+      "imageUrl": "https://images.unsplash.com/photo-1567696911980-2eed69a46042?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "luxury natural hot spring pool"
     },
     {
       "id": "theme-skill",
       "description": "Learn a new skill theme",
-      "imageUrl": "https://images.unsplash.com/photo-1513364776144-60967f0f7f18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1515865404355-ddb5b0910878?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "grand symphony orchestra"
     },
     {
@@ -57,7 +57,7 @@
     {
       "id": "theme-culinary",
       "description": "Indulge my inner foodie theme",
-      "imageUrl": "https://images.unsplash.com/photo-1590846406792-0adc7f138fbc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1519671282429-b44660ead0a7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "fine dining michelin table"
     },
     {
