@@ -59,7 +59,7 @@ const STYLES = [
 const THEMES = [
   { 
     id: 'theme-green', 
-    title: 'Master the Green', 
+    title: 'Mastering the Green', 
     variations: [
       { scene: 'lush, sun-drenched championship golf course', activity: 'sinking a perfect tournament-winning putt' },
       { scene: 'exclusive private grass tennis court at golden hour', activity: 'executing a flawless jumping backhand smash' },
@@ -68,7 +68,7 @@ const THEMES = [
   },
   { 
     id: 'theme-culinary', 
-    title: 'Indulge my inner foodie', 
+    title: 'Indulging my inner foodie', 
     variations: [
       { scene: 'exclusive Chef\'s table in a Michelin-star kitchen', activity: 'tasting a masterpiece of molecular gastronomy' },
       { scene: 'sunlit luxury terrace overlooking the Amalfi coast', activity: 'enjoying a perfectly plated truffle risotto' },
@@ -77,7 +77,7 @@ const THEMES = [
   },
   { 
     id: 'theme-warrior', 
-    title: 'Unleash the weekend warrior', 
+    title: 'Unleashing the weekend warrior', 
     variations: [
       { scene: 'rugged, pine-covered mountain bike trail', activity: 'catching air over a massive dirt jump' },
       { scene: 'remote, untouched backcountry mountain peak', activity: 'carving fresh powder tracks on a snowboard' },
@@ -86,7 +86,7 @@ const THEMES = [
   },
   { 
     id: 'theme-deepsea', 
-    title: 'Explore the deep sea', 
+    title: 'Exploring the deep sea', 
     variations: [
       { scene: 'panoramic glass bubble of a high-tech submersible', activity: 'navigating through glowing bioluminescent coral reefs' },
       { scene: 'ancient, submerged shipwreck in crystal-clear water', activity: 'swimming alongside a majestic giant manta ray' },
@@ -95,7 +95,7 @@ const THEMES = [
   },
   { 
     id: 'theme-racing', 
-    title: 'Chase the Grand Prix thrill', 
+    title: 'Chasing the Grand Prix thrill', 
     variations: [
       { scene: 'sweeping corner of a sunlit private race circuit', activity: 'steering a roaring vintage Ferrari' },
       { scene: 'glamorous Monaco street circuit at dusk', activity: 'celebrating a first-place podium finish' },
@@ -104,7 +104,7 @@ const THEMES = [
   },
   { 
     id: 'theme-vineyard', 
-    title: 'Tend to my private vineyard', 
+    title: 'Tending to my private vineyard', 
     variations: [
       { scene: 'rolling hills of a Tuscan private estate', activity: 'inspecting sun-ripened Sangiovese grapes' },
       { scene: 'rustic, candlelit Napa Valley wine cave', activity: 'expertly blending a custom reserve vintage' },
@@ -113,7 +113,7 @@ const THEMES = [
   },
   { 
     id: 'theme-alpine', 
-    title: 'Conquer the Alpine peaks', 
+    title: 'Conquering the Alpine peaks', 
     variations: [
       { scene: 'dramatic, snow-capped Swiss summit', activity: 'standing victorious with an ice axe in hand' },
       { scene: 'sheer, vertical granite rock face above the clouds', activity: 'free-climbing with intense focus and grip' },
@@ -122,7 +122,7 @@ const THEMES = [
   },
   { 
     id: 'theme-space', 
-    title: 'Oversee from orbit', 
+    title: 'Overseeing from orbit', 
     variations: [
       { scene: 'luxurious private space module with a massive window', activity: 'floating weightlessly while gazing at the Earth\'s curvature' },
       { scene: 'futuristic lunar resort lounge', activity: 'sipping espresso while watching a brilliant Earthrise' },
@@ -163,6 +163,12 @@ export default function KioskFlow() {
   const router = useRouter();
   const db = useFirestore();
   const auth = useAuth();
+
+  // Helper for lowercase string manipulation
+  const toLowerFirst = (s: string | undefined | null) => {
+    if (!s) return '';
+    return s.charAt(0).toLowerCase() + s.slice(1);
+  };
 
   // Ensure selectedActivity is always valid for the selectedTheme
   useEffect(() => {
@@ -748,7 +754,7 @@ export default function KioskFlow() {
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                       {THEMES.map(t => (
                         <SelectItem key={t.id} value={t.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                          {t.title}
+                          {toLowerFirst(t.title)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -776,7 +782,7 @@ export default function KioskFlow() {
                       <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                         {selectedTheme?.variations.map((v, i) => (
                           <SelectItem key={i} value={v.activity} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                            {v.activity}
+                            {toLowerFirst(v.activity)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -799,7 +805,7 @@ export default function KioskFlow() {
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                       {STYLES.map(s => (
                         <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                          {s.title}
+                          {toLowerFirst(s.title)}
                         </SelectItem>
                       ))}
                     </SelectContent>
