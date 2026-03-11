@@ -713,7 +713,7 @@ export default function KioskFlow() {
 
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
                   <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">
-                    {selectedTheme?.id === 'theme-culinary' ? 'cooking' : 'doing'}
+                    {selectedTheme?.id === 'theme-culinary' ? 'cooking' : ''}
                   </span>
                   <Select 
                     value={selectedActivity || ''} 
