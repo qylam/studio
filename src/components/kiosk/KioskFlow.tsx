@@ -26,7 +26,7 @@ const STYLES = [
   { 
     id: 'style-editorial', 
     title: 'Magazine Editorial', 
-    detail: 'High-end business magazine cover photoshoot, crisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
+    detail: 'High-end business magazine cover photoshoot, xrisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
   },
   { 
     id: 'style-cinematic', 
@@ -62,7 +62,7 @@ const THEMES = [
     variations: [
       { scene: 'lush, sun-drenched championship golf course', activity: 'sinking a perfect tournament-winning putt' },
       { scene: 'exclusive private grass tennis court at golden hour', activity: 'executing a flawless jumping backhand smash' },
-      { scene: 'dramatic cliffside golf hole overlooking a crashing ocean', activity: 'teeing off into a spectacular sunset' }
+      { scene: 'dramatic xcliffside golf hole overlooking a crashing ocean', activity: 'teeing off into a spectacular sunset' }
     ]
   },
   { 
@@ -212,7 +212,6 @@ export default function KioskFlow() {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
-      // Show "Smile!" in heading for 1 second before capturing so the user can see themselves
       const timer = setTimeout(() => {
         performCapture();
         setCountdown(null);
@@ -262,7 +261,6 @@ export default function KioskFlow() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Branding
     ctx.save();
     const logoX = SIDE_MARGIN;
     const logoY = 40;
@@ -285,7 +283,6 @@ export default function KioskFlow() {
     ctx.fillText('Chrome Connect', logoX + 60, logoY + 36);
     ctx.restore();
 
-    // AI Image
     const img = new Image();
     img.crossOrigin = "anonymous";
     await new Promise((resolve) => {
@@ -294,7 +291,6 @@ export default function KioskFlow() {
     });
     ctx.drawImage(img, SIDE_MARGIN, TOP_PADDING, IMG_SIZE, IMG_SIZE);
 
-    // Caption Wrapping
     ctx.fillStyle = '#27272a';
     ctx.font = 'italic 38px Caveat, cursive';
     ctx.textAlign = 'center';
@@ -434,6 +430,20 @@ export default function KioskFlow() {
     if (typeof window === 'undefined' || !visionId) return '';
     const baseUrl = window.location.origin;
     return `${baseUrl}/share/${visionId}`;
+  };
+
+  const getRefineGreeting = (themeId: string | undefined) => {
+    switch (themeId) {
+      case 'theme-green': return <>Looking sharp,<br />pro player!</>;
+      case 'theme-culinary': return <>What's cookin',<br />good lookin'!</>;
+      case 'theme-warrior': return <>Ready for<br />the wild?</>;
+      case 'theme-deepsea': return <>Making a<br />big splash!</>;
+      case 'theme-racing': return <>Leading the<br />pack today!</>;
+      case 'theme-vineyard': return <>A vintage<br />look, indeed!</>;
+      case 'theme-alpine': return <>Reaching new<br />heights!</>;
+      case 'theme-space': return <>Looking out<br />of this world!</>;
+      default: return <>Looking good,<br />good lookin'!</>;
+    }
   };
 
   return (
@@ -657,7 +667,7 @@ export default function KioskFlow() {
         <div className="w-full max-w-7xl px-4 md:px-8 animate-in fade-in duration-700 py-8">
           <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-12">
             <h2 className="text-4xl md:text-7xl lg:text-8xl font-bold text-white leading-[0.9] font-headline">
-              What's cookin',<br />good lookin'!
+              {getRefineGreeting(selectedTheme?.id)}
             </h2>
             <p className="text-lg md:text-2xl text-white/60 max-w-sm mt-auto pb-2">
               Now for the fun part. Refine your prompt to create your masterpiece.
@@ -665,7 +675,6 @@ export default function KioskFlow() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-            {/* Left: Polaroid Display */}
             <div className="lg:col-span-5 flex justify-center lg:justify-start">
               <div className="bg-zinc-800/50 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 backdrop-blur-sm w-full max-w-[450px]">
                 <div className="bg-white p-3 md:p-4 pb-8 md:pb-12 rounded-sm shadow-2xl transform lg:-rotate-1 w-full">
@@ -674,10 +683,8 @@ export default function KioskFlow() {
               </div>
             </div>
 
-            {/* Right: Refinement Controls */}
             <div className="lg:col-span-7 space-y-8 md:space-y-12">
               <div className="space-y-6 md:space-y-8">
-                {/* Theme Selection */}
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
                   <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">Imagine me</span>
                   <Select 
@@ -704,7 +711,6 @@ export default function KioskFlow() {
                   </Select>
                 </div>
 
-                {/* Activity Selection */}
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
                   <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">
                     {selectedTheme?.id === 'theme-culinary' ? 'cooking' : 'doing'}
@@ -730,7 +736,6 @@ export default function KioskFlow() {
                   </Select>
                 </div>
 
-                {/* Style Selection */}
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
                   <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">in the style of</span>
                   <Select 
