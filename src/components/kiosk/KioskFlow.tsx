@@ -714,7 +714,7 @@ export default function KioskFlow() {
 
             <div className="lg:col-span-7 space-y-8 md:space-y-12">
               <div className="space-y-6 md:space-y-8">
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
                   <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">Imagine me</span>
                   <Select 
                     value={selectedTheme?.id} 
@@ -740,32 +740,34 @@ export default function KioskFlow() {
                   </Select>
                 </div>
 
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
                   <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">
                     {selectedTheme?.id === 'theme-culinary' ? 'cooking' : ''}
                   </span>
-                  <Select 
-                    value={selectedActivity || ''} 
-                    onValueChange={(val) => {
-                      setSelectedActivity(val);
-                      const variation = selectedTheme?.variations.find(v => v.activity === val);
-                      if (variation) setSelectedScene(variation.scene);
-                    }}
-                  >
-                    <SelectTrigger className="w-full flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-14 md:h-20 rounded-full px-6 md:px-8 text-lg md:text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
-                      <SelectValue placeholder="Select an activity" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
-                      {selectedTheme?.variations.map((v, i) => (
-                        <SelectItem key={i} value={v.activity} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                          {v.activity}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex-1 w-full">
+                    <Select 
+                      value={selectedActivity || ''} 
+                      onValueChange={(val) => {
+                        setSelectedActivity(val);
+                        const variation = selectedTheme?.variations.find(v => v.activity === val);
+                        if (variation) setSelectedScene(variation.scene);
+                      }}
+                    >
+                      <SelectTrigger className="w-full bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-14 md:h-20 rounded-full px-6 md:px-8 text-lg md:text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
+                        <SelectValue placeholder="Select an activity" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
+                        {selectedTheme?.variations.map((v, i) => (
+                          <SelectItem key={i} value={v.activity} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
+                            {v.activity}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
                   <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">in the style of</span>
                   <Select 
                     value={selectedStyle?.id} 
