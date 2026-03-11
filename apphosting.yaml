@@ -8,6 +8,8 @@ runConfig:
 
 # Environment variables for production.
 # This section maps the Secret you created in the Firebase Console to an environment variable.
+# IMPORTANT: The App Hosting service account needs 'Secret Manager Secret Accessor' role
+# on the GEMINI_API_KEY secret to read its value at runtime.
 env:
   - variable: GEMINI_API_KEY
     secret: GEMINI_API_KEY

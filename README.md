@@ -25,7 +25,8 @@ To make the AI work after you click **Publish**, you must add your API key as a 
 5. **CRITICAL**: Use the exact key name `GEMINI_API_KEY`. 
    - *Note: Do not use a key starting with `GOOGLE_` (e.g., `GOOGLE_API_KEY`) as it is reserved by the system.*
 6. Value: Paste your API key from Google AI Studio.
-7. Ensure the secret is granted access to your App Hosting service account (the console usually prompts for this).
+7. **IAM PERMISSIONS**: Ensure the secret is granted access to your App Hosting service account. 
+   - The service account `firebase-app-hosting-compute@free-timemachine-ent-923-220cc.iam.gserviceaccount.com` requires the **Secret Manager Secret Accessor** role. The Firebase console usually prompts you to grant this automatically when adding the secret.
 
 ## Project Structure
 - `src/app/page.tsx`: Landing page with consent.
