@@ -7,6 +7,48 @@
       "imageHint": "luxury resort lifestyle"
     },
     {
+      "id": "theme-recipe",
+      "description": "Learn a new recipe theme",
+      "imageUrl": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "rustic italian kitchen"
+    },
+    {
+      "id": "theme-zen",
+      "description": "Find my zen theme",
+      "imageUrl": "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "misty mountaintop temple"
+    },
+    {
+      "id": "theme-active",
+      "description": "Get more active theme",
+      "imageUrl": "https://images.unsplash.com/photo-1533681436-b51e06fa6f69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "urban rooftop parkour"
+    },
+    {
+      "id": "theme-break",
+      "description": "Take a well-earned break theme",
+      "imageUrl": "https://images.unsplash.com/photo-1540541338-2c4f0051a66f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "luxury hot spring pool"
+    },
+    {
+      "id": "theme-skill",
+      "description": "Learn a new skill theme",
+      "imageUrl": "https://images.unsplash.com/photo-1513364776144-60967f0f7f18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "grand symphony orchestra"
+    },
+    {
+      "id": "theme-creative",
+      "description": "Get more creative theme",
+      "imageUrl": "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "art studio painting"
+    },
+    {
+      "id": "theme-imagination",
+      "description": "Let my imagination run loose theme",
+      "imageUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "fantasy airship clouds"
+    },
+    {
       "id": "theme-green",
       "description": "Master the Green theme",
       "imageUrl": "https://images.unsplash.com/photo-1587329310686-91414b8e3cb7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
@@ -55,6 +97,24 @@
       "imageHint": "earth from orbit space"
     },
     {
+      "id": "style-keychain",
+      "description": "3D Keychain style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1611162617225-536098059ef3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "cute 3d toy miniature"
+    },
+    {
+      "id": "style-oil",
+      "description": "Oil Painting style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1578301978693-85e263abdd98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "classic oil painting strokes"
+    },
+    {
+      "id": "style-clay",
+      "description": "Claymation style preview",
+      "imageUrl": "https://images.unsplash.com/photo-1612282337039-b9d9df962002?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "miniature clay figure"
+    },
+    {
       "id": "style-editorial",
       "description": "Magazine Editorial style preview",
       "imageUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
@@ -73,22 +133,10 @@
       "imageHint": "black and white film noir portrait"
     },
     {
-      "id": "style-masterpiece",
-      "description": "Museum Masterpiece style preview",
-      "imageUrl": "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      "imageHint": "classic oil painting"
-    },
-    {
       "id": "style-visionary",
       "description": "Tech Visionary style preview",
       "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "futuristic tech leader neon"
-    },
-    {
-      "id": "style-popart",
-      "description": "Modern Art Collector style preview",
-      "imageUrl": "https://images.unsplash.com/photo-1557672172-298e090bd0f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-      "imageHint": "vibrant pop art colors"
     }
   ]
 }

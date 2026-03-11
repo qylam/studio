@@ -25,41 +25,109 @@ type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'proce
 
 const STYLES = [
   { 
+    id: 'style-keychain', 
+    title: '3D Keychain', 
+    detail: 'Transform the person or group of people in the image into a keychain character version of themselves, placed on a tabletop. Preserve recognizable features but redesign them in a kawaii, Pixar-inspired style — slightly oversized head, small body, soft rounded features, glossy expressive eyes, and a warm, heartwarming smile. The character should feel like a premium animated collectible toy, with smooth materials, soft shading, and subtle skin glow. Keep outfit colors and key visual identity, but simplify details into clean, cute shapes. Use soft cinematic lighting, shallow depth of field, warm tones, and a cozy tabletop setting. Ultra-detailed 3D render.' 
+  },
+  { 
+    id: 'style-oil', 
+    title: 'Oil Painting', 
+    detail: 'Transform the person or group of people in this photo into a classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes and a rich, deep color palette. The lighting should be dramatic chiaroscuro, with soft shadows and a warm glow on the persons face. The background should be a soft, textured abstract landscape or a dark studio setting. Ensure the final result looks like a physical painting with subtle canvas texture visible. Maintain their facial features.' 
+  },
+  { 
+    id: 'style-clay', 
+    title: 'Claymation', 
+    detail: 'Transform the person or group of people in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons and Edward Goreys illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold. Maintain their facial features.' 
+  },
+  { 
     id: 'style-editorial', 
     title: 'Magazine Editorial', 
-    detail: 'High-end business magazine cover photoshoot, crisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
+    detail: 'Transform the person or group of people in the image into a High-end business magazine cover photoshoot, crisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
   },
   { 
     id: 'style-cinematic', 
     title: 'Cinematic Epic', 
-    detail: 'Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
+    detail: 'Transform the person or group of people in the image into a Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
   },
   { 
     id: 'style-noir', 
     title: 'Timeless Noir', 
-    detail: 'Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage Leica camera aesthetic, sophisticated and powerful.' 
-  },
-  { 
-    id: 'style-masterpiece', 
-    title: 'Museum Masterpiece', 
-    detail: 'Classic 19th-century oil painting on canvas, thick impasto brushstrokes, dramatic chiaroscuro lighting, regal and prestigious atmosphere, gallery-quality art.' 
+    detail: 'Transform the person or group of people in the image into a Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage Leica camera aesthetic, sophisticated and powerful.' 
   },
   { 
     id: 'style-visionary', 
     title: 'Tech Visionary', 
-    detail: 'Sleek futuristic aesthetic, subtle glowing neon accents, clean high-tech environment, hyper-realistic 3D render, forward-thinking corporate leadership vibe.' 
-  },
-  { 
-    id: 'style-popart', 
-    title: 'Modern Art Collector', 
-    detail: 'Vibrant pop art style inspired by Andy Warhol, bold flat colors, high-contrast graphic aesthetic, iconic and modern.' 
+    detail: 'Transform the person or group of people in the image into a Sleek futuristic aesthetic, subtle glowing neon accents, clean high-tech environment, hyper-realistic 3D render, forward-thinking corporate leadership vibe.' 
   }
 ];
 
 const THEMES = [
   { 
+    id: 'theme-recipe', 
+    title: 'Learn a new recipe', 
+    variations: [
+      { scene: 'rustic Italian villa kitchen', activity: 'kneading fresh pasta dough' },
+      { scene: 'molecular gastronomy lab', activity: 'creating edible liquid nitrogen art' },
+      { scene: 'bustling street food market', activity: 'tossing a perfect artisan pizza' }
+    ]
+  },
+  { 
+    id: 'theme-zen', 
+    title: 'Find my zen', 
+    variations: [
+      { scene: 'misty mountaintop temple', activity: 'performing slow, graceful Tai Chi' },
+      { scene: 'floating crystal lotus pod', activity: 'deep meditation in zero gravity' },
+      { scene: 'glowing bioluminescent forest', activity: 'listening to the whispers of ancient trees' }
+    ]
+  },
+  { 
+    id: 'theme-active', 
+    title: 'Get more active', 
+    variations: [
+      { scene: 'neon-lit urban rooftop', activity: 'mastering high-speed parkour' },
+      { scene: 'underwater coral gymnasium', activity: 'swimming with mechanical dolphins' },
+      { scene: 'desert canyon adventure', activity: 'rock climbing up a vertical mesa' }
+    ]
+  },
+  { 
+    id: 'theme-break', 
+    title: 'Take a well-earned break', 
+    variations: [
+      { scene: 'luxury cloud resort', activity: 'lounging in a golden hammock' },
+      { scene: 'secluded hot spring cave', activity: 'soaking in steaming mineral waters' },
+      { scene: 'vintage jazz lounge on Mars', activity: 'sipping a cosmic mocktail' }
+    ]
+  },
+  { 
+    id: 'theme-skill', 
+    title: 'Learn a new skill', 
+    variations: [
+      { scene: 'master glassblower workshop', activity: 'shaping a molten glass phoenix' },
+      { scene: 'grand symphony hall', activity: 'conducting an orchestra of musicians' },
+      { scene: 'digital neon arcade', activity: 'winning a pro-gaming championship' }
+    ]
+  },
+  { 
+    id: 'theme-creative', 
+    title: 'Get more creative', 
+    variations: [
+      { scene: 'rooftop garden studio', activity: 'sculpting a giant floral statue' },
+      { scene: 'street art alleyway', activity: 'spray painting a vibrant mural' },
+      { scene: 'grand symphony hall', activity: 'conducting an orchestra of lights' }
+    ]
+  },
+  { 
+    id: 'theme-imagination', 
+    title: 'Let my imagination run loose', 
+    variations: [
+      { scene: 'steampunk airship bridge', activity: 'navigating through a thundercloud' },
+      { scene: 'giant mushroom kingdom', activity: 'talking to a curious dragon' },
+      { scene: 'floating clockwork city', activity: 'rewinding the gears of time' }
+    ]
+  },
+  { 
     id: 'theme-green', 
-    title: 'Mastering the Green', 
+    title: 'Master the Green', 
     variations: [
       { scene: 'lush, sun-drenched championship golf course', activity: 'sinking a perfect tournament-winning putt' },
       { scene: 'exclusive private grass tennis court at golden hour', activity: 'executing a flawless jumping backhand smash' },
@@ -68,7 +136,7 @@ const THEMES = [
   },
   { 
     id: 'theme-culinary', 
-    title: 'Indulging my inner foodie', 
+    title: 'Indulge my inner foodie', 
     variations: [
       { scene: 'exclusive Chef\'s table in a Michelin-star kitchen', activity: 'tasting a masterpiece of molecular gastronomy' },
       { scene: 'sunlit luxury terrace overlooking the Amalfi coast', activity: 'enjoying a perfectly plated truffle risotto' },
@@ -77,7 +145,7 @@ const THEMES = [
   },
   { 
     id: 'theme-warrior', 
-    title: 'Unleashing the weekend warrior', 
+    title: 'Unleash the weekend warrior', 
     variations: [
       { scene: 'rugged, pine-covered mountain bike trail', activity: 'catching air over a massive dirt jump' },
       { scene: 'remote, untouched backcountry mountain peak', activity: 'carving fresh powder tracks on a snowboard' },
@@ -85,17 +153,8 @@ const THEMES = [
     ]
   },
   { 
-    id: 'theme-deepsea', 
-    title: 'Exploring the deep sea', 
-    variations: [
-      { scene: 'panoramic glass bubble of a high-tech submersible', activity: 'navigating through glowing bioluminescent coral reefs' },
-      { scene: 'ancient, submerged shipwreck in crystal-clear water', activity: 'swimming alongside a majestic giant manta ray' },
-      { scene: 'mysterious, illuminated underwater cenote cave', activity: 'free-diving gracefully through beams of sunlight' }
-    ]
-  },
-  { 
     id: 'theme-racing', 
-    title: 'Chasing the Grand Prix thrill', 
+    title: 'Chase the Grand Prix thrill', 
     variations: [
       { scene: 'sweeping corner of a sunlit private race circuit', activity: 'steering a roaring vintage Ferrari' },
       { scene: 'glamorous Monaco street circuit at dusk', activity: 'celebrating a first-place podium finish' },
@@ -103,32 +162,14 @@ const THEMES = [
     ]
   },
   { 
-    id: 'theme-vineyard', 
-    title: 'Tending to my private vineyard', 
-    variations: [
-      { scene: 'rolling hills of a Tuscan private estate', activity: 'inspecting sun-ripened Sangiovese grapes' },
-      { scene: 'rustic, candlelit Napa Valley wine cave', activity: 'expertly blending a custom reserve vintage' },
-      { scene: 'elegant, sun-dappled chateau courtyard', activity: 'hosting an exclusive tasting of a private reserve vintage' }
-    ]
-  },
-  { 
     id: 'theme-alpine', 
-    title: 'Conquering the Alpine peaks', 
+    title: 'Conquer the Alpine peaks', 
     variations: [
       { scene: 'dramatic, snow-capped Swiss summit', activity: 'standing victorious with an ice axe in hand' },
       { scene: 'sheer, vertical granite rock face above the clouds', activity: 'free-climbing with intense focus and grip' },
       { scene: 'remote, untouched glacier in British Columbia', activity: 'carving the first tracks after a thrilling heli-drop' }
     ]
-  },
-  { 
-    id: 'theme-space', 
-    title: 'Overseeing from orbit', 
-    variations: [
-      { scene: 'luxurious private space module with a massive window', activity: 'floating weightlessly while gazing at the Earth\'s curvature' },
-      { scene: 'futuristic lunar resort lounge', activity: 'sipping espresso while watching a brilliant Earthrise' },
-      { scene: 'sleek, zero-gravity orbital botanical garden', activity: 'tending to futuristic glowing plants while floating' }
-    ]
-  },
+  }
 ];
 
 const PROCESSING_MESSAGES = [
@@ -233,11 +274,9 @@ export default function KioskFlow() {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
-      const timer = setTimeout(() => {
-        performCapture();
-        setCountdown(null);
-      }, 1000);
-      return () => clearTimeout(timer);
+      // Capture immediately when it hits 0
+      performCapture();
+      setCountdown(null);
     }
   }, [countdown]);
 
@@ -492,7 +531,7 @@ export default function KioskFlow() {
       {step === 'capture' && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
           <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">
-            {countdown === 1 ? "Smile!" : "Strike a Pose"}
+            {countdown === 1 || countdown === 0 ? "Smile!" : "Strike a Pose"}
           </h2>
           <div className="relative overflow-hidden aspect-video w-full max-w-4xl mx-auto rounded-2xl md:rounded-[2rem] border-2 border-white/10 bg-zinc-900">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
