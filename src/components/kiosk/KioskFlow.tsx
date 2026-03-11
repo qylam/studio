@@ -207,16 +207,20 @@ export default function KioskFlow() {
 
   useEffect(() => {
     if (countdown === null) return;
+    
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
-    } else {
-      performCapture();
-      setCountdown(null);
+    } else if (countdown === 0) {
+      // Show "Smile!" for 1 second before capturing so the user can see themselves
+      const timer = setTimeout(() => {
+        performCapture();
+        setCountdown(null);
+      }, 1000);
+      return () => clearTimeout(timer);
     }
   }, [countdown]);
 
-  // Cycle through messages during processing
   useEffect(() => {
     if (step !== 'processing') return;
     const timer = setInterval(() => {
@@ -441,7 +445,7 @@ export default function KioskFlow() {
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
             <canvas ref={canvasRef} className="hidden" />
             {countdown !== null && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-50">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-50">
                 <span className="text-8xl md:text-[12rem] font-black italic font-headline text-white drop-shadow-xl">
                   {countdown > 0 ? countdown : "Smile!"}
                 </span>
@@ -726,7 +730,7 @@ export default function KioskFlow() {
 
                 {/* Style Selection */}
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
-                  <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">wearing</span>
+                  <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">in the style of</span>
                   <Select 
                     value={selectedStyle?.id} 
                     onValueChange={(val) => {
