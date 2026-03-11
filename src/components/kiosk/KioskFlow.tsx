@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2 } from 'lucide-react';
+import { Camera, Zap, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2, Sparkles, Stars, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
@@ -123,6 +123,15 @@ const THEMES = [
   },
 ];
 
+const PROCESSING_MESSAGES = [
+  "Gemini is imagining your dream life...",
+  "Analyzing your unique pose...",
+  "Crafting the perfect environment...",
+  "Polishing the cinematic details...",
+  "Developing your free-time vision...",
+  "Applying high-end artistic styles..."
+];
+
 export default function KioskFlow() {
   const [step, setStep] = useState<KioskStep>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -136,6 +145,7 @@ export default function KioskFlow() {
   const [visionId, setVisionId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [processingMsgIdx, setProcessingMsgIdx] = useState(0);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -196,6 +206,15 @@ export default function KioskFlow() {
       setCountdown(null);
     }
   }, [countdown]);
+
+  // Cycle through messages during processing
+  useEffect(() => {
+    if (step !== 'processing') return;
+    const timer = setInterval(() => {
+      setProcessingMsgIdx((prev) => (prev + 1) % PROCESSING_MESSAGES.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [step]);
 
   const performCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -373,6 +392,7 @@ export default function KioskFlow() {
     setVisionId(null);
     setSelectedTheme(null);
     setSelectedStyle(null);
+    setProcessingMsgIdx(0);
   };
 
   const getShareUrl = () => {
@@ -522,9 +542,42 @@ export default function KioskFlow() {
       )}
 
       {step === 'processing' && (
-        <div className="w-full space-y-12 text-center py-20 animate-pulse">
-          <Zap className="w-24 h-24 text-[#4285F4] mx-auto" />
-          <h2 className="text-5xl text-white font-headline">Gemini is imagining your dream life...</h2>
+        <div className="w-full space-y-12 text-center py-20 flex flex-col items-center">
+          <div className="relative w-48 h-48 mb-8">
+            {/* Creative Glowing Aura */}
+            <div className="absolute inset-0 bg-[#4285F4]/30 blur-[60px] rounded-full animate-glow" />
+            
+            {/* Center Piece */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Sparkles className="w-24 h-24 text-white animate-pulse" />
+            </div>
+
+            {/* Orbiting Elements */}
+            <div className="absolute inset-0 animate-spin duration-[8s] linear infinite">
+               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/10 p-4 rounded-full backdrop-blur-md">
+                  <Zap className="w-8 h-8 text-[#4285F4]" />
+               </div>
+            </div>
+            <div className="absolute inset-0 animate-spin duration-[12s] linear infinite reverse">
+               <div className="absolute bottom-0 right-1/4 bg-white/10 p-3 rounded-full backdrop-blur-md">
+                  <Stars className="w-6 h-6 text-[#9B72CB]" />
+               </div>
+            </div>
+            <div className="absolute inset-0 animate-spin duration-[10s] linear infinite">
+               <div className="absolute left-0 top-1/4 bg-white/10 p-3 rounded-full backdrop-blur-md">
+                  <Wand2 className="w-6 h-6 text-[#D96570]" />
+               </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 max-w-2xl">
+            <h2 className="text-5xl text-white font-headline font-bold transition-all duration-500">
+              {PROCESSING_MESSAGES[processingMsgIdx]}
+            </h2>
+            <p className="text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
+              Powered by Nano Banana 2
+            </p>
+          </div>
         </div>
       )}
 

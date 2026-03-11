@@ -4,7 +4,7 @@
 
 - Photo Capture Interface: Allows users to capture a high-resolution snapshot via a webcam integrated into the kiosk.
 - Thematic Selection: Users choose one of eight pre-defined themes (e.g., 'take a well-earned break', 'find my zen', 'learn a new skill') to guide the AI photo transformation.
-- AI-Powered Image Transformation Tool: Leverages Google's Gemini 2.5 Flash Image ('nano-banana') to transform the user's photo into a stylized masterpiece, while preserving their likeness and pose based on chosen themes.
+- AI-Powered Image Transformation Tool: Leverages Google's Gemini 3.1 Flash Image ('nano-banana-2') to transform the user's photo into a stylized masterpiece, while preserving their likeness and pose based on chosen themes.
 - Prompt Refinement Options: Users can further refine the AI generation prompt through three pre-populated dropdown menus, allowing for personalized artistic adjustments.
 - Real-time Session Status: Implements a real-time processing pipeline to track the status of each user's photo transformation session, stored and updated via Firestore.
 - QR Code Generation: Generates a unique QR code upon completion, which links directly to a mobile-optimized sharing portal for the user's personalized image.

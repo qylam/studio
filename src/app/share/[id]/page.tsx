@@ -118,7 +118,7 @@ export default function SharePortal() {
 
         <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 text-center">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            This vision was created using Gemini 2.5 Flash, reimagining your free time based on your unique pose.
+            This vision was created using Nano Banana 2, reimagining your free time based on your unique pose.
           </p>
         </div>
 

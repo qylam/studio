@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: 'Free-Time Machine | AI Photo Experience',
-  description: 'Reimagine your life with up to 10 hours back per week using Gemini 2.5 AI.',
+  description: 'Reimagine your life with up to 10 hours back per week using Nano Banana 2.',
 };
 
 export default function RootLayout({

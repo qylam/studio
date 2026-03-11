@@ -134,7 +134,7 @@ export default function Home() {
                   Before you begin
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-lg leading-relaxed text-zinc-600 font-medium">
-                  The Gemini Free-Time Machine is an experiment using Gemini 2.5, Google's latest generative model.
+                  The Gemini Free-Time Machine is an experiment using Nano Banana 2, Google's latest generative model.
                   <br /><br />
                   Take a photo and we'll create a picture using your selected effect. By submitting your photo, you confirm that you are 18 or older and consent to Google processing your image to generate your picture. To download it, simply scan the QR code provided at the end.
                 </AlertDialogDescription>
