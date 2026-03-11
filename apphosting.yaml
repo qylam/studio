@@ -9,8 +9,8 @@ runConfig:
 # Note: The .env file is for local development only. 
 # For production (after clicking Publish), you must:
 # 1. Go to the Firebase Console -> App Hosting -> Your Backend -> Settings.
-# 2. Add a Secret named 'GOOGLE_GENAI_API_KEY' with your Gemini API Key.
-# 3. Reference it here if you want to map a specific secret name to an env var:
+# 2. Add a Secret named 'GEMINI_API_KEY' with your Gemini API Key.
+# 3. Reference it here:
 # env:
-#   - variable: GOOGLE_GENAI_API_KEY
-#     secret: GOOGLE_GENAI_API_KEY # This maps the Secret you created in the console to the env var.
+#   - variable: GEMINI_API_KEY
+#     secret: GEMINI_API_KEY # This maps the Secret you created in the console to the env var.

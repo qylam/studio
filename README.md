@@ -13,7 +13,7 @@ You need a Google AI API key to power the image generation:
 ### 2. Local Environment Setup
 Create a `.env` file in the root directory and add your key:
 ```env
-GOOGLE_GENAI_API_KEY=your_actual_api_key_here
+GEMINI_API_KEY=your_actual_api_key_here
 ```
 
 ### 3. Production Setup (Required for Publishing)
@@ -22,7 +22,7 @@ To make the AI work after you click **Publish**, you must add your API key as a 
 2. Select your project: `free-timemachine-ent-923-220cc`.
 3. Navigate to **App Hosting** -> **Your Backend** -> **Settings**.
 4. Click **Add Secret**.
-5. Key: `GOOGLE_GENAI_API_KEY`
+5. Key: `GEMINI_API_KEY` (Note: Do not use a key starting with `GOOGLE_` as it is reserved).
 6. Value: Paste your API key.
 
 ## Project Structure
