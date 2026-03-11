@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2, Sparkles, Stars, Wand2 } from 'lucide-react';
+import { Camera, Zap, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2, Sparkles, Stars, Wand2, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
@@ -12,8 +12,15 @@ import { collection, addDoc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'thanks';
+type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'refine' | 'thanks';
 
 const STYLES = [
   { 
@@ -141,6 +148,8 @@ export default function KioskFlow() {
   const [isWheelchairUser, setIsWheelchairUser] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<typeof THEMES[0] | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<typeof STYLES[0] | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
+  const [selectedScene, setSelectedScene] = useState<string | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [visionId, setVisionId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -249,7 +258,7 @@ export default function KioskFlow() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Branding - Larger & Professional
+    // Branding
     ctx.save();
     const logoX = SIDE_MARGIN;
     const logoY = 40;
@@ -281,7 +290,7 @@ export default function KioskFlow() {
     });
     ctx.drawImage(img, SIDE_MARGIN, TOP_PADDING, IMG_SIZE, IMG_SIZE);
 
-    // Caption Wrapping - Better spacing
+    // Caption Wrapping
     ctx.fillStyle = '#27272a';
     ctx.font = 'italic 38px Caveat, cursive';
     ctx.textAlign = 'center';
@@ -327,23 +336,32 @@ export default function KioskFlow() {
     setStep('select-style');
   };
 
-  const generateVision = async (style: typeof STYLES[0]) => {
+  const generateVision = async (style?: typeof STYLES[0]) => {
     if (!capturedImage || !selectedTheme || !isAuthReady) return;
     
+    const finalStyle = style || selectedStyle;
+    if (!finalStyle) return;
+
     setIsProcessing(true);
     setStep('processing');
     setVisionId(null);
 
     try {
-      const details = [style.detail];
+      const details = [finalStyle.detail];
       if (isWheelchairUser) details.push('subject is using a wheelchair');
       
       const response = await generateThemedPhoto({
         photoDataUri: capturedImage,
         themeVariations: selectedTheme.variations,
+        scene: selectedScene || undefined,
+        activity: selectedActivity || undefined,
         details: details,
       });
       
+      setSelectedActivity(response.selectedActivity);
+      setSelectedScene(response.selectedScene);
+      setSelectedStyle(finalStyle);
+
       const bakedPolaroid = await composePolaroid(response.transformedPhotoDataUri, response.selectedActivity);
       setResultImage(bakedPolaroid);
       setStep('results');
@@ -385,6 +403,17 @@ export default function KioskFlow() {
     }
   };
 
+  const handleSurpriseMe = () => {
+    const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
+    const randomVariation = randomTheme.variations[Math.floor(Math.random() * randomTheme.variations.length)];
+    const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
+
+    setSelectedTheme(randomTheme);
+    setSelectedScene(randomVariation.scene);
+    setSelectedActivity(randomVariation.activity);
+    setSelectedStyle(randomStyle);
+  };
+
   const resetKiosk = () => {
     setStep('capture');
     setCapturedImage(null);
@@ -392,6 +421,8 @@ export default function KioskFlow() {
     setVisionId(null);
     setSelectedTheme(null);
     setSelectedStyle(null);
+    setSelectedActivity(null);
+    setSelectedScene(null);
     setProcessingMsgIdx(0);
   };
 
@@ -544,15 +575,10 @@ export default function KioskFlow() {
       {step === 'processing' && (
         <div className="w-full space-y-12 text-center py-20 flex flex-col items-center">
           <div className="relative w-48 h-48 mb-8">
-            {/* Creative Glowing Aura */}
             <div className="absolute inset-0 bg-[#4285F4]/30 blur-[60px] rounded-full animate-glow" />
-            
-            {/* Center Piece */}
             <div className="absolute inset-0 flex items-center justify-center">
               <Sparkles className="w-24 h-24 text-white animate-pulse" />
             </div>
-
-            {/* Orbiting Elements */}
             <div className="absolute inset-0 animate-spin duration-[8s] linear infinite">
                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/10 p-4 rounded-full backdrop-blur-md">
                   <Zap className="w-8 h-8 text-[#4285F4]" />
@@ -614,8 +640,130 @@ export default function KioskFlow() {
             
             <p className="text-2xl text-white/50 font-headline">Scan the code to download your masterpiece.</p>
             <div className="flex gap-4 justify-center md:justify-start">
-              <Button onClick={() => setStep('select-style')} variant="outline" className="rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">Adjust style</Button>
+              <Button onClick={() => setStep('refine')} variant="outline" className="rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">Adjust style</Button>
               <Button onClick={() => setStep('thanks')} className="bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">I'm done!</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {step === 'refine' && resultImage && (
+        <div className="w-full max-w-7xl px-8 animate-in fade-in duration-700">
+          <div className="flex flex-col md:flex-row gap-6 mb-12">
+            <h2 className="text-6xl md:text-8xl font-bold text-white leading-[0.9] font-headline">
+              What's cookin',<br />good lookin'!
+            </h2>
+            <p className="text-xl md:text-2xl text-white/60 max-w-sm mt-auto pb-2">
+              Now for the fun part. Refine your prompt to create your masterpiece.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left: Polaroid Display */}
+            <div className="flex justify-center lg:justify-start">
+              <div className="bg-zinc-800/50 p-6 rounded-[2rem] border border-white/5 backdrop-blur-sm">
+                <div className="bg-white p-4 pb-12 rounded-sm shadow-2xl transform -rotate-1 w-full max-w-[450px]">
+                  <img src={resultImage} alt="Current Vision" className="w-full h-auto" />
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Refinement Controls */}
+            <div className="space-y-12">
+              <div className="space-y-8">
+                {/* Theme Selection */}
+                <div className="flex items-center gap-8 group">
+                  <span className="text-3xl font-bold text-white w-48 text-right font-headline">Imagine me</span>
+                  <Select 
+                    value={selectedTheme?.id} 
+                    onValueChange={(val) => {
+                      const theme = THEMES.find(t => t.id === val);
+                      if (theme) {
+                        setSelectedTheme(theme);
+                        setSelectedActivity(theme.variations[0].activity);
+                        setSelectedScene(theme.variations[0].scene);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-20 rounded-full px-8 text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
+                      <SelectValue placeholder="Select a theme" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
+                      {THEMES.map(t => (
+                        <SelectItem key={t.id} value={t.id} className="text-xl py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
+                          {t.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Activity Selection */}
+                <div className="flex items-center gap-8 group">
+                  <span className="text-3xl font-bold text-white w-48 text-right font-headline">
+                    {selectedTheme?.id === 'theme-culinary' ? 'cooking' : 'doing'}
+                  </span>
+                  <Select 
+                    value={selectedActivity || ''} 
+                    onValueChange={(val) => {
+                      setSelectedActivity(val);
+                      const variation = selectedTheme?.variations.find(v => v.activity === val);
+                      if (variation) setSelectedScene(variation.scene);
+                    }}
+                  >
+                    <SelectTrigger className="flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-20 rounded-full px-8 text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
+                      <SelectValue placeholder="Select an activity" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
+                      {selectedTheme?.variations.map((v, i) => (
+                        <SelectItem key={i} value={v.activity} className="text-xl py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
+                          {v.activity}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Style Selection */}
+                <div className="flex items-center gap-8 group">
+                  <span className="text-3xl font-bold text-white w-48 text-right font-headline">wearing</span>
+                  <Select 
+                    value={selectedStyle?.id} 
+                    onValueChange={(val) => {
+                      const style = STYLES.find(s => s.id === val);
+                      if (style) setSelectedStyle(style);
+                    }}
+                  >
+                    <SelectTrigger className="flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-20 rounded-full px-8 text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
+                      <SelectValue placeholder="Select a style" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
+                      {STYLES.map(s => (
+                        <SelectItem key={s.id} value={s.id} className="text-xl py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
+                          {s.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row justify-end gap-6 pt-4">
+                <Button 
+                  onClick={handleSurpriseMe}
+                  variant="outline"
+                  className="h-20 px-12 text-2xl rounded-full bg-white text-black border-transparent hover:bg-zinc-100 transition-all font-bold shadow-xl relative group overflow-hidden"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 opacity-0 group-hover:opacity-10 transition-opacity" />
+                  Surprise me!
+                </Button>
+                <Button 
+                  onClick={() => generateVision()}
+                  className="h-20 px-12 text-2xl rounded-full bg-gradient-to-r from-[#4285F4] to-[#4290FF] hover:opacity-90 text-white font-bold shadow-2xl transition-all active:scale-95"
+                >
+                  Make these updates
+                </Button>
+              </div>
             </div>
           </div>
         </div>
