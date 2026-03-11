@@ -6,11 +6,8 @@ runConfig:
   # more instances in response to increased traffic.
   maxInstances: 1
 
-# Note: The .env file is for local development only. 
-# For production (after clicking Publish), you must:
-# 1. Go to the Firebase Console -> App Hosting -> Your Backend -> Settings.
-# 2. Add a Secret named 'GEMINI_API_KEY' with your Gemini API Key.
-# 3. Reference it here:
-# env:
-#   - variable: GEMINI_API_KEY
-#     secret: GEMINI_API_KEY # This maps the Secret you created in the console to the env var.
+# Environment variables for production.
+# This section maps the Secret you created in the Firebase Console to an environment variable.
+env:
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
