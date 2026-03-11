@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -26,12 +27,12 @@ const STYLES = [
   { 
     id: 'style-editorial', 
     title: 'Magazine Editorial', 
-    detail: 'High-end business magazine cover photoshoot, xrisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
+    detail: 'High-end business magazine cover photoshoot, crisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
   },
   { 
     id: 'style-cinematic', 
     title: 'Cinematic Epic', 
-    detail: 'Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic xrim lighting, epic scale, photorealistic, shallow depth of field.' 
+    detail: 'Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
   },
   { 
     id: 'style-noir', 
@@ -62,7 +63,7 @@ const THEMES = [
     variations: [
       { scene: 'lush, sun-drenched championship golf course', activity: 'sinking a perfect tournament-winning putt' },
       { scene: 'exclusive private grass tennis court at golden hour', activity: 'executing a flawless jumping backhand smash' },
-      { scene: 'dramatic xcliffside golf hole overlooking a crashing ocean', activity: 'teeing off into a spectacular sunset' }
+      { scene: 'dramatic cliffside golf hole overlooking a crashing ocean', activity: 'teeing off into a spectacular sunset' }
     ]
   },
   { 
@@ -78,7 +79,7 @@ const THEMES = [
     id: 'theme-warrior', 
     title: 'Unleash the weekend warrior', 
     variations: [
-      { scene: 'rugged, pine-covered mountain bike trail', activity: 'catching air over a massive xdirt jump' },
+      { scene: 'rugged, pine-covered mountain bike trail', activity: 'catching air over a massive dirt jump' },
       { scene: 'remote, untouched backcountry mountain peak', activity: 'carving fresh powder tracks on a snowboard' },
       { scene: 'roaring, crystal-clear white-water canyon river', activity: 'expertly navigating a sleek carbon-fiber kayak' }
     ]
@@ -162,6 +163,20 @@ export default function KioskFlow() {
   const router = useRouter();
   const db = useFirestore();
   const auth = useAuth();
+
+  // Ensure selectedActivity is always valid for the selectedTheme
+  useEffect(() => {
+    if (selectedTheme && selectedActivity) {
+      const isValid = selectedTheme.variations.some(v => v.activity === selectedActivity);
+      if (!isValid) {
+        setSelectedActivity(selectedTheme.variations[0].activity);
+        setSelectedScene(selectedTheme.variations[0].scene);
+      }
+    } else if (selectedTheme && !selectedActivity) {
+      setSelectedActivity(selectedTheme.variations[0].activity);
+      setSelectedScene(selectedTheme.variations[0].scene);
+    }
+  }, [selectedTheme, selectedActivity]);
 
   useEffect(() => {
     if (!auth) return;
@@ -741,9 +756,11 @@ export default function KioskFlow() {
                 </div>
 
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
-                  <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">
-                    {selectedTheme?.id === 'theme-culinary' ? 'cooking' : ''}
-                  </span>
+                  {selectedTheme?.id === 'theme-culinary' && (
+                    <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">
+                      cooking
+                    </span>
+                  )}
                   <div className="flex-1 w-full">
                     <Select 
                       value={selectedActivity || ''} 
