@@ -212,7 +212,7 @@ export default function KioskFlow() {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
-      // Show "Smile!" for 1 second before capturing so the user can see themselves
+      // Show "Smile!" in heading for 1 second before capturing so the user can see themselves
       const timer = setTimeout(() => {
         performCapture();
         setCountdown(null);
@@ -440,14 +440,16 @@ export default function KioskFlow() {
     <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center min-h-[80vh] px-4">
       {step === 'capture' && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
-          <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">Strike a Pose</h2>
+          <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">
+            {countdown === 0 ? "Smile!" : "Strike a Pose"}
+          </h2>
           <div className="relative overflow-hidden aspect-video w-full max-w-4xl mx-auto rounded-2xl md:rounded-[2rem] border-2 border-white/10 bg-zinc-900">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
             <canvas ref={canvasRef} className="hidden" />
-            {countdown !== null && (
+            {countdown !== null && countdown > 0 && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-50">
                 <span className="text-8xl md:text-[12rem] font-black italic font-headline text-white drop-shadow-xl">
-                  {countdown > 0 ? countdown : "Smile!"}
+                  {countdown}
                 </span>
               </div>
             )}
