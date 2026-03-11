@@ -31,7 +31,7 @@ const STYLES = [
   { 
     id: 'style-cinematic', 
     title: 'Cinematic Epic', 
-    detail: 'Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
+    detail: 'Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic xrim lighting, epic scale, photorealistic, shallow depth of field.' 
   },
   { 
     id: 'style-noir', 
@@ -78,7 +78,7 @@ const THEMES = [
     id: 'theme-warrior', 
     title: 'Unleash the weekend warrior', 
     variations: [
-      { scene: 'rugged, pine-covered mountain bike trail', activity: 'catching air over a massive dirt jump' },
+      { scene: 'rugged, pine-covered mountain bike trail', activity: 'catching air over a massive xdirt jump' },
       { scene: 'remote, untouched backcountry mountain peak', activity: 'carving fresh powder tracks on a snowboard' },
       { scene: 'roaring, crystal-clear white-water canyon river', activity: 'expertly navigating a sleek carbon-fiber kayak' }
     ]
@@ -336,31 +336,38 @@ export default function KioskFlow() {
     setStep('select-style');
   };
 
-  const generateVision = async (style?: typeof STYLES[0]) => {
-    if (!capturedImage || !selectedTheme || !isAuthReady) return;
-    
-    const finalStyle = style || selectedStyle;
-    if (!finalStyle) return;
+  const generateVision = async (
+    styleOverride?: typeof STYLES[0],
+    themeOverride?: typeof THEMES[0],
+    sceneOverride?: string,
+    activityOverride?: string
+  ) => {
+    const theme = themeOverride || selectedTheme;
+    const style = styleOverride || selectedStyle;
+    const scene = sceneOverride || selectedScene;
+    const activity = activityOverride || selectedActivity;
 
+    if (!capturedImage || !theme || !isAuthReady || !style) return;
+    
     setIsProcessing(true);
     setStep('processing');
     setVisionId(null);
 
     try {
-      const details = [finalStyle.detail];
+      const details = [style.detail];
       if (isWheelchairUser) details.push('subject is using a wheelchair');
       
       const response = await generateThemedPhoto({
         photoDataUri: capturedImage,
-        themeVariations: selectedTheme.variations,
-        scene: selectedScene || undefined,
-        activity: selectedActivity || undefined,
+        themeVariations: theme.variations,
+        scene: scene || undefined,
+        activity: activity || undefined,
         details: details,
       });
       
       setSelectedActivity(response.selectedActivity);
       setSelectedScene(response.selectedScene);
-      setSelectedStyle(finalStyle);
+      setSelectedStyle(style);
 
       const bakedPolaroid = await composePolaroid(response.transformedPhotoDataUri, response.selectedActivity);
       setResultImage(bakedPolaroid);
@@ -371,7 +378,7 @@ export default function KioskFlow() {
         const data = {
           imageData: bakedPolaroid,
           activity: response.selectedActivity,
-          theme: selectedTheme.title,
+          theme: theme.title,
           createdAt: new Date().toISOString()
         };
         const visionsRef = collection(db, 'visions');
@@ -414,6 +421,19 @@ export default function KioskFlow() {
     setSelectedStyle(randomStyle);
   };
 
+  const triggerInstantSurprise = () => {
+    const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
+    const randomVariation = randomTheme.variations[Math.floor(Math.random() * randomTheme.variations.length)];
+    const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
+
+    setSelectedTheme(randomTheme);
+    setSelectedScene(randomVariation.scene);
+    setSelectedActivity(randomVariation.activity);
+    setSelectedStyle(randomStyle);
+
+    generateVision(randomStyle, randomTheme, randomVariation.scene, randomVariation.activity);
+  };
+
   const resetKiosk = () => {
     setStep('capture');
     setCapturedImage(null);
@@ -451,7 +471,7 @@ export default function KioskFlow() {
       {step === 'capture' && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
           <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">
-            {countdown === 0 ? "Smile!" : "Strike a Pose"}
+            {countdown === 1 ? "Smile!" : "Strike a Pose"}
           </h2>
           <div className="relative overflow-hidden aspect-video w-full max-w-4xl mx-auto rounded-2xl md:rounded-[2rem] border-2 border-white/10 bg-zinc-900">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
@@ -514,11 +534,20 @@ export default function KioskFlow() {
         <div className="w-full space-y-12 animate-in fade-in duration-500">
           <div className="text-center space-y-4">
             <h2 className="text-4xl md:text-6xl font-bold text-white font-headline leading-tight">What would you do with your free time?</h2>
-            <div className="flex justify-center mt-6">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-6">
               <div className="flex items-center space-x-3 bg-white/5 px-4 py-3 md:px-6 md:py-4 rounded-full border border-white/10">
                 <Checkbox id="wheelchair" checked={isWheelchairUser} onCheckedChange={(c) => setIsWheelchairUser(!!c)} className="w-5 h-5 md:w-6 md:h-6 border-white/20" />
                 <label htmlFor="wheelchair" className="text-lg md:text-xl text-white/70 font-headline cursor-pointer">I'm a wheelchair user</label>
               </div>
+              <Button 
+                onClick={triggerInstantSurprise}
+                variant="outline"
+                className="h-auto py-3 px-8 md:py-4 md:px-10 text-lg md:text-xl rounded-full bg-white text-black border-transparent hover:bg-zinc-100 font-bold transition-all shadow-xl group relative overflow-hidden"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Sparkles className="mr-2 h-5 w-5 md:h-6 md:w-6 text-purple-500" />
+                Surprise me!
+              </Button>
             </div>
           </div>
           
