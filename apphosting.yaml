@@ -13,4 +13,4 @@ runConfig:
 # 3. Reference it here if you want to map a specific secret name to an env var:
 # env:
 #   - variable: GOOGLE_GENAI_API_KEY
-#     secret: YOUR_SECRET_NAME_IN_FIREBASE
+#     secret: GOOGLE_GENAI_API_KEY # This maps the Secret you created in the console to the env var.
