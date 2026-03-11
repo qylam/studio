@@ -805,7 +805,7 @@ export default function KioskFlow() {
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                       {STYLES.map(s => (
                         <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                          {toLowerFirst(s.title)}
+                          {s.title}
                         </SelectItem>
                       ))}
                     </SelectContent>
