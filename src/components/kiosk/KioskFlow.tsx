@@ -433,16 +433,16 @@ export default function KioskFlow() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center min-h-[80vh]">
+    <div className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center min-h-[80vh] px-4">
       {step === 'capture' && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
-          <h2 className="text-7xl font-bold text-white font-headline">Strike a Pose</h2>
-          <div className="relative overflow-hidden aspect-video max-w-4xl mx-auto rounded-[2rem] border-2 border-white/10 bg-zinc-900">
+          <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">Strike a Pose</h2>
+          <div className="relative overflow-hidden aspect-video w-full max-w-4xl mx-auto rounded-2xl md:rounded-[2rem] border-2 border-white/10 bg-zinc-900">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
             <canvas ref={canvasRef} className="hidden" />
             {countdown !== null && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-50">
-                <span className="text-[12rem] font-black italic font-headline text-white drop-shadow-xl">
+                <span className="text-8xl md:text-[12rem] font-black italic font-headline text-white drop-shadow-xl">
                   {countdown > 0 ? countdown : "Smile!"}
                 </span>
               </div>
@@ -452,13 +452,13 @@ export default function KioskFlow() {
             <Button 
               onClick={() => setCountdown(3)} 
               disabled={countdown !== null || hasCameraPermission === false || !isAuthReady} 
-              className="btn-google-blue h-auto py-6 px-12 text-2xl rounded-full"
+              className="btn-google-blue h-auto py-4 px-8 md:py-6 md:px-12 text-xl md:text-2xl rounded-full"
             >
-              <Camera className="mr-3 h-8 w-8" />
+              <Camera className="mr-3 h-6 w-6 md:h-8 md:w-8" />
               {countdown !== null ? 'Get Ready...' : 'Take your Photo'}
             </Button>
-            <Button variant="ghost" onClick={() => router.push('/')} className="text-white/40 text-xl font-headline">
-              <ArrowLeft className="mr-2 h-6 w-6" />
+            <Button variant="ghost" onClick={() => router.push('/')} className="text-white/40 text-lg md:text-xl font-headline">
+              <ArrowLeft className="mr-2 h-5 w-5 md:h-6 md:w-6" />
               Back to home
             </Button>
           </div>
@@ -467,27 +467,27 @@ export default function KioskFlow() {
 
       {step === 'review' && capturedImage && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
-          <h2 className="text-7xl font-bold text-white font-headline">Looking good?</h2>
-          <div className="relative max-w-4xl mx-auto rounded-[2rem] border-2 border-white/10 bg-zinc-900 overflow-hidden aspect-video">
+          <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">Looking good?</h2>
+          <div className="relative w-full max-w-4xl mx-auto rounded-2xl md:rounded-[2rem] border-2 border-white/10 bg-zinc-900 overflow-hidden aspect-video">
              <img src={capturedImage} alt="Captured" className="w-full h-full object-cover transform -scale-x-100" />
           </div>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
             <Button 
               variant="outline"
               onClick={() => {
                 setCapturedImage(null);
                 setStep('capture');
               }}
-              className="h-auto py-6 px-10 text-2xl rounded-full border-white/20 text-white hover:bg-white/10"
+              className="w-full md:w-auto h-auto py-4 px-8 md:py-6 md:px-10 text-xl md:text-2xl rounded-full border-white/20 text-white hover:bg-white/10"
             >
-              <RefreshCcw className="mr-3 h-6 w-6" />
+              <RefreshCcw className="mr-3 h-5 w-5 md:h-6 md:w-6" />
               Retake Photo
             </Button>
             <Button 
               onClick={() => setStep('select-theme')}
-              className="btn-google-blue h-auto py-6 px-12 text-2xl rounded-full"
+              className="w-full md:w-auto btn-google-blue h-auto py-4 px-8 md:py-6 md:px-12 text-xl md:text-2xl rounded-full"
             >
-              <Check className="mr-3 h-8 w-8" />
+              <Check className="mr-3 h-6 w-6 md:h-8 md:w-8" />
               Looks Great!
             </Button>
           </div>
@@ -497,30 +497,30 @@ export default function KioskFlow() {
       {step === 'select-theme' && (
         <div className="w-full space-y-12 animate-in fade-in duration-500">
           <div className="text-center space-y-4">
-            <h2 className="text-6xl font-bold text-white font-headline">What would you do with your free time?</h2>
+            <h2 className="text-4xl md:text-6xl font-bold text-white font-headline leading-tight">What would you do with your free time?</h2>
             <div className="flex justify-center mt-6">
-              <div className="flex items-center space-x-3 bg-white/5 px-6 py-4 rounded-full border border-white/10">
-                <Checkbox id="wheelchair" checked={isWheelchairUser} onCheckedChange={(c) => setIsWheelchairUser(!!c)} className="w-6 h-6 border-white/20" />
-                <label htmlFor="wheelchair" className="text-xl text-white/70 font-headline cursor-pointer">I'm a wheelchair user</label>
+              <div className="flex items-center space-x-3 bg-white/5 px-4 py-3 md:px-6 md:py-4 rounded-full border border-white/10">
+                <Checkbox id="wheelchair" checked={isWheelchairUser} onCheckedChange={(c) => setIsWheelchairUser(!!c)} className="w-5 h-5 md:w-6 md:h-6 border-white/20" />
+                <label htmlFor="wheelchair" className="text-lg md:text-xl text-white/70 font-headline cursor-pointer">I'm a wheelchair user</label>
               </div>
             </div>
           </div>
           
           <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
-            <div className="flex gap-6 px-12 min-w-full">
+            <div className="flex gap-4 md:gap-6 px-4 md:px-12 min-w-full">
               {THEMES.map((theme) => (
                 <div 
                   key={theme.id} 
                   onClick={() => handleThemeSelect(theme)} 
-                  className="group flex-shrink-0 cursor-pointer relative w-[280px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
+                  className="group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
                 >
                   <img 
                     src={PlaceHolderImages.find(i => i.id === theme.id)?.imageUrl || ''} 
                     alt={theme.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
                   />
-                  <div className="absolute inset-0 bg-black/40 flex items-end p-6">
-                    <h3 className="text-xl font-bold text-white font-headline">{theme.title}</h3>
+                  <div className="absolute inset-0 bg-black/40 flex items-end p-4 md:p-6">
+                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{theme.title}</h3>
                   </div>
                 </div>
               ))}
@@ -528,8 +528,8 @@ export default function KioskFlow() {
           </div>
 
           <div className="flex justify-center pt-8">
-             <Button variant="ghost" onClick={() => setStep('review')} className="text-white/40 text-xl font-headline">
-               <ChevronLeft className="mr-2 h-6 w-6" />
+             <Button variant="ghost" onClick={() => setStep('review')} className="text-white/40 text-lg md:text-xl font-headline">
+               <ChevronLeft className="mr-2 h-5 w-5 md:h-6 md:w-6" />
                Back to photo
              </Button>
           </div>
@@ -539,24 +539,24 @@ export default function KioskFlow() {
       {step === 'select-style' && (
         <div className="w-full space-y-12 animate-in fade-in duration-500">
           <div className="text-center">
-            <h2 className="text-6xl font-bold text-white font-headline">Select your style</h2>
+            <h2 className="text-4xl md:text-6xl font-bold text-white font-headline">Select your style</h2>
           </div>
 
           <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
-            <div className="flex gap-6 px-12 min-w-full">
+            <div className="flex gap-4 md:gap-6 px-4 md:px-12 min-w-full">
               {STYLES.map((style) => (
                 <div 
                   key={style.id} 
                   onClick={() => generateVision(style)} 
-                  className="group flex-shrink-0 cursor-pointer relative w-[280px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
+                  className="group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
                 >
                   <img 
                     src={PlaceHolderImages.find(i => i.id === style.id)?.imageUrl || ''} 
                     alt={style.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
                   />
-                  <div className="absolute inset-0 bg-black/40 flex items-end p-6">
-                    <h3 className="text-xl font-bold text-white font-headline">{style.title}</h3>
+                  <div className="absolute inset-0 bg-black/40 flex items-end p-4 md:p-6">
+                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{style.title}</h3>
                   </div>
                 </div>
               ))}
@@ -564,8 +564,8 @@ export default function KioskFlow() {
           </div>
 
           <div className="flex justify-center pt-8">
-             <Button variant="ghost" onClick={() => setStep('select-theme')} className="text-white/40 text-xl font-headline">
-               <ChevronLeft className="mr-2 h-6 w-6" />
+             <Button variant="ghost" onClick={() => setStep('select-theme')} className="text-white/40 text-lg md:text-xl font-headline">
+               <ChevronLeft className="mr-2 h-5 w-5 md:h-6 md:w-6" />
                Back to themes
              </Button>
           </div>
@@ -573,34 +573,34 @@ export default function KioskFlow() {
       )}
 
       {step === 'processing' && (
-        <div className="w-full space-y-12 text-center py-20 flex flex-col items-center">
-          <div className="relative w-48 h-48 mb-8">
-            <div className="absolute inset-0 bg-[#4285F4]/30 blur-[60px] rounded-full animate-glow" />
+        <div className="w-full space-y-12 text-center py-12 md:py-20 flex flex-col items-center">
+          <div className="relative w-32 h-32 md:w-48 md:h-48 mb-8">
+            <div className="absolute inset-0 bg-[#4285F4]/30 blur-[40px] md:blur-[60px] rounded-full animate-glow" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Sparkles className="w-24 h-24 text-white animate-pulse" />
+              <Sparkles className="w-16 h-16 md:w-24 md:h-24 text-white animate-pulse" />
             </div>
             <div className="absolute inset-0 animate-spin duration-[8s] linear infinite">
-               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/10 p-4 rounded-full backdrop-blur-md">
-                  <Zap className="w-8 h-8 text-[#4285F4]" />
+               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/10 p-2 md:p-4 rounded-full backdrop-blur-md">
+                  <Zap className="w-5 h-5 md:w-8 md:h-8 text-[#4285F4]" />
                </div>
             </div>
             <div className="absolute inset-0 animate-spin duration-[12s] linear infinite reverse">
-               <div className="absolute bottom-0 right-1/4 bg-white/10 p-3 rounded-full backdrop-blur-md">
-                  <Stars className="w-6 h-6 text-[#9B72CB]" />
+               <div className="absolute bottom-0 right-1/4 bg-white/10 p-2 md:p-3 rounded-full backdrop-blur-md">
+                  <Stars className="w-4 h-4 md:w-6 md:h-6 text-[#9B72CB]" />
                </div>
             </div>
             <div className="absolute inset-0 animate-spin duration-[10s] linear infinite">
-               <div className="absolute left-0 top-1/4 bg-white/10 p-3 rounded-full backdrop-blur-md">
-                  <Wand2 className="w-6 h-6 text-[#D96570]" />
+               <div className="absolute left-0 top-1/4 bg-white/10 p-2 md:p-3 rounded-full backdrop-blur-md">
+                  <Wand2 className="w-4 h-4 md:w-6 md:h-6 text-[#D96570]" />
                </div>
             </div>
           </div>
 
-          <div className="space-y-4 max-w-2xl">
-            <h2 className="text-5xl text-white font-headline font-bold transition-all duration-500">
+          <div className="space-y-4 max-w-2xl px-4">
+            <h2 className="text-3xl md:text-5xl text-white font-headline font-bold transition-all duration-500 min-h-[4rem] flex items-center justify-center">
               {PROCESSING_MESSAGES[processingMsgIdx]}
             </h2>
-            <p className="text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
+            <p className="text-sm md:text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
               Powered by Nano Banana 2
             </p>
           </div>
@@ -608,18 +608,18 @@ export default function KioskFlow() {
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 animate-in fade-in zoom-in duration-700">
-          <div className="bg-white p-6 pb-20 rounded-sm shadow-2xl transform -rotate-1 w-full max-w-md">
+        <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
+          <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform lg:-rotate-1 w-full max-w-xs md:max-w-md">
             <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
           </div>
-          <div className="flex-1 space-y-8 text-center md:text-left">
-            <h2 className="text-8xl font-bold text-white font-headline">Ta-da!</h2>
+          <div className="flex-1 space-y-8 text-center lg:text-left w-full">
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">Ta-da!</h2>
             
-            <div className="relative bg-white p-4 rounded-2xl w-64 h-64 mx-auto md:mx-0 shadow-2xl flex items-center justify-center">
+            <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
               {isSaving || !visionId ? (
                 <div className="flex flex-col items-center gap-3 text-zinc-400">
-                  <Loader2 className="w-10 h-10 animate-spin text-[#4290FF]" />
-                  <span className="text-sm font-bold uppercase tracking-widest">Generating Link...</span>
+                  <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin text-[#4290FF]" />
+                  <span className="text-xs font-bold uppercase tracking-widest">Link...</span>
                 </div>
               ) : (
                 <a 
@@ -638,42 +638,42 @@ export default function KioskFlow() {
               )}
             </div>
             
-            <p className="text-2xl text-white/50 font-headline">Scan the code to download your masterpiece.</p>
-            <div className="flex gap-4 justify-center md:justify-start">
-              <Button onClick={() => setStep('refine')} variant="outline" className="rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">Adjust style</Button>
-              <Button onClick={() => setStep('thanks')} className="bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">I'm done!</Button>
+            <p className="text-xl md:text-2xl text-white/50 font-headline">Scan the code to download your masterpiece.</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">Adjust style</Button>
+              <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">I'm done!</Button>
             </div>
           </div>
         </div>
       )}
 
       {step === 'refine' && resultImage && (
-        <div className="w-full max-w-7xl px-8 animate-in fade-in duration-700">
-          <div className="flex flex-col md:flex-row gap-6 mb-12">
-            <h2 className="text-6xl md:text-8xl font-bold text-white leading-[0.9] font-headline">
+        <div className="w-full max-w-7xl px-4 md:px-8 animate-in fade-in duration-700 py-8">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-12">
+            <h2 className="text-4xl md:text-7xl lg:text-8xl font-bold text-white leading-[0.9] font-headline">
               What's cookin',<br />good lookin'!
             </h2>
-            <p className="text-xl md:text-2xl text-white/60 max-w-sm mt-auto pb-2">
+            <p className="text-lg md:text-2xl text-white/60 max-w-sm mt-auto pb-2">
               Now for the fun part. Refine your prompt to create your masterpiece.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             {/* Left: Polaroid Display */}
-            <div className="flex justify-center lg:justify-start">
-              <div className="bg-zinc-800/50 p-6 rounded-[2rem] border border-white/5 backdrop-blur-sm">
-                <div className="bg-white p-4 pb-12 rounded-sm shadow-2xl transform -rotate-1 w-full max-w-[450px]">
+            <div className="lg:col-span-5 flex justify-center lg:justify-start">
+              <div className="bg-zinc-800/50 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 backdrop-blur-sm w-full max-w-[450px]">
+                <div className="bg-white p-3 md:p-4 pb-8 md:pb-12 rounded-sm shadow-2xl transform lg:-rotate-1 w-full">
                   <img src={resultImage} alt="Current Vision" className="w-full h-auto" />
                 </div>
               </div>
             </div>
 
             {/* Right: Refinement Controls */}
-            <div className="space-y-12">
-              <div className="space-y-8">
+            <div className="lg:col-span-7 space-y-8 md:space-y-12">
+              <div className="space-y-6 md:space-y-8">
                 {/* Theme Selection */}
-                <div className="flex items-center gap-8 group">
-                  <span className="text-3xl font-bold text-white w-48 text-right font-headline">Imagine me</span>
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
+                  <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">Imagine me</span>
                   <Select 
                     value={selectedTheme?.id} 
                     onValueChange={(val) => {
@@ -685,12 +685,12 @@ export default function KioskFlow() {
                       }
                     }}
                   >
-                    <SelectTrigger className="flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-20 rounded-full px-8 text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
+                    <SelectTrigger className="w-full flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-14 md:h-20 rounded-full px-6 md:px-8 text-lg md:text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
                       <SelectValue placeholder="Select a theme" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                       {THEMES.map(t => (
-                        <SelectItem key={t.id} value={t.id} className="text-xl py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
+                        <SelectItem key={t.id} value={t.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
                           {t.title}
                         </SelectItem>
                       ))}
@@ -699,8 +699,8 @@ export default function KioskFlow() {
                 </div>
 
                 {/* Activity Selection */}
-                <div className="flex items-center gap-8 group">
-                  <span className="text-3xl font-bold text-white w-48 text-right font-headline">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
+                  <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">
                     {selectedTheme?.id === 'theme-culinary' ? 'cooking' : 'doing'}
                   </span>
                   <Select 
@@ -711,12 +711,12 @@ export default function KioskFlow() {
                       if (variation) setSelectedScene(variation.scene);
                     }}
                   >
-                    <SelectTrigger className="flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-20 rounded-full px-8 text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
+                    <SelectTrigger className="w-full flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-14 md:h-20 rounded-full px-6 md:px-8 text-lg md:text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
                       <SelectValue placeholder="Select an activity" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                       {selectedTheme?.variations.map((v, i) => (
-                        <SelectItem key={i} value={v.activity} className="text-xl py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
+                        <SelectItem key={i} value={v.activity} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
                           {v.activity}
                         </SelectItem>
                       ))}
@@ -725,8 +725,8 @@ export default function KioskFlow() {
                 </div>
 
                 {/* Style Selection */}
-                <div className="flex items-center gap-8 group">
-                  <span className="text-3xl font-bold text-white w-48 text-right font-headline">wearing</span>
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group">
+                  <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">wearing</span>
                   <Select 
                     value={selectedStyle?.id} 
                     onValueChange={(val) => {
@@ -734,12 +734,12 @@ export default function KioskFlow() {
                       if (style) setSelectedStyle(style);
                     }}
                   >
-                    <SelectTrigger className="flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-20 rounded-full px-8 text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
+                    <SelectTrigger className="w-full flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-14 md:h-20 rounded-full px-6 md:px-8 text-lg md:text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
                       <SelectValue placeholder="Select a style" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                       {STYLES.map(s => (
-                        <SelectItem key={s.id} value={s.id} className="text-xl py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
+                        <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
                           {s.title}
                         </SelectItem>
                       ))}
@@ -748,18 +748,18 @@ export default function KioskFlow() {
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row justify-end gap-6 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-4 md:gap-6 pt-4">
                 <Button 
                   onClick={handleSurpriseMe}
                   variant="outline"
-                  className="h-20 px-12 text-2xl rounded-full bg-white text-black border-transparent hover:bg-zinc-100 transition-all font-bold shadow-xl relative group overflow-hidden"
+                  className="w-full sm:w-auto h-16 md:h-20 px-8 md:px-12 text-xl md:text-2xl rounded-full bg-white text-black border-transparent hover:bg-zinc-100 transition-all font-bold shadow-xl relative group overflow-hidden"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 opacity-0 group-hover:opacity-10 transition-opacity" />
                   Surprise me!
                 </Button>
                 <Button 
                   onClick={() => generateVision()}
-                  className="h-20 px-12 text-2xl rounded-full bg-gradient-to-r from-[#4285F4] to-[#4290FF] hover:opacity-90 text-white font-bold shadow-2xl transition-all active:scale-95"
+                  className="w-full sm:w-auto h-16 md:h-20 px-8 md:px-12 text-xl md:text-2xl rounded-full bg-gradient-to-r from-[#4285F4] to-[#4290FF] hover:opacity-90 text-white font-bold shadow-2xl transition-all active:scale-95"
                 >
                   Make these updates
                 </Button>
@@ -770,9 +770,9 @@ export default function KioskFlow() {
       )}
 
       {step === 'thanks' && (
-        <div className="text-center space-y-10 animate-in zoom-in duration-500">
-          <h2 className="text-7xl font-bold text-white font-headline">Enjoy your free time!</h2>
-          <Button onClick={resetKiosk} className="bg-white text-[#4285F4] hover:bg-zinc-100 rounded-full px-16 py-8 text-2xl font-bold transition-all shadow-xl">Start over</Button>
+        <div className="text-center space-y-10 animate-in zoom-in duration-500 py-20">
+          <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">Enjoy your free time!</h2>
+          <Button onClick={resetKiosk} className="bg-white text-[#4285F4] hover:bg-zinc-100 rounded-full px-12 py-6 md:px-16 md:py-8 text-xl md:text-2xl font-bold transition-all shadow-xl">Start over</Button>
         </div>
       )}
     </div>
