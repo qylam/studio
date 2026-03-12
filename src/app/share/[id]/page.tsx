@@ -13,13 +13,13 @@ export default function SharePortal() {
 
   const docId = params?.id as string;
 
-  // Stabilize the document reference to prevent hydration/render loops
+  // Stabilize the document reference
   const visionRef = useMemoFirebase(() => {
     if (!db || !docId) return null;
     return doc(db, 'visions', docId);
   }, [db, docId]);
 
-  const { data: vision, loading, error } = useDoc(visionRef);
+  const { data: vision, isLoading, error } = useDoc(visionRef);
 
   // Helper function to convert base64 to a File object for native sharing
   const dataURLtoFile = (dataurl: string, filename: string) => {
@@ -38,10 +38,8 @@ export default function SharePortal() {
     if (!vision?.imageData) return;
 
     try {
-      // 1. Try native mobile sharing first (Best for iOS/Android)
       if (navigator.share) {
         const file = dataURLtoFile(vision.imageData, 'my-free-time-vision.jpg');
-        // Check if the browser allows sharing files
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
@@ -56,7 +54,6 @@ export default function SharePortal() {
       if ((err as Error).name === 'AbortError') return; 
     }
 
-    // 2. Fallback for Desktop browsers
     const link = document.createElement('a');
     link.href = vision.imageData;
     link.download = `my-free-time-vision.jpg`;
@@ -65,10 +62,16 @@ export default function SharePortal() {
     document.body.removeChild(link);
   };
 
-  if (!docId || loading) {
+  if (!docId) return null;
+
+  // Render loader while loading OR if we have no data yet and no error
+  if (isLoading || (!vision && !error)) {
     return (
       <div className="min-h-screen bg-[#16181B] flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-[#4290FF] animate-spin" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-[#4290FF] animate-spin" />
+          <p className="text-white/40 font-medium animate-pulse">Retrieving your vision...</p>
+        </div>
       </div>
     );
   }
@@ -76,8 +79,10 @@ export default function SharePortal() {
   if (error || !vision) {
     return (
       <div className="min-h-screen bg-[#16181B] flex flex-col items-center justify-center p-8 text-center space-y-6">
+        <Zap className="w-12 h-12 text-red-500/50" />
         <h1 className="text-3xl font-bold text-white">Vision not found</h1>
-        <Button variant="outline" onClick={() => window.location.href = '/'}>Back to Home</Button>
+        <p className="text-white/60 max-w-xs">We couldn't find the AI vision you're looking for. It may have been deleted or the link might be incorrect.</p>
+        <Button variant="outline" className="rounded-full px-8" onClick={() => window.location.href = '/'}>Back to Home</Button>
       </div>
     );
   }
