@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "PhotoBoothSession": {
@@ -17,68 +18,82 @@
         },
         "originalPhotoStoragePath": {
           "type": "string",
-          "description": "The internal storage path or identifier for the user's original captured high-resolution photo in cloud storage. This path is used by the backend to retrieve the image for AI processing."
+          "description": "The internal storage path or identifier for the user's original captured high-resolution photo in cloud storage."
         },
         "themeName": {
           "type": "string",
-          "description": "The name of the chosen thematic filter for the AI transformation (e.g., 'take a well-earned break', 'find my zen', 'learn a new skill')."
+          "description": "The name of the chosen thematic filter."
         },
         "refinementOption1Selection": {
           "type": "string",
-          "description": "The user's selection from the first pre-populated dropdown, influencing the AI transformation's style or content."
+          "description": "User's selection from first dropdown."
         },
         "refinementOption2Selection": {
           "type": "string",
-          "description": "The user's selection from the second pre-populated dropdown, influencing the AI transformation's style or content."
+          "description": "User's selection from second dropdown."
         },
         "refinementOption3Selection": {
           "type": "string",
-          "description": "The user's selection from the third pre-populated dropdown, influencing the AI transformation's style or content."
+          "description": "User's selection from third dropdown."
         },
         "aiGeneratedImageStoragePath": {
           "type": "string",
-          "description": "The internal storage path or identifier for the AI-transformed high-resolution image in cloud storage. This path is used by the backend to serve the generated image via the sharing portal."
+          "description": "Internal storage path for the generated image."
         },
         "sharingPortalUrl": {
           "type": "string",
-          "description": "The unique, publicly accessible URL for the mobile-optimized sharing portal where the generated image can be viewed, downloaded, and shared on social media.",
+          "description": "Public URL for sharing.",
           "format": "uri"
         },
         "sessionStatus": {
           "type": "string",
-          "description": "The current processing status of the session, used for real-time tracking (e.g., 'captured', 'themeSelected', 'promptRefined', 'processing', 'completed', 'failed')."
+          "description": "Processing status (e.g., 'captured', 'processing', 'completed')."
         },
         "lastUpdateTime": {
           "type": "string",
-          "description": "Timestamp indicating the last update to the session status or any session data.",
+          "description": "Last update timestamp.",
           "format": "date-time"
         },
         "aiPromptText": {
           "type": "string",
-          "description": "The full AI prompt text constructed from user selections and theme, which was sent to the image generation model for this session."
+          "description": "Full AI prompt text."
         },
         "errorMessage": {
           "type": "string",
-          "description": "Detailed message describing any error encountered during the image generation or session processing, if the session status is 'failed'."
+          "description": "Error message if failed."
         },
         "qrCodeImageStoragePath": {
           "type": "string",
-          "description": "The internal storage path or identifier for the generated QR code image itself, which encodes the sharing portal URL. This is optional if the QR code image is generated on-the-fly."
+          "description": "Storage path for QR code image."
+        },
+        "imageData": {
+          "type": "string",
+          "description": "Base64 encoded image data for the final Polaroid vision."
+        },
+        "activity": {
+          "type": "string",
+          "description": "The specific activity depicted in the vision."
+        },
+        "theme": {
+          "type": "string",
+          "description": "The theme category of the vision."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the vision was created."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "UID of the user who owns this vision."
         }
       },
       "required": [
-        "id",
-        "creationTime",
-        "originalPhotoStoragePath",
-        "themeName",
-        "refinementOption1Selection",
-        "refinementOption2Selection",
-        "refinementOption3Selection",
-        "aiGeneratedImageStoragePath",
-        "sharingPortalUrl",
-        "sessionStatus",
-        "lastUpdateTime",
-        "aiPromptText"
+        "imageData",
+        "activity",
+        "theme",
+        "createdAt",
+        "ownerId"
       ]
     }
   },
@@ -97,20 +112,36 @@
           "schema": {
             "$ref": "#/backend/entities/PhotoBoothSession"
           },
-          "description": "Stores individual photo booth sessions, each representing a user's interaction with the Free-Time Machine. Each session is owned by the user specified in the path. Includes a denormalized 'ownerId' field for robust authorization independence, set to the '{userId}' from the path. The 'sessionStatus' field explicitly tracks the real-time processing state.",
+          "description": "Stores detailed photo booth sessions, owned by the user. Used for internal tracking and history.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user who initiated and owns this photo booth session."
+              "description": "UID of the user."
             },
             {
               "name": "sessionId",
-              "description": "The unique identifier for a specific photo booth session."
+              "description": "Unique session ID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/visions/{visionId}",
+        "definition": {
+          "entityName": "PhotoBoothSession",
+          "schema": {
+            "$ref": "#/backend/entities/PhotoBoothSession"
+          },
+          "description": "Stores shared AI visions. Documents are created with a random ID and are publicly readable for sharing, but write-protected by ownerId.",
+          "params": [
+            {
+              "name": "visionId",
+              "description": "Unique identifier for the shared vision."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore structure for the 'Free-Time Machine' application is designed to prioritize security, scalability, and debuggability, strictly adhering to the core design principles and mandates. The central entity, `PhotoBoothSession`, is stored within a user-specific subcollection: `/users/{userId}/photoBoothSessions/{sessionId}`.\n\n**Authorization Independence (CRITICAL):** This structure explicitly addresses Authorization Independence by leveraging a hierarchical path. Each `PhotoBoothSession` document will reside under a `/users/{userId}` path, where `{userId}` directly corresponds to `request.auth.uid` of the user who initiated the session. To further reinforce ownership and enable robust, self-contained security rules without relying on `get()` operations, each `PhotoBoothSession` document will include an explicit `ownerId` field. This `ownerId` field will be denormalized and set to the `userId` from the path. This allows security rules to simply check `resource.data.ownerId == request.auth.uid`, making authorization decisions atomic and independent of parent documents. The `sharingPortalUrl` will allow public access to the generated image, but the underlying session data will remain protected.\n\n**QAPs (Rules are not Filters):** The `/users/{userId}/photoBoothSessions/{sessionId}` structure is ideal for Query Authorization Patterns. Users can only `list` their own sessions by querying the collection associated with their `request.auth.uid` (e.g., `/users/my_uid/photoBoothSessions`). This means the `list` operation is implicitly filtered by the path itself, avoiding the need for complex, inefficient, or insecure rule-based filtering. The rules will enforce that `request.auth.uid` must match the `{userId}` in the path for read/write access to individual sessions and their listing.\n\n**Structural Segregation:** All documents within the `/users/{userId}/photoBoothSessions` collection are homogeneous in their security posture—they are private sessions belonging to the specified user. This simplifies rule writing by ensuring consistent access requirements across all documents in the collection.\n\n**Access Modeling:** This design utilizes the 'Private Data: Path-Based ownership' and 'Use Hierarchical Paths for User-Owned Data' models, which are inherently secure and make ownership-based security rules straightforward.\n\n**Data Clarity and Predictability:** The `sessionStatus` field in each `PhotoBoothSession` document explicitly models the finite state machine of the processing pipeline, providing clear and predictable status tracking without relying on derived states. Wildcards (`{userId}`, `{sessionId}`) are descriptive, and the `ownerId` field ensures radical consistency in authorization logic."
+    "reasoning": "The Firestore structure is updated to include a root 'visions' collection. This allows for simple, publicly accessible sharing via direct links (using visionId) while maintaining security by ensuring only authenticated users can create visions and associating them with an 'ownerId'."
   }
 }

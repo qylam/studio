@@ -439,7 +439,8 @@ export default function KioskFlow() {
           imageData: bakedPolaroid,
           activity: response.selectedActivity,
           theme: theme.title,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          ownerId: auth.currentUser?.uid
         };
         const visionsRef = collection(db, 'visions');
 
@@ -831,24 +832,26 @@ export default function KioskFlow() {
 
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
                   <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">in the style of</span>
-                  <Select 
-                    value={selectedStyle?.id} 
-                    onValueChange={(val) => {
-                      const style = STYLES.find(s => s.id === val);
-                      if (style) setSelectedStyle(style);
-                    }}
-                  >
-                    <SelectTrigger className="w-full flex-1 bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-14 md:h-20 rounded-full px-6 md:px-8 text-lg md:text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
-                      <SelectValue placeholder="Select a style" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
-                      {STYLES.map(s => (
-                        <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                          {s.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex-1 w-full">
+                    <Select 
+                      value={selectedStyle?.id} 
+                      onValueChange={(val) => {
+                        const style = STYLES.find(s => s.id === val);
+                        if (style) setSelectedStyle(style);
+                      }}
+                    >
+                      <SelectTrigger className="w-full bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-14 md:h-20 rounded-full px-6 md:px-8 text-lg md:text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
+                        <SelectValue placeholder="Select a style" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
+                        {STYLES.map(s => (
+                          <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
+                            {s.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
 
