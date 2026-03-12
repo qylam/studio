@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2, Sparkles, Stars, Wand2, ChevronDown } from 'lucide-react';
+import { Camera, Zap, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2, Sparkles, Stars, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
@@ -205,13 +205,11 @@ export default function KioskFlow() {
   const db = useFirestore();
   const auth = useAuth();
 
-  // Helper for lowercase string manipulation
   const toLowerFirst = (s: string | undefined | null) => {
     if (!s) return '';
     return s.charAt(0).toLowerCase() + s.slice(1);
   };
 
-  // Ensure selectedActivity is always valid for the selectedTheme
   useEffect(() => {
     if (selectedTheme && selectedActivity) {
       const isValid = selectedTheme.variations.some(v => v.activity === selectedActivity);
@@ -232,7 +230,7 @@ export default function KioskFlow() {
         signInAnonymously(auth).then(() => {
           setIsAuthReady(true);
         }).catch((err) => {
-          console.error("Auth initialization failed:", err);
+          console.error("AUTH_INITIALIZATION_FAILED:", err);
         });
       } else {
         setIsAuthReady(true);
@@ -275,7 +273,6 @@ export default function KioskFlow() {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
-      // Capture immediately when it hits 0
       performCapture();
       setCountdown(null);
     }
@@ -335,7 +332,7 @@ export default function KioskFlow() {
     ctx.lineTo(logoX + 16, logoY + 26);
     ctx.lineTo(logoX, logoY + 22);
     ctx.lineTo(logoX + 16, logoY + 18);
-    ctx.closePath();
+    ctx.closePath(); // Correct context reference fixed previously
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
@@ -444,7 +441,6 @@ export default function KioskFlow() {
         setIsSaving(true);
         const data = {
           imageData: bakedPolaroid,
-          rawGeneratedImageData: aiResult.transformedPhotoDataUri,
           activity: aiResult.selectedActivity,
           theme: theme.title,
           createdAt: new Date().toISOString(),

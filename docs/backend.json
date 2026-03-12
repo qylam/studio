@@ -70,10 +70,6 @@
           "type": "string",
           "description": "Base64 encoded image data for the final Polaroid vision."
         },
-        "rawGeneratedImageData": {
-          "type": "string",
-          "description": "Base64 encoded image data for the raw generated AI image before framing."
-        },
         "activity": {
           "type": "string",
           "description": "The specific activity depicted in the vision."
@@ -146,6 +142,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure includes a root 'visions' collection for shared access. The schema now supports storing both the framed polaroid and the raw generated image."
+    "reasoning": "The Firestore structure includes a root 'visions' collection for shared access. The schema supports storing the final Polaroid image."
   }
 }
