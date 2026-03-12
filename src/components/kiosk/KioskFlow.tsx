@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -443,6 +444,7 @@ export default function KioskFlow() {
         setIsSaving(true);
         const data = {
           imageData: bakedPolaroid,
+          rawGeneratedImageData: aiResult.transformedPhotoDataUri,
           activity: aiResult.selectedActivity,
           theme: theme.title,
           createdAt: new Date().toISOString(),
@@ -613,7 +615,7 @@ export default function KioskFlow() {
                 variant="outline"
                 className="h-auto py-3 px-8 md:py-4 md:px-10 text-lg md:text-xl rounded-full bg-white text-black border-transparent hover:bg-zinc-100 font-bold transition-all shadow-xl group relative overflow-hidden"
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-10 transition-opacity" />
                 <Sparkles className="mr-2 h-5 w-5 md:h-6 md:w-6 text-purple-500" />
                 Surprise me!
               </Button>
