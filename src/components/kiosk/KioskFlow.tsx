@@ -480,17 +480,6 @@ export default function KioskFlow() {
     }
   };
 
-  const handleSurpriseMe = () => {
-    const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
-    const randomVariation = randomTheme.variations[Math.floor(Math.random() * randomTheme.variations.length)];
-    const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
-
-    setSelectedTheme(randomTheme);
-    setSelectedScene(randomVariation.scene);
-    setSelectedActivity(randomVariation.activity);
-    setSelectedStyle(randomStyle);
-  };
-
   const triggerInstantSurprise = () => {
     const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
     const randomVariation = randomTheme.variations[Math.floor(Math.random() * randomTheme.variations.length)];
@@ -859,10 +848,10 @@ export default function KioskFlow() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-end gap-4 md:gap-6 pt-4">
+              <div className="flex flex-col pt-4">
                 <Button 
                   onClick={() => generateVision()}
-                  className="w-full sm:w-auto h-16 md:h-20 px-8 md:px-12 text-xl md:text-2xl rounded-full bg-gradient-to-r from-[#4285F4] to-[#4290FF] hover:opacity-90 text-white font-bold shadow-2xl transition-all active:scale-95"
+                  className="w-full h-20 md:h-32 text-2xl md:text-4xl rounded-full bg-gradient-to-r from-[#4285F4] to-[#4290FF] hover:opacity-90 text-white font-bold shadow-2xl transition-all active:scale-95"
                 >
                   Make these updates
                 </Button>
