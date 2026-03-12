@@ -861,14 +861,6 @@ export default function KioskFlow() {
 
               <div className="flex flex-col sm:flex-row justify-end gap-4 md:gap-6 pt-4">
                 <Button 
-                  onClick={handleSurpriseMe}
-                  variant="outline"
-                  className="w-full sm:w-auto h-16 md:h-20 px-8 md:px-12 text-xl md:text-2xl rounded-full bg-white text-black border-transparent hover:bg-zinc-100 transition-all font-bold shadow-xl relative group overflow-hidden"
-                >
-                  <span className="absolute inset-0 bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 opacity-0 group-hover:opacity-10 transition-opacity" />
-                  Surprise me!
-                </Button>
-                <Button 
                   onClick={() => generateVision()}
                   className="w-full sm:w-auto h-16 md:h-20 px-8 md:px-12 text-xl md:text-2xl rounded-full bg-gradient-to-r from-[#4285F4] to-[#4290FF] hover:opacity-90 text-white font-bold shadow-2xl transition-all active:scale-95"
                 >
