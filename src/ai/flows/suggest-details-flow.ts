@@ -1,6 +1,8 @@
 'use server';
 /**
  * @fileOverview A Genkit flow for suggesting contextual artistic details based on a scene and activity.
+ * 
+ * - suggestDetails - A function that handles the suggestion process with error handling.
  */
 
 import { ai } from '@/ai/genkit';
@@ -17,8 +19,24 @@ const SuggestDetailsOutputSchema = z.object({
 });
 export type SuggestDetailsOutput = z.infer<typeof SuggestDetailsOutputSchema>;
 
-export async function suggestDetails(input: SuggestDetailsInput): Promise<SuggestDetailsOutput> {
-  return suggestDetailsFlow(input);
+/**
+ * Wrapper function for the Server Action to handle errors gracefully.
+ */
+export async function suggestDetails(input: SuggestDetailsInput): Promise<{ success: boolean; data?: SuggestDetailsOutput; error?: string }> {
+  try {
+    const result = await suggestDetailsFlow(input);
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error("SUGGEST_DETAILS_FAILED:", {
+      timestamp: new Date().toISOString(),
+      error: error?.message || error,
+      input
+    });
+    return { 
+      success: false, 
+      error: "Failed to generate suggestions. Please try again later." 
+    };
+  }
 }
 
 const suggestDetailsPrompt = ai.definePrompt({

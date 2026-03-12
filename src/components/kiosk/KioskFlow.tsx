@@ -250,6 +250,7 @@ export default function KioskFlow() {
         setHasCameraPermission(true);
         if (videoRef.current) videoRef.current.srcObject = stream;
       } catch (error) {
+        console.error("CAMERA_PERMISSION_ERROR:", error);
         setHasCameraPermission(false);
         toast({
           variant: 'destructive',
@@ -455,6 +456,7 @@ export default function KioskFlow() {
             setIsSaving(false);
           })
           .catch(async (serverError) => {
+            console.error("FIRESTORE_SAVE_ERROR:", serverError);
             setIsSaving(false);
             const permissionError = new FirestorePermissionError({
               path: 'visions',
@@ -465,6 +467,7 @@ export default function KioskFlow() {
           });
       }
     } catch (error: any) {
+      console.error("VISION_GENERATION_FAILED:", error);
       setStep('select-style');
       toast({ 
         variant: 'destructive', 
@@ -807,11 +810,6 @@ export default function KioskFlow() {
                 </div>
 
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
-                  {selectedTheme?.id === 'theme-culinary' && (
-                    <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">
-                      cooking
-                    </span>
-                  )}
                   <div className="flex-1 w-full">
                     <Select 
                       value={selectedActivity || ''} 
