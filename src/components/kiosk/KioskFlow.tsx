@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -334,7 +333,7 @@ export default function KioskFlow() {
     ctx.lineTo(logoX + 16, logoY + 26);
     ctx.lineTo(logoX, logoY + 22);
     ctx.lineTo(logoX + 16, logoY + 18);
-    ctx.closePath();
+    closePath();
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
@@ -425,11 +424,17 @@ export default function KioskFlow() {
         details: details,
       });
       
-      setSelectedActivity(response.selectedActivity);
-      setSelectedScene(response.selectedScene);
+      if (!response.success || !response.data) {
+        throw new Error(response.error || 'AI failed to generate vision.');
+      }
+
+      const aiResult = response.data;
+      
+      setSelectedActivity(aiResult.selectedActivity);
+      setSelectedScene(aiResult.selectedScene);
       setSelectedStyle(style);
 
-      const bakedPolaroid = await composePolaroid(response.transformedPhotoDataUri, response.selectedActivity);
+      const bakedPolaroid = await composePolaroid(aiResult.transformedPhotoDataUri, aiResult.selectedActivity);
       setResultImage(bakedPolaroid);
       setStep('results');
 
@@ -437,7 +442,7 @@ export default function KioskFlow() {
         setIsSaving(true);
         const data = {
           imageData: bakedPolaroid,
-          activity: response.selectedActivity,
+          activity: aiResult.selectedActivity,
           theme: theme.title,
           createdAt: new Date().toISOString(),
           ownerId: auth.currentUser?.uid
@@ -464,7 +469,7 @@ export default function KioskFlow() {
       toast({ 
         variant: 'destructive', 
         title: 'AI Generation Error', 
-        description: error.message || 'AI failed to generate vision.' 
+        description: error.message || 'AI failed to generate vision. Please try again.' 
       });
     } finally {
       setIsProcessing(false);

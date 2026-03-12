@@ -36,8 +36,28 @@ const GenerateThemedPhotoOutputSchema = z.object({
 });
 export type GenerateThemedPhotoOutput = z.infer<typeof GenerateThemedPhotoOutputSchema>;
 
-export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Promise<GenerateThemedPhotoOutput> {
-  return generateThemedPhotoFlow(input);
+/**
+ * Wrapper function for the Server Action to handle errors gracefully.
+ */
+export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Promise<{ success: boolean; data?: GenerateThemedPhotoOutput; error?: string }> {
+  try {
+    const result = await generateThemedPhotoFlow(input);
+    return { success: true, data: result };
+  } catch (error: any) {
+    // Log the full detailed error to the server console for debugging
+    console.error("AI_GENERATION_FAILED: Detailed Error Log:", {
+      timestamp: new Date().toISOString(),
+      error: error?.message || error,
+      stack: error?.stack,
+      input: { ...input, photoDataUri: "REDACTED_IMAGE_DATA" }
+    });
+
+    // Return a generic, safe error message for the UI
+    return { 
+      success: false, 
+      error: "The AI was unable to process your request. This can happen due to safety filters or technical timeouts. Please try a different style or photo."
+    };
+  }
 }
 
 /**
@@ -117,8 +137,11 @@ const generateThemedPhotoFlow = ai.defineFlow(
   async (input) => {
     const { text, media } = await themedPhotoPrompt(input);
 
+    // Logging the raw text helps debug parsing failures
+    console.log("AI_RAW_TEXT_RESPONSE:", text);
+
     if (!media) {
-      throw new Error('AI failed to generate the stylized image. Please try again.');
+      throw new Error('AI failed to generate the stylized image part of the response.');
     }
 
     // Manual parsing of the text response to extract selections. 

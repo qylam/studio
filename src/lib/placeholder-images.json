@@ -21,19 +21,19 @@
     {
       "id": "theme-active",
       "description": "Get more active theme",
-      "imageUrl": "https://images.unsplash.com/photo-1554924821-06226b7202e6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1562593028-1fe2d15bde36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "urban parkour jumping"
     },
     {
       "id": "theme-break",
       "description": "Take a well-earned break theme",
-      "imageUrl": "https://images.unsplash.com/photo-1567696911980-2eed69a46042?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1758873268064-0f88e126c695?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "luxury natural hot spring pool"
     },
     {
       "id": "theme-skill",
       "description": "Learn a new skill theme",
-      "imageUrl": "https://images.unsplash.com/photo-1515865404355-ddb5b0910878?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1580639136208-af022077d6f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "grand symphony orchestra"
     },
     {
@@ -51,7 +51,7 @@
     {
       "id": "theme-green",
       "description": "Master the Green theme",
-      "imageUrl": "https://images.unsplash.com/photo-1587329310686-91414b8e3cb7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1632946269126-0f8edbe8b068?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "championship golf course"
     },
     {
@@ -75,7 +75,7 @@
     {
       "id": "theme-racing",
       "description": "Chase the Grand Prix thrill theme",
-      "imageUrl": "https://images.unsplash.com/photo-1532980400857-e8d9d275d858?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1752884991461-8ac432ad9266?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "race track grand prix"
     },
     {
@@ -87,7 +87,7 @@
     {
       "id": "theme-alpine",
       "description": "Conquer the Alpine peaks theme",
-      "imageUrl": "https://images.unsplash.com/photo-1522163182402-834f871fd851?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1767165020144-ad4685c678a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "alpine mountain climbing"
     },
     {
@@ -99,19 +99,19 @@
     {
       "id": "style-keychain",
       "description": "3D Keychain style preview",
-      "imageUrl": "https://images.unsplash.com/photo-1611162617225-536098059ef3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "/images/Keychain_Style.png",
       "imageHint": "cute 3d toy miniature"
     },
     {
       "id": "style-oil",
       "description": "Oil Painting style preview",
-      "imageUrl": "https://images.unsplash.com/photo-1578301978693-85e263abdd98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "/images/Oil_Painting_Style.png",
       "imageHint": "classic oil painting strokes"
     },
     {
       "id": "style-clay",
       "description": "Claymation style preview",
-      "imageUrl": "https://images.unsplash.com/photo-1612282337039-b9d9df962002?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageUrl": "/images/Claymation_Style.png",
       "imageHint": "miniature clay figure"
     },
     {
