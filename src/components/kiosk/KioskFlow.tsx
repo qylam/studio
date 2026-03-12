@@ -333,7 +333,7 @@ export default function KioskFlow() {
     ctx.lineTo(logoX + 16, logoY + 26);
     ctx.lineTo(logoX, logoY + 22);
     ctx.lineTo(logoX + 16, logoY + 18);
-    closePath();
+    ctx.closePath();
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
