@@ -44,13 +44,25 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
     const result = await generateThemedPhotoFlow(input);
     return { success: true, data: result };
   } catch (error: any) {
-    // Log the full detailed error to the server console for debugging
-    console.error("AI_GENERATION_FAILED: Detailed Error Log:", {
-      timestamp: new Date().toISOString(),
-      error: error?.message || error,
-      stack: error?.stack,
-      input: { ...input, photoDataUri: "REDACTED_IMAGE_DATA" }
-    });
+    // LOGGING THE TRUE REASON FOR FAILURE
+    // We use Object.getOwnPropertyNames to ensure we capture non-enumerable properties like 'message' and 'stack'
+    const errorDetails = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
+    
+    console.error("---------- AI_GENERATION_FAILED: API DIAGNOSTICS ----------");
+    console.error("Timestamp:", new Date().toISOString());
+    console.error("Full Error Object:", errorDetails);
+    
+    // Auto-Diagnosis
+    if (error?.message?.toLowerCase().includes("safety") || errorDetails.toLowerCase().includes("safety")) {
+      console.error("DIAGNOSIS: The request was likely blocked by Gemini's Safety Filters.");
+    } else if (error?.status === 429 || error?.message?.includes("429")) {
+      console.error("DIAGNOSIS: API Rate Limit Exceeded (Quota).");
+    } else if (error?.status === 500 || error?.status === 503) {
+      console.error("DIAGNOSIS: Google AI Server Error or Overload.");
+    }
+    
+    console.error("Input Context (Redacted Image):", { ...input, photoDataUri: "REDACTED_FOR_LOGS" });
+    console.error("-----------------------------------------------------------");
 
     // Return a generic, safe error message for the UI
     return { 
