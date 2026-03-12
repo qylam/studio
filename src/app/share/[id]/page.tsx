@@ -1,20 +1,27 @@
 'use client';
 
 import React from 'react';
-import { Download, Share2, Instagram, Twitter, Facebook, ExternalLink, Zap, Sparkles, Loader2 } from 'lucide-react';
+import { Download, Instagram, Twitter, Facebook, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useDoc, useFirestore } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { useParams } from 'next/navigation';
+import { doc } from 'firebase/firestore';
 
 export default function SharePortal() {
   const params = useParams();
   const db = useFirestore();
 
-  const docId = (params?.id || params?.visionId) as string;
+  const docId = params?.id as string;
 
-  const { data: vision, loading, error } = useDoc(db, docId ? `visions/${docId}` : null);
+  // Stabilize the document reference to prevent hydration/render loops
+  const visionRef = useMemoFirebase(() => {
+    if (!db || !docId) return null;
+    return doc(db, 'visions', docId);
+  }, [db, docId]);
 
-  // Helper function to convert base64 to a File object
+  const { data: vision, loading, error } = useDoc(visionRef);
+
+  // Helper function to convert base64 to a File object for native sharing
   const dataURLtoFile = (dataurl: string, filename: string) => {
     let arr = dataurl.split(','),
         mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg',
@@ -41,16 +48,15 @@ export default function SharePortal() {
             title: 'My Free-Time Vision',
             text: 'Check out my AI-generated vision!',
           });
-          return; // Success! Stop here.
+          return;
         }
       }
     } catch (err) {
       console.log('Sharing failed or was cancelled by user', err);
-      // If they just cancelled the share sheet, we can return early
       if ((err as Error).name === 'AbortError') return; 
     }
 
-    // 2. Fallback for Desktop browsers or incompatible devices
+    // 2. Fallback for Desktop browsers
     const link = document.createElement('a');
     link.href = vision.imageData;
     link.download = `my-free-time-vision.jpg`;
@@ -86,10 +92,9 @@ export default function SharePortal() {
           </h1>
         </header>
 
-        {/* Polaroid Vision - Displayed directly as stored */}
         <div className="relative group">
           <div className="absolute -inset-1 bg-[#4290FF]/20 rounded-lg blur-lg"></div>
-          <div className="relative rounded-sm shadow-2xl overflow-hidden">
+          <div className="relative rounded-sm shadow-2xl overflow-hidden bg-white p-2 pb-10">
             <img src={vision.imageData} alt="Your AI Vision" className="w-full h-auto" />
           </div>
         </div>
@@ -118,7 +123,7 @@ export default function SharePortal() {
 
         <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 text-center">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            This vision was created using Nano Banana 2, reimagining your free time based on your unique pose.
+            This vision was created using Gemini, reimagining your free time based on your unique pose.
           </p>
         </div>
 
