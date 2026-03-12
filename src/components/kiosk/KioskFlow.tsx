@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -332,7 +331,7 @@ export default function KioskFlow() {
     ctx.lineTo(logoX + 16, logoY + 26);
     ctx.lineTo(logoX, logoY + 22);
     ctx.lineTo(logoX + 16, logoY + 18);
-    ctx.closePath(); // Correct context reference fixed previously
+    ctx.closePath();
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
@@ -423,6 +422,10 @@ export default function KioskFlow() {
         details: details,
       });
       
+      console.log("---------- CLIENT LOG: FULL_GENERATION_RESULT ----------");
+      console.log(response);
+      console.log("---------------------------------------------------------");
+
       if (!response.success || !response.data) {
         throw new Error(response.error || 'AI failed to generate vision.');
       }

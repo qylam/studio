@@ -137,8 +137,15 @@ const generateThemedPhotoFlow = ai.defineFlow(
   async (input) => {
     const { text, media } = await themedPhotoPrompt(input);
 
-    // Logging the raw text helps debug parsing failures
-    console.log("AI_RAW_TEXT_RESPONSE:", text);
+    // LOGGING THE FULL RESPONSE DATA
+    console.log("---------- AI RESPONSE START ----------");
+    console.log("RAW TEXT RESPONSE:\n", text);
+    console.log("IMAGE GENERATED:", media ? "YES" : "NO");
+    if (media) {
+      console.log("IMAGE CONTENT TYPE:", media.contentType);
+      console.log("IMAGE DATA LENGTH:", media.url?.length || 0);
+    }
+    console.log("---------- AI RESPONSE END ------------");
 
     if (!media) {
       throw new Error('AI failed to generate the stylized image part of the response.');
