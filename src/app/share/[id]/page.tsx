@@ -21,45 +21,35 @@ export default function SharePortal() {
 
   const { data: vision, isLoading, error } = useDoc(visionRef);
 
-  // Helper function to convert base64 to a File object for native sharing
-  const dataURLtoFile = (dataurl: string, filename: string) => {
-    let arr = dataurl.split(','),
-        mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg',
-        bstr = atob(arr[1]),
-        n = bstr.length,
-        u8arr = new Uint8Array(n);
-    while(n--){
-        u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, {type: mime});
-  }
-
   const handleDownload = async () => {
     if (!vision?.imageData) return;
 
     try {
-      if (navigator.share) {
-        const file = dataURLtoFile(vision.imageData, 'my-free-time-vision.jpg');
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'My Free-Time Vision',
-            text: 'Check out my AI-generated vision!',
-          });
-          return;
-        }
+      // Convert base64 data to a Blob for a more reliable download
+      const parts = vision.imageData.split(',');
+      const mime = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+      const bstr = atob(parts[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
       }
-    } catch (err) {
-      console.log('Sharing failed or was cancelled by user', err);
-      if ((err as Error).name === 'AbortError') return; 
-    }
+      const blob = new Blob([u8arr], { type: mime });
+      const url = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = vision.imageData;
-    link.download = `my-free-time-vision.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Create a temporary link and trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `my-free-time-vision-${docId.slice(0, 5)}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the object URL to free memory
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
   };
 
   if (!docId) return null;
