@@ -75,7 +75,7 @@ export default function Home() {
           </div>
 
           <div className="pt-8">
-            <Link href="#" className="inline-flex items-center text-sm md:text-base font-medium group text-white/90 hover:text-white transition-colors">
+            <Link href="/details" className="inline-flex items-center text-sm md:text-base font-medium group text-white/90 hover:text-white transition-colors">
               <ArrowRight className="mr-3 w-5 h-5 text-[#4285F4] group-hover:translate-x-1 transition-transform" />
               See how Gemini is helping you save up to 10 hours per week
             </Link>

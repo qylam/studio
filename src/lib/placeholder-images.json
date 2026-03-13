@@ -97,6 +97,12 @@
       "imageHint": "earth from orbit space"
     },
     {
+      "id": "educator-classroom",
+      "description": "Teachers and students in a modern classroom setting",
+      "imageUrl": "https://images.unsplash.com/photo-1524178232363-1fb28f74b671?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+      "imageHint": "classroom teacher student technology"
+    },
+    {
       "id": "style-keychain",
       "description": "3D Keychain style preview",
       "imageUrl": "/images/Keychain_Style.png",
