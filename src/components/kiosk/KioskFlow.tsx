@@ -335,7 +335,7 @@ export default function KioskFlow() {
     ctx.fill();
 
     ctx.fillStyle = '#27272a';
-    ctx.font = 'bold 36px Inter, sans-serif'; 
+    ctx.font = 'bold 36px "Google Sans", sans-serif'; 
     ctx.textAlign = 'left';
     ctx.fillText('Chrome Connect', logoX + 60, logoY + 36);
     ctx.restore();
@@ -349,7 +349,7 @@ export default function KioskFlow() {
     ctx.drawImage(img, SIDE_MARGIN, TOP_PADDING, IMG_SIZE, IMG_SIZE);
 
     ctx.fillStyle = '#27272a';
-    ctx.font = 'italic 38px Caveat, cursive';
+    ctx.font = 'bold 38px "Google Sans", sans-serif';
     ctx.textAlign = 'center';
     
     const cleanActivity = getCleanText(rawActivity);
