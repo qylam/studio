@@ -7,7 +7,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -20,8 +19,6 @@ export default function DetailsPage() {
   const [showConsent, setShowConsent] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
-
-  const educatorImage = PlaceHolderImages.find(img => img.id === 'educator-classroom');
 
   const handleProceed = () => {
     setIsNavigating(true);
@@ -92,16 +89,13 @@ export default function DetailsPage() {
 
       {/* Right Image */}
       <div className="w-full md:w-1/2 relative min-h-[400px] md:min-h-screen">
-        {educatorImage && (
-          <Image 
-            src={educatorImage.imageUrl}
-            alt={educatorImage.description}
-            fill
-            className="object-cover"
-            priority
-            data-ai-hint={educatorImage.imageHint}
-          />
-        )}
+        <Image 
+          src="/images/saving-time.webp"
+          alt="Saving time with Gemini"
+          fill
+          className="object-cover"
+          priority
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent hidden md:block" />
       </div>
 
