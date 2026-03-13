@@ -50,7 +50,9 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
     
     console.error("---------- AI_GENERATION_FAILED: API DIAGNOSTICS ----------");
     console.error("Timestamp:", new Date().toISOString());
-    console.error("Full Error Object:", errorDetails);
+    // console.error("Full Error Object:", errorDetails);
+    console.error("Full Error Object:")
+    console.dir(error, { depth: null, colors: true });
     
     // Auto-Diagnosis
     if (error?.message?.toLowerCase().includes("safety") || errorDetails.toLowerCase().includes("safety")) {
