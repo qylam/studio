@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -5,61 +6,45 @@ service cloud.firestore {
     /**
      * CORE PHILOSOPHY
      * This ruleset enforces Path-Based Ownership for user data and public readability 
-     * for shared assets (visions).
+     * for shared assets (visions) and global metadata.
      */
 
     // --- Helper Functions ---
 
-    /** @description Checks if the request is from an authenticated user. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** @description Checks if the authenticated user's UID matches the provided userId. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /** @description Checks ownership and ensures the document already exists for modifications. */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
     // --- Rules ---
+
+    /** 
+     * @description Publicly readable metadata for global stats (e.g., video count). 
+     */
+    match /metadata/{docId} {
+      allow get: if true;
+      allow list: if false;
+    }
 
     /**
      * @description Publicly readable collection for shared AI visions.
-     * @path /visions/{visionId}
-     * @allow (get) Anyone can view a shared vision if they have the ID.
-     * @allow (create) Authenticated users can create their own visions.
      */
     match /visions/{visionId} {
       allow get: if true;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow list: if false; // Prevent bulk scraping
+      // Allow the Cloud Run service (or owner) to update the document with the video URL
+      allow update: if isSignedIn() && (request.auth.uid == resource.data.ownerId || request.auth.uid == request.resource.data.ownerId);
+      allow list: if false; 
     }
 
-    /**
-     * @description Root user document for profile information.
-     * @path /users/{userId}
-     */
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow get, create, update, delete: if isOwner(userId);
 
-      /**
-       * @description Individual photo booth sessions.
-       * @path /users/{userId}/photoBoothSessions/{sessionId}
-       */
       match /photoBoothSessions/{sessionId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.ownerId == userId;
-        allow update: if isExistingOwner(userId) && request.resource.data.ownerId == resource.data.ownerId;
-        allow delete: if isExistingOwner(userId);
+        allow read, write: if isOwner(userId);
       }
     }
 

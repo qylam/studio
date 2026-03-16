@@ -1,90 +1,34 @@
+
 {
   "entities": {
     "PhotoBoothSession": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "PhotoBoothSession",
+      "description": "Represents a single user's interaction session, including captured photo and generated cinematic video.",
       "type": "object",
-      "description": "Represents a single user's interaction session with the Free-Time Machine photo booth.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the PhotoBoothSession entity."
-        },
-        "imageData": {
-          "type": "string",
-          "description": "Base64 encoded image data for the final Polaroid vision."
-        },
-        "activity": {
-          "type": "string",
-          "description": "The specific activity depicted in the vision."
-        },
-        "theme": {
-          "type": "string",
-          "description": "The theme category of the vision."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Timestamp when the vision was created."
-        },
-        "ownerId": {
-          "type": "string",
-          "description": "UID of the user who owns this vision."
-        }
+        "id": { "type": "string" },
+        "imageData": { "type": "string", "description": "Base64 encoded polaroid image." },
+        "activity": { "type": "string" },
+        "theme": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "ownerId": { "type": "string" },
+        "videoUrl": { "type": "string", "format": "uri", "description": "URL to the generated MP4 in storage." },
+        "hasVideo": { "type": "boolean", "description": "Flag indicating if a video exists." }
       },
-      "required": [
-        "imageData",
-        "activity",
-        "theme",
-        "createdAt",
-        "ownerId"
-      ]
+      "required": ["imageData", "activity", "theme", "createdAt", "ownerId"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["anonymous"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}/photoBoothSessions/{sessionId}",
-        "definition": {
-          "entityName": "PhotoBoothSession",
-          "schema": {
-            "$ref": "#/backend/entities/PhotoBoothSession"
-          },
-          "description": "Stores detailed photo booth sessions, owned by the user.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "UID of the user."
-            },
-            {
-              "name": "sessionId",
-              "description": "Unique session ID."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/visions/{visionId}",
-        "definition": {
-          "entityName": "PhotoBoothSession",
-          "schema": {
-            "$ref": "#/backend/entities/PhotoBoothSession"
-          },
-          "description": "Stores shared AI visions.",
-          "params": [
-            {
-              "name": "visionId",
-              "description": "Unique identifier for the shared vision."
-            }
-          ]
-        }
-      }
-    ]
+    "/visions/{visionId}": {
+      "schema": { "$ref": "#/backend/entities/PhotoBoothSession" },
+      "description": "Publicly shared AI visions."
+    },
+    "/metadata/{docId}": {
+      "schema": { "type": "object" },
+      "description": "Global usage statistics and application metadata."
+    }
   }
 }
