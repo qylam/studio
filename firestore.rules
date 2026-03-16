@@ -28,6 +28,11 @@ service cloud.firestore {
 
     // --- Rules ---
 
+    match /metadata/{docId} {
+      allow get: if true;
+      allow list: if false;
+    }
+
     /**
      * @description Publicly readable collection for shared AI visions.
      * @path /visions/{visionId}
