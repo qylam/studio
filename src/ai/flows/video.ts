@@ -52,11 +52,10 @@ export async function startVideoGeneration(visionId: string, imageBase64: string
 
 export async function checkVideoJobStatus(visionId: string, operationId: string): Promise<{ status: 'PENDING' | 'SUCCEEDED' | 'FAILED'; videoUrl?: string }> {
   try {
-    // Check status logic for Vertex AI Long Running Operations (LRO)
     const token = await auth.getAccessToken();
     
-    // Ensure operationId is properly formatted for LROs (usually projects/x/locations/y/operations/z)
-    let endpoint = operationId.includes('/') 
+    // Ensure we construct the correct polling URL for Publisher Model LROs
+    const endpoint = operationId.startsWith('projects/') 
       ? `https://${LOCATION}-aiplatform.googleapis.com/v1/${operationId}`
       : `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/operations/${operationId}`;
 
@@ -67,7 +66,8 @@ export async function checkVideoJobStatus(visionId: string, operationId: string)
     });
 
     if (!response.ok) {
-      console.error('Failed to check operation status:', await response.text());
+      const errText = await response.text();
+      console.error('Failed to check operation status. HTTP Status:', response.status, 'Response:', errText);
       return { status: 'FAILED' };
     }
 
@@ -75,12 +75,33 @@ export async function checkVideoJobStatus(visionId: string, operationId: string)
 
     if (data.done) {
       if (data.error) {
-        console.error('Video generation operation failed:', data.error);
+        console.error('Vertex AI Video generation operation failed permanently:', JSON.stringify(data.error));
         return { status: 'FAILED' };
       }
       
-      const videoUrl = `https://firebasestorage.googleapis.com/v0/b/free-timemachine-ent-923-220cc.firebasestorage.app/o/videos%2F${visionId}.mp4?alt=media`;
+      // Veo 3.1 outputs to a directory. The API response will contain the exact GCS URI of the generated file.
+      // We need to safely extract it. It usually resides in data.response.
+      let gcsOutputUri = '';
       
+      if (data.response && data.response.generatedVideoUri) {
+         gcsOutputUri = data.response.generatedVideoUri;
+      } else if (data.response && data.response.outputUri) {
+         gcsOutputUri = data.response.outputUri;
+      } else {
+         // Fallback if the specific field changes, we assume Veo names it output_0.mp4 or similar.
+         // According to standard Veo API behavior, if output_uri was a directory, it puts it in output_0.mp4
+         gcsOutputUri = `gs://free-timemachine-ent-923-220cc.firebasestorage.app/videos/${visionId}/output_0.mp4`;
+         console.warn("Could not find exact output URI in Veo response. Using fallback:", gcsOutputUri, "Raw response:", JSON.stringify(data.response));
+      }
+
+      // Convert gs://bucket/path/to/file.mp4 -> https://firebasestorage.googleapis.com/v0/b/bucket/o/path%2Fto%2Ffile.mp4?alt=media
+      const bucketName = 'free-timemachine-ent-923-220cc.firebasestorage.app';
+      const pathInBucket = gcsOutputUri.replace(`gs://${bucketName}/`, '');
+      const encodedPath = encodeURIComponent(pathInBucket);
+      const videoUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media`;
+      
+      console.log(`Video Generation SUCCEEDED for ${visionId}. URL: ${videoUrl}`);
+
       // Update the vision document
       await adminDb.collection('visions').doc(visionId).update({
         videoUrl: videoUrl,
@@ -90,10 +111,11 @@ export async function checkVideoJobStatus(visionId: string, operationId: string)
       return { status: 'SUCCEEDED', videoUrl };
     }
 
+    // If not done, it is still pending
     return { status: 'PENDING' };
 
-  } catch (error) {
-    console.error('Error checking video status:', error);
+  } catch (error: any) {
+    console.error('Error checking video status:', error.message || error);
     return { status: 'FAILED' };
   }
 }
