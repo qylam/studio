@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Download, Instagram, Twitter, Facebook, Zap, Loader2, Film } from 'lucide-react';
+import { Download, Instagram, Twitter, Facebook, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { useParams } from 'next/navigation';
@@ -52,19 +52,6 @@ export default function SharePortal() {
     }
   };
 
-  
-  const handleVideoDownload = () => {
-    if (!vision?.videoUrl) return;
-    const link = document.createElement('a');
-    link.href = vision.videoUrl;
-    link.download = `my-free-time-video-${docId.slice(0, 5)}.mp4`;
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-
   if (!docId) return null;
 
   // Render loader while loading OR if we have no data yet and no error
@@ -100,27 +87,7 @@ export default function SharePortal() {
           </h1>
         </header>
 
-        
-        {vision.videoUrl && (
-          <div className="relative group mb-8">
-            <div className="absolute -inset-1 bg-[#9B72CB]/20 rounded-lg blur-lg"></div>
-            <div className="relative rounded-xl shadow-2xl overflow-hidden bg-black border border-white/10 aspect-video">
-              <video src={vision.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-            </div>
-            <div className="mt-4">
-              <Button 
-                onClick={handleVideoDownload}
-                className="w-full bg-[#9B72CB] hover:bg-[#9B72CB]/90 text-white py-6 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg"
-              >
-                <Film className="mr-3 h-6 w-6" />
-                Download Video
-              </Button>
-            </div>
-          </div>
-        )}
-
         <div className="relative group">
-
           <div className="absolute -inset-1 bg-[#4290FF]/20 rounded-lg blur-lg"></div>
           <div className="relative rounded-sm shadow-2xl overflow-hidden bg-white p-2 pb-10">
             <img src={vision.imageData} alt="Your AI Vision" className="w-full h-auto" />

@@ -1,70 +1,14 @@
-
 {
   "entities": {
     "PhotoBoothSession": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "PhotoBoothSession",
       "type": "object",
-      "description": "Represents a single user's interaction session with the Free-Time Machine photo booth, from photo capture and AI transformation to sharing portal generation and status tracking.",
+      "description": "Represents a single user's interaction session with the Free-Time Machine photo booth.",
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique identifier for the PhotoBoothSession entity."
-        },
-        "creationTime": {
-          "type": "string",
-          "description": "Timestamp indicating when the photo booth session was initiated.",
-          "format": "date-time"
-        },
-        "originalPhotoStoragePath": {
-          "type": "string",
-          "description": "The internal storage path or identifier for the user's original captured high-resolution photo in cloud storage."
-        },
-        "themeName": {
-          "type": "string",
-          "description": "The name of the chosen thematic filter."
-        },
-        "refinementOption1Selection": {
-          "type": "string",
-          "description": "User's selection from first dropdown."
-        },
-        "refinementOption2Selection": {
-          "type": "string",
-          "description": "User's selection from second dropdown."
-        },
-        "refinementOption3Selection": {
-          "type": "string",
-          "description": "User's selection from third dropdown."
-        },
-        "aiGeneratedImageStoragePath": {
-          "type": "string",
-          "description": "Internal storage path for the generated image."
-        },
-        "sharingPortalUrl": {
-          "type": "string",
-          "description": "Public URL for sharing.",
-          "format": "uri"
-        },
-        "sessionStatus": {
-          "type": "string",
-          "description": "Processing status (e.g., 'captured', 'processing', 'completed')."
-        },
-        "lastUpdateTime": {
-          "type": "string",
-          "description": "Last update timestamp.",
-          "format": "date-time"
-        },
-        "aiPromptText": {
-          "type": "string",
-          "description": "Full AI prompt text."
-        },
-        "errorMessage": {
-          "type": "string",
-          "description": "Error message if failed."
-        },
-        "qrCodeImageStoragePath": {
-          "type": "string",
-          "description": "Storage path for QR code image."
         },
         "imageData": {
           "type": "string",
@@ -95,17 +39,6 @@
         "createdAt",
         "ownerId"
       ]
-    },
-    "GlobalStats": {
-      "title": "GlobalStats",
-      "type": "object",
-      "description": "Global application statistics.",
-      "properties": {
-        "videoCount": {
-          "type": "number",
-          "description": "Total number of videos generated across all users."
-        }
-      }
     }
   },
   "auth": {
@@ -151,24 +84,7 @@
             }
           ]
         }
-      },
-      {
-        "path": "/metadata/{docId}",
-        "definition": {
-          "entityName": "GlobalStats",
-          "schema": {
-            "$ref": "#/backend/entities/GlobalStats"
-          },
-          "description": "Stores global metadata and counters.",
-          "params": [
-            {
-              "name": "docId",
-              "description": "Document ID (e.g., 'globalStats')."
-            }
-          ]
-        }
       }
-    ],
-    "reasoning": "The Firestore structure includes a root 'metadata' collection for global app state like the video generation counter."
+    ]
   }
 }

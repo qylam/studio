@@ -1,4 +1,3 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -6,7 +5,7 @@ service cloud.firestore {
     /**
      * CORE PHILOSOPHY
      * This ruleset enforces Path-Based Ownership for user data and public readability 
-     * for shared assets (visions) and global metadata.
+     * for shared assets (visions).
      */
 
     // --- Helper Functions ---
@@ -27,15 +26,6 @@ service cloud.firestore {
     }
 
     // --- Rules ---
-
-    /**
-     * @description Publicly readable collection for global app metadata.
-     * Used for tracking limits like the global video generation counter.
-     */
-    match /metadata/{docId} {
-      allow get: if true;
-      allow list: if false;
-    }
 
     /**
      * @description Publicly readable collection for shared AI visions.
