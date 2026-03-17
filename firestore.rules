@@ -25,7 +25,7 @@ service cloud.firestore {
      * Explicitly allows single document lookups (get) and collection listing (list).
      */
     match /metadata/{docId} {
-      allow read: if true;
+      allow get, list: if true;
       allow write: if false;
     }
 
