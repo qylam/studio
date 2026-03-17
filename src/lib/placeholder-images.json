@@ -103,6 +103,12 @@
       "imageHint": "classroom teacher student technology"
     },
     {
+      "id": "style-figurine",
+      "description": "Figurine style preview",
+      "imageUrl": "/images/Figurine.png",
+      "imageHint": "scaled commercialized figurine"
+    },
+    {
       "id": "style-keychain",
       "description": "3D Keychain style preview",
       "imageUrl": "/images/Keychain_Style.png",

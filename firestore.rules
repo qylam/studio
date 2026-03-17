@@ -36,7 +36,7 @@ service cloud.firestore {
     match /visions/{visionId} {
       allow get: if true;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      // Allow the owner to update the document (e.g., to add video metadata)
+      // Allow the owner to update the document (e.g., to add video metadata or refine style)
       allow update: if isSignedIn() && (request.auth.uid == resource.data.ownerId || request.auth.uid == request.resource.data.ownerId);
       allow list: if false; 
     }

@@ -27,6 +27,11 @@ type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'proce
 
 const STYLES = [
   { 
+    id: 'style-figurine', 
+    title: 'Figurine', 
+    detail: 'Transform the person or group of people in this photo into a 1/7 scale commercialized figurine of the characters in the picture, in a realistic style, in a real environment. The figurine is placed on a computer desk. The figurine has a round transparent acrylic base with no text on the base. The content on the computer screen is the brush modeling process of this figurine. Packaging box printed with the original artwork.' 
+  },
+  { 
     id: 'style-keychain', 
     title: '3D Keychain', 
     detail: 'Transform the person or group of people in the image into a keychain character version of themselves, placed on a tabletop. Preserve recognizable features but redesign them in a kawaii, Pixar-inspired style — slightly oversized head, small body, soft rounded features, glossy expressive eyes, and a warm, heartwarming smile. The character should feel like a premium animated collectible toy, with smooth materials, soft shading, and subtle skin glow. Keep outfit colors and key visual identity, but simplify details into clean, cute shapes. Use soft cinematic lighting, shallow depth of field, warm tones, and a cozy tabletop setting. Ultra-detailed 3D render.' 
