@@ -45,12 +45,10 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
     return { success: true, data: result };
   } catch (error: any) {
     // LOGGING THE TRUE REASON FOR FAILURE
-    // We use Object.getOwnPropertyNames to ensure we capture non-enumerable properties like 'message' and 'stack'
     const errorDetails = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
     
     console.error("---------- AI_GENERATION_FAILED: API DIAGNOSTICS ----------");
     console.error("Timestamp:", new Date().toISOString());
-    // console.error("Full Error Object:", errorDetails);
     console.error("Full Error Object:")
     console.dir(error, { depth: null, colors: true });
     
@@ -82,13 +80,9 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
   input: { schema: GenerateThemedPhotoInputSchema },
-  model: 'googleai/gemini-3.1-flash-image-preview',
+  model: 'googleai/gemini-2.5-flash-image',
   config: {
     responseModalities: ['TEXT', 'IMAGE'],
-    imageConfig: {
-      aspectRatio: '1:1',
-      imageSize: "2K"
-    },
     safetySettings: [
       {
         category: 'HARM_CATEGORY_HATE_SPEECH',
@@ -108,24 +102,23 @@ const themedPhotoPrompt = ai.definePrompt({
       },
     ],
   },
-  prompt: `You are an expert high-end photo editor and cinematic AI artist working for a luxury lifestyle magazine. Your task is to transform the provided photo of an executive into a stylized, aspirational masterpiece.
+  prompt: `You are an expert high-end photo editor and cinematic AI artist. Your task is to transform the provided photo of a person into a stylized, aspirational masterpiece.
 
 STEP 1: IDENTIFY THE THEME
 {{#if scene}}
 Use the provided scene: "{{{scene}}}" and activity: "{{{activity}}}"
 {{else}}
-Analyze the user's pose, expression, and clothing in the photo. From the following list of variations, select the ONE that would result in the most natural and cinematic transformation for this specific person:
+Analyze the user's pose and expression. From the following variations, select the ONE that would result in the most natural transformation for this specific person:
 {{#each themeVariations}}
 Option {{@index}}: Scene: "{{{this.scene}}}", Activity: "{{{this.activity}}}"
 {{/each}}
 {{/if}}
 
 STEP 2: APPLY ARTISTIC STYLE & INTEGRATION
-Transform the subject based on the chosen theme. You MUST adhere to these strict constraints:
-1. IDENTITY PRESERVATION: Do NOT alter the subject's facial features, identity, gender, age, or ethnicity. The face must remain instantly recognizable.
-2. POSE MATCHING: Keep the subject's original body pose and structural silhouette intact.
-3. ENVIRONMENTAL BLENDING: Seamlessly integrate the subject into the new scene. Cast appropriate environmental lighting, reflections, and shadows onto the subject so they do not look like a pasted sticker.
-4. PREMIUM TONE: The final image must feel expensive, aspirational, and high-quality.
+Transform the subject based on the chosen theme.
+1. IDENTITY PRESERVATION: Do NOT alter the subject's facial features. Face must remain recognizable.
+2. POSE MATCHING: Keep the subject's original body pose intact.
+3. ENVIRONMENTAL BLENDING: Seamlessly integrate the subject into the new scene with appropriate lighting.
 
 Include these specific stylistic details:
 {{#each details}}
@@ -133,11 +126,10 @@ Include these specific stylistic details:
 {{/each}}
 
 TEXT OUTPUT FORMAT:
-You MUST output ONLY the following three lines at the very beginning of your response. Do not include any conversational filler, markdown formatting, or greetings.
-
+You MUST output ONLY the following three lines at the very beginning of your response.
 SELECTED_SCENE: [The chosen scene]
 SELECTED_ACTIVITY: [The chosen activity]
-DESCRIPTION: [A highly detailed, 2-sentence visual description of the final image, integrating the subject, the scene, and the lighting]
+DESCRIPTION: [A detailed visual description]
 
 Photo: {{media url=photoDataUri}}`,
 });
@@ -151,36 +143,23 @@ const generateThemedPhotoFlow = ai.defineFlow(
   async (input) => {
     const { text, media } = await themedPhotoPrompt(input);
 
-    // LOGGING THE FULL RESPONSE DATA
-    console.log("---------- AI RESPONSE START ----------");
-    console.log("RAW TEXT RESPONSE:\n", text);
-    console.log("IMAGE GENERATED:", media ? "YES" : "NO");
-    if (media) {
-      console.log("IMAGE CONTENT TYPE:", media.contentType);
-      console.log("IMAGE DATA LENGTH:", media.url?.length || 0);
-    }
-    console.log("---------- AI RESPONSE END ------------");
-
     if (!media) {
       throw new Error('AI failed to generate the stylized image part of the response.');
     }
 
-    // Manual parsing of the text response to extract selections. 
     const lines = text ? text.split('\n') : [];
-    
-    // Helper to strip internal prefixes from theme strings
     const cleanStr = (str: string) => str.replace(/^Variation \d+ (Scene|Activity): /i, '').trim();
 
     const selectedScene = cleanStr(
       lines.find(l => l.startsWith('SELECTED_SCENE:'))?.replace('SELECTED_SCENE:', '').trim() 
       || input.scene 
-      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].scene : 'Unknown Scene')
+      || (input.themeVariations?.[0]?.scene || 'Unknown Scene')
     );
       
     const selectedActivity = cleanStr(
       lines.find(l => l.startsWith('SELECTED_ACTIVITY:'))?.replace('SELECTED_ACTIVITY:', '').trim() 
       || input.activity 
-      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].activity : 'Unknown Activity')
+      || (input.themeVariations?.[0]?.activity || 'Unknown Activity')
     );
       
     const description = lines.find(l => l.startsWith('DESCRIPTION:'))?.replace('DESCRIPTION:', '').trim() 
