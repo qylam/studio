@@ -22,9 +22,10 @@ service cloud.firestore {
 
     /** 
      * @description Publicly readable metadata for global stats (e.g., video count). 
+     * Explicitly allows single document lookups (get) and collection listing (list).
      */
     match /metadata/{docId} {
-      allow get, list: if true;
+      allow read: if true;
       allow write: if false;
     }
 
@@ -34,7 +35,7 @@ service cloud.firestore {
     match /visions/{visionId} {
       allow get: if true;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      // Allow the owner to update the document with video metadata
+      // Allow the owner to update the document (e.g., to add video metadata)
       allow update: if isSignedIn() && (request.auth.uid == resource.data.ownerId || request.auth.uid == request.resource.data.ownerId);
       allow list: if false; 
     }
