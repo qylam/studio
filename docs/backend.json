@@ -15,6 +15,14 @@
         "hasVideo": { "type": "boolean", "description": "Flag indicating if a video exists." }
       },
       "required": ["imageData", "activity", "theme", "createdAt", "ownerId"]
+    },
+    "GlobalMetadata": {
+      "title": "GlobalMetadata",
+      "description": "Tracking document for application-wide statistics.",
+      "type": "object",
+      "properties": {
+        "videoCount": { "type": "number", "description": "Total number of videos generated." }
+      }
     }
   },
   "auth": {
@@ -26,7 +34,7 @@
       "description": "Publicly shared AI visions."
     },
     "/metadata/{docId}": {
-      "schema": { "type": "object" },
+      "schema": { "$ref": "#/backend/entities/GlobalMetadata" },
       "description": "Global usage statistics and application metadata."
     }
   }
