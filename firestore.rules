@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -25,7 +26,7 @@ service cloud.firestore {
      * Allows anyone to read application-wide statistics.
      */
     match /metadata/{docId} {
-      allow get, list: if true;
+      allow read: if true;
       allow write: if false;
     }
 
@@ -35,7 +36,7 @@ service cloud.firestore {
     match /visions/{visionId} {
       allow get: if true;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      // Allow the owner to update the document (e.g., to add video metadata)
+      // Allow the owner to update the document (e.g., to add video metadata or refine styles)
       allow update: if isSignedIn() && (request.auth.uid == resource.data.ownerId || request.auth.uid == request.resource.data.ownerId);
       allow list: if false; 
     }
