@@ -53,15 +53,34 @@ export default function SharePortal() {
   };
 
   
-  const handleVideoDownload = () => {
-    if (!vision?.videoUrl) return;
-    const link = document.createElement('a');
-    link.href = vision.videoUrl;
-    link.download = `my-free-time-video-${docId.slice(0, 5)}.mp4`;
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const [isVideoDownloading, setIsVideoDownloading] = React.useState(false);
+
+  const handleVideoDownload = async () => {
+    if (!vision?.videoUrl || isVideoDownloading) return;
+    
+    try {
+      setIsVideoDownloading(true);
+      
+      const response = await fetch(vision.videoUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `my-free-time-video-${docId.slice(0, 5)}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading video (CORS block or network issue):', error);
+      window.open(vision.videoUrl, '_blank');
+    } finally {
+      setIsVideoDownloading(false);
+    }
   };
 
 
@@ -105,15 +124,25 @@ export default function SharePortal() {
           <div className="relative group mb-8">
             <div className="absolute -inset-1 bg-[#9B72CB]/20 rounded-lg blur-lg"></div>
             <div className="relative rounded-xl shadow-2xl overflow-hidden bg-black border border-white/10 aspect-video">
-              <video src={vision.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+              <video src={vision.videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
             </div>
-            <div className="mt-4">
+            <div className="mt-4 relative z-10">
               <Button 
                 onClick={handleVideoDownload}
-                className="w-full bg-[#9B72CB] hover:bg-[#9B72CB]/90 text-white py-6 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg"
+                disabled={isVideoDownloading}
+                className="w-full bg-[#9B72CB] hover:bg-[#9B72CB]/90 text-white py-6 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg transition-all"
               >
-                <Film className="mr-3 h-6 w-6" />
-                Download Video
+                {isVideoDownloading ? (
+                  <>
+                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                    Saving Video...
+                  </>
+                ) : (
+                  <>
+                    <Film className="mr-3 h-6 w-6" />
+                    Download Video
+                  </>
+                )}
               </Button>
             </div>
           </div>

@@ -101,7 +101,7 @@ const THEMES = [
     title: 'Take a well-earned break', 
     variations: [
       { scene: 'luxury cloud resort', activity: 'lounging in a golden hammock' },
-      { scene: 'secluded hot spring cave', activity: 'soaking in steaming mineral waters' },
+      { scene: 'secluded x hot spring cave', activity: 'soaking in steaming mineral waters' },
       { scene: 'vintage jazz lounge on Mars', activity: 'sipping a cosmic mocktail' }
     ]
   },
@@ -211,8 +211,6 @@ export default function KioskFlow() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-
-  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
@@ -284,7 +282,6 @@ export default function KioskFlow() {
     };
   }, [step, toast]);
 
-  
   useEffect(() => {
     if (videoStatus === 'PENDING' && videoJobId && visionId) {
       pollTimerRef.current = setInterval(async () => {
@@ -294,7 +291,6 @@ export default function KioskFlow() {
             setVideoUrl(res.videoUrl || null);
             setVideoStatus('SUCCEEDED');
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-            // If user was waiting on the video-loading screen, transition them automatically
             if (step === 'video-loading') {
               setStep('video-results');
             }
@@ -302,14 +298,8 @@ export default function KioskFlow() {
             setVideoStatus('FAILED');
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
             if (step === 'video-loading') setStep('results');
-            
-            toast({
-              variant: 'destructive',
-              title: 'Video Generation Failed',
-              description: res.error || 'The video generation process failed or was blocked by safety filters.',
-            });
           }
-        } catch (e: any) {
+        } catch (e) {
           console.error("Poll error", e);
         }
       }, 5000);
@@ -318,8 +308,7 @@ export default function KioskFlow() {
         if (pollTimerRef.current) clearInterval(pollTimerRef.current);
       };
     }
-  }, [videoStatus, videoJobId, visionId, step, toast]);
-
+  }, [videoStatus, videoJobId, visionId, step]);
 
   useEffect(() => {
     if (countdown === null) return;
@@ -341,7 +330,6 @@ export default function KioskFlow() {
     return () => clearInterval(timer);
   }, [step]);
 
-  
   const triggerVideoGeneration = async (vId: string, imgData: string) => {
     if (globalVideoCount >= 100) return;
     setVideoStatus('STARTING');
@@ -352,22 +340,11 @@ export default function KioskFlow() {
         setVideoStatus('PENDING');
       } else {
         setVideoStatus('FAILED');
-        toast({
-          variant: 'destructive',
-          title: 'Failed to start video',
-          description: res.error || 'Unknown error occurred.',
-        });
       }
-    } catch (e: any) {
+    } catch (e) {
       setVideoStatus('FAILED');
-      toast({
-        variant: 'destructive',
-        title: 'Network Error',
-        description: e.message || 'Could not reach the server.',
-      });
     }
   };
-
 
   const performCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -510,10 +487,6 @@ export default function KioskFlow() {
         details: details,
       });
       
-      console.log("---------- CLIENT LOG: FULL_GENERATION_RESULT ----------");
-      console.log(response);
-      console.log("---------------------------------------------------------");
-
       if (!response.success || !response.data) {
         throw new Error(response.error || 'AI failed to generate vision.');
       }
@@ -609,11 +582,8 @@ export default function KioskFlow() {
       case 'theme-green': return <>Looking sharp,<br />pro player!</>;
       case 'theme-culinary': return <>What's cookin',<br />good lookin'!</>;
       case 'theme-warrior': return <>Ready for<br />the wild?</>;
-      case 'theme-deepsea': return <>Making a<br />big splash!</>;
       case 'theme-racing': return <>Leading the<br />pack today!</>;
-      case 'theme-vineyard': return <>A vintage<br />look, indeed!</>;
       case 'theme-alpine': return <>Reaching new<br />heights!</>;
-      case 'theme-space': return <>Looking out<br />of this world!</>;
       default: return <>Looking good,<br />good lookin'!</>;
     }
   };
@@ -835,7 +805,6 @@ export default function KioskFlow() {
               )}
             </div>
             
-            
             <p className="text-xl md:text-2xl text-white/50 font-headline">Scan the code to download your masterpiece.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">Adjust style</Button>
@@ -866,7 +835,6 @@ export default function KioskFlow() {
                  <span className="text-sm uppercase tracking-wider">Generating Video...</span>
                </div>
             )}
-
           </div>
         </div>
       )}
@@ -981,7 +949,6 @@ export default function KioskFlow() {
         </div>
       )}
 
-      
       {step === 'video-loading' && (
         <div className="w-full space-y-12 text-center py-12 md:py-20 flex flex-col items-center">
           <div className="relative w-32 h-32 md:w-48 md:h-48 mb-8">
@@ -1008,39 +975,43 @@ export default function KioskFlow() {
       )}
 
       {step === 'video-results' && videoUrl && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
-          <div className="bg-black p-4 rounded-xl shadow-2xl w-full max-w-xs md:max-w-2xl aspect-video overflow-hidden border border-white/10">
-            <video src={videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
+          {/* Row 1: Video */}
+          <div className="bg-black p-4 rounded-xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
+            <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
           </div>
-          <div className="flex-1 space-y-8 text-center lg:text-left w-full">
-            <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">Action!</h2>
+          
+          {/* Row 2: Content */}
+          <div className="space-y-12 w-full flex flex-col items-center">
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">Action!</h2>
             
-            <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
-              <a 
-                href={getShareUrl()} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                title="Tap to download"
-              >
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
-                  alt="QR Code" 
-                  className="w-full h-full" 
-                />
-              </a>
-            </div>
-            
-            <p className="text-xl md:text-2xl text-white/50 font-headline">Scan to download your photo & video.</p>
-            <div className="flex justify-center lg:justify-start">
-              <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-12 py-6 text-xl">
-                I'm done!
-              </Button>
+            <div className="flex flex-col md:flex-row items-center gap-12 w-full justify-center">
+              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
+                <a 
+                  href={getShareUrl()} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                  title="Tap to download"
+                >
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
+                    alt="QR Code" 
+                    className="w-full h-full" 
+                  />
+                </a>
+              </div>
+              
+              <div className="space-y-6 text-center md:text-left max-w-md">
+                <p className="text-2xl md:text-3xl text-white/50 font-headline leading-tight">Scan the code to download your photo & video.</p>
+                <Button onClick={() => setStep('thanks')} className="w-full md:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95">
+                  I'm done!
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
-
 
       {step === 'thanks' && (
         <div className="text-center space-y-10 animate-in zoom-in duration-500 py-20">
