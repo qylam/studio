@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -22,7 +23,7 @@ service cloud.firestore {
 
     /** 
      * @description Publicly readable metadata for global stats (e.g., video count). 
-     * Explicitly allows single document lookups (get) and collection listing (list).
+     * Allows anyone to read application-wide statistics.
      */
     match /metadata/{docId} {
       allow get, list: if true;
