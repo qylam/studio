@@ -80,27 +80,30 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
   input: { schema: GenerateThemedPhotoInputSchema },
-  model: 'googleai/gemini-2.5-flash-image',
+  model: 'googleai/gemini-3.1-flash-image-preview',
   config: {
     responseModalities: ['TEXT', 'IMAGE'],
-    safetySettings: [
-      {
-        category: 'HARM_CATEGORY_HATE_SPEECH',
-        threshold: 'BLOCK_ONLY_HIGH',
-      },
-      {
-        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_ONLY_HIGH',
-      },
-      {
-        category: 'HARM_CATEGORY_HARASSMENT',
-        threshold: 'BLOCK_ONLY_HIGH',
-      },
-      {
-        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-        threshold: 'BLOCK_ONLY_HIGH',
-      },
-    ],
+    // safetySettings: [
+    //   {
+    //     category: 'HARM_CATEGORY_HATE_SPEECH',
+    //     threshold: 'BLOCK_ONLY_HIGH',
+    //   },
+    //   {
+    //     category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+    //     threshold: 'BLOCK_ONLY_HIGH',
+    //   },
+    //   {
+    //     category: 'HARM_CATEGORY_HARASSMENT',
+    //     threshold: 'BLOCK_ONLY_HIGH',
+    //   },
+    //   {
+    //     category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+    //     threshold: 'BLOCK_ONLY_HIGH',
+    //   },
+    // ],
+    imageConfig: {
+      aspectRatio: '1:1'
+    }
   },
   prompt: `You are an expert high-end photo editor and cinematic AI artist. Your task is to transform the provided photo of a person into a stylized, aspirational masterpiece.
 

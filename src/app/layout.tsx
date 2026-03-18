@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { FirebaseClientProvider } from '@/firebase';
 import { Toaster } from '@/components/ui/toaster';
+import { LanguageProvider } from '@/i18n/LanguageProvider';
 
 export const metadata: Metadata = {
   title: 'Free-Time Machine | AI Photo Experience',
@@ -23,8 +24,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
-          {children}
-          <Toaster />
+          <LanguageProvider>
+            {children}
+            <Toaster />
+          </LanguageProvider>
         </FirebaseClientProvider>
       </body>
     </html>

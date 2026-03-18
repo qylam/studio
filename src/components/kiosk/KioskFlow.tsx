@@ -8,6 +8,8 @@ import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/i18n/LanguageProvider';
+import { TranslationKey } from '@/i18n/dictionaries';
 import { collection, addDoc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
@@ -179,15 +181,6 @@ const THEMES = [
   }
 ];
 
-const PROCESSING_MESSAGES = [
-  "Gemini is imagining your dream life...",
-  "Analyzing your unique pose...",
-  "Crafting the perfect environment...",
-  "Polishing the cinematic details...",
-  "Developing your free-time vision...",
-  "Applying high-end artistic styles..."
-];
-
 export default function KioskFlow() {
   const [step, setStep] = useState<KioskStep>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -215,11 +208,36 @@ export default function KioskFlow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const { t } = useLanguage();
   const db = useFirestore();
   const auth = useAuth();
+  
   const statsDocRef = useMemo(() => db ? doc(db, 'metadata', 'globalStats') : null, [db]);
   const { data: statsData } = useDoc<{videoCount: number}>(statsDocRef);
   const globalVideoCount = statsData?.videoCount || 0;
+
+  const translatedProcessingMessages = [
+    t('loading_message_0'),
+    t('loading_message_1'),
+    t('loading_message_2'),
+    t('loading_message_3'),
+    t('loading_message_4'),
+  ];
+
+  const translatedStyles = STYLES.map(style => ({
+    ...style,
+    title: t(`style_${style.id.split('-')[1]}_title` as TranslationKey),
+    detail: t(`style_${style.id.split('-')[1]}_detail` as TranslationKey)
+  }));
+
+  const translatedThemes = THEMES.map(theme => ({
+    ...theme,
+    title: t(`theme_${theme.id.split('-')[1]}_title` as TranslationKey),
+    variations: theme.variations.map((v, idx) => ({
+      scene: t(`theme_${theme.id.split('-')[1]}_var${idx}_scene` as TranslationKey),
+      activity: t(`theme_${theme.id.split('-')[1]}_var${idx}_activity` as TranslationKey)
+    }))
+  }));
 
   const toLowerFirst = (s: string | undefined | null) => {
     if (!s) return '';
@@ -291,6 +309,7 @@ export default function KioskFlow() {
             setVideoUrl(res.videoUrl || null);
             setVideoStatus('SUCCEEDED');
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+            // If user was waiting on the video-loading screen, transition them automatically
             if (step === 'video-loading') {
               setStep('video-results');
             }
@@ -325,7 +344,7 @@ export default function KioskFlow() {
   useEffect(() => {
     if (step !== 'processing') return;
     const timer = setInterval(() => {
-      setProcessingMsgIdx((prev) => (prev + 1) % PROCESSING_MESSAGES.length);
+      setProcessingMsgIdx((prev) => (prev + 1) % translatedProcessingMessages.length);
     }, 2500);
     return () => clearInterval(timer);
   }, [step]);
@@ -543,9 +562,9 @@ export default function KioskFlow() {
   };
 
   const triggerInstantSurprise = () => {
-    const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
+    const randomTheme = translatedThemes[Math.floor(Math.random() * translatedThemes.length)];
     const randomVariation = randomTheme.variations[Math.floor(Math.random() * randomTheme.variations.length)];
-    const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
+    const randomStyle = translatedStyles[Math.floor(Math.random() * translatedStyles.length)];
 
     setSelectedTheme(randomTheme);
     setSelectedScene(randomVariation.scene);
@@ -569,6 +588,7 @@ export default function KioskFlow() {
     setVideoJobId(null);
     setVideoUrl(null);
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    router.push('/');
   };
 
   const getShareUrl = () => {
@@ -659,7 +679,7 @@ export default function KioskFlow() {
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-6">
               <div className="flex items-center space-x-3 bg-white/5 px-4 py-3 md:px-6 md:py-4 rounded-full border border-white/10">
                 <Checkbox id="wheelchair" checked={isWheelchairUser} onCheckedChange={(c) => setIsWheelchairUser(!!c)} className="w-5 h-5 md:w-6 md:h-6 border-white/20" />
-                <label htmlFor="wheelchair" className="text-lg md:text-xl text-white/70 font-headline cursor-pointer">I'm a wheelchair user</label>
+                <label htmlFor="wheelchair" className="text-lg md:text-xl text-white/70 font-headline cursor-pointer">{t('camera_wheelchair')}</label>
               </div>
               <Button 
                 onClick={triggerInstantSurprise}
@@ -675,7 +695,7 @@ export default function KioskFlow() {
           
           <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
             <div className="flex gap-4 md:gap-6 px-4 md:px-12 min-w-full">
-              {THEMES.map((theme) => (
+              {translatedThemes.map((theme) => (
                 <div 
                   key={theme.id} 
                   onClick={() => handleThemeSelect(theme)} 
@@ -711,7 +731,7 @@ export default function KioskFlow() {
 
           <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
             <div className="flex gap-4 md:gap-6 px-4 md:px-12 min-w-full">
-              {STYLES.map((style) => (
+              {translatedStyles.map((style) => (
                 <div 
                   key={style.id} 
                   onClick={() => generateVision(style)} 
@@ -751,21 +771,11 @@ export default function KioskFlow() {
                   <Zap className="w-5 h-5 md:w-8 md:h-8 text-[#4285F4]" />
                </div>
             </div>
-            <div className="absolute inset-0 animate-spin duration-[12s] linear infinite reverse">
-               <div className="absolute bottom-0 right-1/4 bg-white/10 p-2 md:p-3 rounded-full backdrop-blur-md">
-                  <Stars className="w-4 h-4 md:w-6 md:h-6 text-[#9B72CB]" />
-               </div>
-            </div>
-            <div className="absolute inset-0 animate-spin duration-[10s] linear infinite">
-               <div className="absolute left-0 top-1/4 bg-white/10 p-2 md:p-3 rounded-full backdrop-blur-md">
-                  <Wand2 className="w-4 h-4 md:w-6 md:h-6 text-[#D96570]" />
-               </div>
-            </div>
           </div>
 
           <div className="space-y-4 max-w-2xl px-4">
-            <h2 className="text-3xl md:text-5xl text-white font-headline font-bold transition-all duration-500 min-h-[4rem] flex items-center justify-center">
-              {PROCESSING_MESSAGES[processingMsgIdx]}
+            <h2 className="text-3xl md:text-5xl text-white font-headline font-bold">
+              {translatedProcessingMessages[processingMsgIdx]}
             </h2>
             <p className="text-sm md:text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
               Powered by Nano Banana 2
@@ -780,7 +790,7 @@ export default function KioskFlow() {
             <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
           </div>
           <div className="flex-1 space-y-8 text-center lg:text-left w-full">
-            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">Ta-da!</h2>
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('result_title')}</h2>
             
             <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
               {isSaving || !visionId ? (
@@ -805,9 +815,9 @@ export default function KioskFlow() {
               )}
             </div>
             
-            <p className="text-xl md:text-2xl text-white/50 font-headline">Scan the code to download your masterpiece.</p>
+            <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">Adjust style</Button>
+              <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
               {globalVideoCount < 100 && videoStatus !== 'FAILED' ? (
                 <Button 
                   onClick={() => {
@@ -832,7 +842,7 @@ export default function KioskFlow() {
             {globalVideoCount < 100 && (videoStatus === 'PENDING' || videoStatus === 'STARTING') && (
                <div className="flex items-center gap-2 text-white/50 justify-center lg:justify-start mt-4">
                  <Loader2 className="w-4 h-4 animate-spin" />
-                 <span className="text-sm uppercase tracking-wider">Generating Video...</span>
+                 <span className="text-sm uppercase tracking-wider">{t('btn_generating_video')}</span>
                </div>
             )}
           </div>
@@ -866,7 +876,7 @@ export default function KioskFlow() {
                   <Select 
                     value={selectedTheme?.id} 
                     onValueChange={(val) => {
-                      const theme = THEMES.find(t => t.id === val);
+                      const theme = translatedThemes.find(t => t.id === val);
                       if (theme) {
                         setSelectedTheme(theme);
                         setSelectedActivity(theme.variations[0].activity);
@@ -878,7 +888,7 @@ export default function KioskFlow() {
                       <SelectValue placeholder="Select a theme" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
-                      {THEMES.map(t => (
+                      {translatedThemes.map(t => (
                         <SelectItem key={t.id} value={t.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
                           {toLowerFirst(t.title)}
                         </SelectItem>
@@ -917,7 +927,7 @@ export default function KioskFlow() {
                     <Select 
                       value={selectedStyle?.id} 
                       onValueChange={(val) => {
-                        const style = STYLES.find(s => s.id === val);
+                        const style = translatedStyles.find(s => s.id === val);
                         if (style) setSelectedStyle(style);
                       }}
                     >
@@ -925,7 +935,7 @@ export default function KioskFlow() {
                         <SelectValue placeholder="Select a style" />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
-                        {STYLES.map(s => (
+                        {translatedStyles.map(s => (
                           <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
                             {s.title}
                           </SelectItem>
@@ -965,27 +975,27 @@ export default function KioskFlow() {
 
           <div className="space-y-4 max-w-2xl px-4">
             <h2 className="text-3xl md:text-5xl text-white font-headline font-bold">
-              Veo 3.1 is directing your cinematic shot...
+              {t('video_loading_title')}
             </h2>
             <p className="text-sm md:text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
-              This usually takes 1-2 minutes.
+              {t('video_loading_subtitle')}
             </p>
           </div>
         </div>
       )}
 
       {step === 'video-results' && videoUrl && (
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
+        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-8 animate-in fade-in zoom-in duration-700 py-8 text-center">
           {/* Row 1: Video */}
-          <div className="bg-black p-4 rounded-xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
+          <div className="bg-black p-4 rounded-xl shadow-2xl w-full max-w-4xl aspect-video overflow-hidden border border-white/10">
             <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
           </div>
           
           {/* Row 2: Content */}
-          <div className="space-y-12 w-full flex flex-col items-center">
-            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">Action!</h2>
+          <div className="space-y-8 flex flex-col items-center w-full">
+            <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">{t('video_result_title')}</h2>
             
-            <div className="flex flex-col md:flex-row items-center gap-12 w-full justify-center">
+            <div className="flex flex-col items-center gap-6">
               <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
                 <a 
                   href={getShareUrl()} 
@@ -1001,13 +1011,10 @@ export default function KioskFlow() {
                   />
                 </a>
               </div>
-              
-              <div className="space-y-6 text-center md:text-left max-w-md">
-                <p className="text-2xl md:text-3xl text-white/50 font-headline leading-tight">Scan the code to download your photo & video.</p>
-                <Button onClick={() => setStep('thanks')} className="w-full md:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95">
-                  I'm done!
-                </Button>
-              </div>
+              <p className="text-xl md:text-2xl text-white/50 font-headline">{t('video_result_subtitle')}</p>
+              <Button onClick={() => setStep('thanks')} className="bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-12 py-6 text-xl font-bold shadow-xl transition-all active:scale-95">
+                {t('btn_done')}
+              </Button>
             </div>
           </div>
         </div>
@@ -1015,8 +1022,8 @@ export default function KioskFlow() {
 
       {step === 'thanks' && (
         <div className="text-center space-y-10 animate-in zoom-in duration-500 py-20">
-          <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">Enjoy your free time!</h2>
-          <Button onClick={resetKiosk} className="bg-white text-[#4285F4] hover:bg-zinc-100 rounded-full px-12 py-6 md:px-16 md:py-8 text-xl md:text-2xl font-bold transition-all shadow-xl">Start over</Button>
+          <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">{t('thanks_title')}</h2>
+          <Button onClick={resetKiosk} className="bg-white text-[#4285F4] hover:bg-zinc-100 rounded-full px-12 py-6 md:px-16 md:py-8 text-xl md:text-2xl font-bold transition-all shadow-xl">{t('thanks_start_over')}</Button>
         </div>
       )}
     </div>

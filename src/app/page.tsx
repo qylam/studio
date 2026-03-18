@@ -6,6 +6,7 @@ import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/i18n/LanguageProvider';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -18,6 +19,7 @@ export default function Home() {
   const [showConsent, setShowConsent] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
+  const { t, language, setLanguage } = useLanguage();
 
   const handleProceed = () => {
     setIsNavigating(true);
@@ -37,7 +39,23 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-black text-white overflow-hidden flex flex-col md:flex-row">
+    <main className="min-h-screen bg-black text-white overflow-hidden flex flex-col md:flex-row relative">
+      
+      {/* Language Dropdown */}
+      <div className="absolute top-8 left-8 z-50">
+        <select 
+          value={language}
+          onChange={(e) => setLanguage(e.target.value as any)}
+          className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm rounded-full focus:ring-[#4285F4] focus:border-[#4285F4] block w-full py-2.5 pl-6 pr-10 outline-none appearance-none cursor-pointer hover:bg-white/20 transition-all font-medium"
+        >
+          <option value="en" className="text-black">English</option>
+          <option value="ko" className="text-black">한국어</option>
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+        </div>
+      </div>
+
       {/* Left Content Column */}
       <div className="w-full md:w-2/5 p-8 md:p-24 flex flex-col justify-center relative z-20">
         <header className="mb-12 flex items-center gap-2">
@@ -52,17 +70,17 @@ export default function Home() {
                 </linearGradient>
               </defs>
             </svg>
-            <span className="text-xl font-medium tracking-tight text-white">Chrome Connect</span>
+            <span className="text-xl font-medium tracking-tight text-white">{t('home_title_sub')}</span>
           </div>
         </header>
 
         <div className="space-y-8 animate-in fade-in slide-in-from-left duration-1000">
           <h1 className="text-6xl md:text-8xl font-bold leading-[0.9] tracking-tighter text-white">
-            The free-time machine
+            {t('home_title_main')}
           </h1>
           
           <p className="text-2xl md:text-3xl font-normal text-white max-w-lg leading-tight">
-            Picture yourself with up to 10 hours back per week, thanks to Gemini.
+            {t('home_description')}
           </p>
 
           <div className="pt-4">
@@ -70,14 +88,14 @@ export default function Home() {
               onClick={() => setShowConsent(true)}
               className="btn-google-blue h-auto"
             >
-              Start
+              {t('home_start_button')}
             </Button>
           </div>
 
           <div className="pt-8">
             <Link href="/details" className="inline-flex items-center text-sm md:text-base font-medium group text-white/90 hover:text-white transition-colors">
               <ArrowRight className="mr-3 w-5 h-5 text-[#4285F4] group-hover:translate-x-1 transition-transform" />
-              See how Gemini is helping you save up to 10 hours per week
+              {t('home_link_details')}
             </Link>
           </div>
         </div>
@@ -131,12 +149,10 @@ export default function Home() {
             <div className="flex-1 space-y-6">
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-6xl font-bold tracking-tight text-zinc-900">
-                  Before you begin
+                  {t('home_consent_title')}
                 </AlertDialogTitle>
-                <AlertDialogDescription className="text-lg leading-relaxed text-zinc-600 font-medium">
-                  The Gemini Free-Time Machine is an experiment using Nano Banana 2, Google's latest generative model.
-                  <br /><br />
-                  Take a photo and we'll create a picture using your selected effect. By submitting your photo, you confirm that you are 18 or older and consent to Google processing your image to generate your picture. To download it, simply scan the QR code provided at the end.
+                <AlertDialogDescription className="text-lg leading-relaxed text-zinc-600 font-medium whitespace-pre-wrap">
+                  {t('home_consent_desc')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
             </div>
@@ -150,10 +166,10 @@ export default function Home() {
                 {isNavigating ? (
                   <>
                     <Loader2 className="w-6 h-6 animate-spin" />
-                    Connecting...
+                    {t('home_consent_loading')}
                   </>
                 ) : (
-                  'Accept and proceed'
+                  t('home_consent_accept')
                 )}
               </Button>
               <Button 
@@ -162,7 +178,7 @@ export default function Home() {
                 onClick={() => setShowConsent(false)}
                 className="w-full py-8 text-xl font-bold rounded-full border-2 border-[#4285F4] text-[#4285F4] hover:bg-zinc-100 bg-white"
               >
-                Do not accept
+                {t('home_consent_decline')}
               </Button>
             </div>
           </div>
