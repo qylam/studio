@@ -24,10 +24,6 @@ service cloud.firestore {
      * @description Publicly readable metadata for global stats (e.g., video count). 
      * Allows anyone to read application-wide statistics.
      */
-    match /metadata/globalStats {
-      allow get: if true;
-    }
-
     match /metadata/{docId} {
       allow read: if true;
       allow write: if false;

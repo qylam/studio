@@ -309,7 +309,6 @@ export default function KioskFlow() {
             setVideoUrl(res.videoUrl || null);
             setVideoStatus('SUCCEEDED');
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-            // If user was waiting on the video-loading screen, transition them automatically
             if (step === 'video-loading') {
               setStep('video-results');
             }
@@ -785,66 +784,75 @@ export default function KioskFlow() {
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
-          <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform lg:-rotate-1 w-full max-w-xs md:max-w-md">
-            <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
+        <div className="w-full max-w-5xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-12 text-center">
+          {/* Row 1: Featured Photo */}
+          <div className="w-full max-w-md mx-auto">
+            <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform lg:-rotate-1 w-full">
+              <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
+            </div>
           </div>
-          <div className="flex-1 space-y-8 text-center lg:text-left w-full">
-            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('result_title')}</h2>
+
+          {/* Row 2: Actions */}
+          <div className="flex-1 space-y-8 w-full">
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline tracking-tighter">{t('result_title')}</h2>
             
-            <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
-              {isSaving || !visionId ? (
-                <div className="flex flex-col items-center gap-3 text-zinc-400">
-                  <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin text-[#4290FF]" />
-                  <span className="text-xs font-bold uppercase tracking-widest">Link...</span>
+            <div className="flex flex-col md:flex-row items-center gap-12 justify-center">
+              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform">
+                {isSaving || !visionId ? (
+                  <div className="flex flex-col items-center gap-3 text-zinc-400">
+                    <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin text-[#4290FF]" />
+                    <span className="text-xs font-bold uppercase tracking-widest">Link...</span>
+                  </div>
+                ) : (
+                  <a 
+                    href={getShareUrl()} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full h-full block cursor-pointer"
+                    title="Tap to download"
+                  >
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
+                      alt="QR Code" 
+                      className="w-full h-full" 
+                    />
+                  </a>
+                )}
+              </div>
+              
+              <div className="space-y-6 text-center md:text-left">
+                <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
+                  {globalVideoCount < 100 && videoStatus !== 'FAILED' ? (
+                    <Button 
+                      onClick={() => {
+                        if (videoStatus === 'SUCCEEDED') setStep('video-results');
+                        else setStep('video-loading');
+                      }} 
+                      className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl flex items-center gap-2"
+                    >
+                      <Film className="w-5 h-5" />
+                      Make it a Video
+                    </Button>
+                  ) : globalVideoCount < 100 && videoStatus === 'FAILED' ? (
+                    <Button onClick={() => triggerVideoGeneration(visionId!, resultImage!)} className="w-full sm:w-auto bg-red-500/80 hover:bg-red-500 rounded-full px-8 py-6 text-xl">
+                      Retry Video
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">
+                      I'm done!
+                    </Button>
+                  )}
                 </div>
-              ) : (
-                <a 
-                  href={getShareUrl()} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                  title="Tap to download"
-                >
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
-                    alt="QR Code" 
-                    className="w-full h-full" 
-                  />
-                </a>
-              )}
+                {globalVideoCount < 100 && (videoStatus === 'PENDING' || videoStatus === 'STARTING') && (
+                   <div className="flex items-center gap-2 text-white/50 justify-center md:justify-start mt-4">
+                     <Loader2 className="w-4 h-4 animate-spin" />
+                     <span className="text-sm uppercase tracking-wider">{t('btn_generating_video')}</span>
+                   </div>
+                )}
+              </div>
             </div>
-            
-            <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
-              {globalVideoCount < 100 && videoStatus !== 'FAILED' ? (
-                <Button 
-                  onClick={() => {
-                    if (videoStatus === 'SUCCEEDED') setStep('video-results');
-                    else setStep('video-loading');
-                  }} 
-                  className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl flex items-center gap-2"
-                >
-                  <Film className="w-5 h-5" />
-                  Make it a Video
-                </Button>
-              ) : globalVideoCount < 100 && videoStatus === 'FAILED' ? (
-                <Button onClick={() => triggerVideoGeneration(visionId!, resultImage!)} className="w-full sm:w-auto bg-red-500/80 hover:bg-red-500 rounded-full px-8 py-6 text-xl">
-                  Retry Video
-                </Button>
-              ) : (
-                <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">
-                  I'm done!
-                </Button>
-              )}
-            </div>
-            {globalVideoCount < 100 && (videoStatus === 'PENDING' || videoStatus === 'STARTING') && (
-               <div className="flex items-center gap-2 text-white/50 justify-center lg:justify-start mt-4">
-                 <Loader2 className="w-4 h-4 animate-spin" />
-                 <span className="text-sm uppercase tracking-wider">{t('btn_generating_video')}</span>
-               </div>
-            )}
           </div>
         </div>
       )}
@@ -985,23 +993,29 @@ export default function KioskFlow() {
       )}
 
       {step === 'video-results' && videoUrl && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-8 animate-in fade-in zoom-in duration-700 py-8 text-center">
-          {/* Row 1: Video */}
-          <div className="bg-black p-4 rounded-xl shadow-2xl w-full max-w-4xl aspect-video overflow-hidden border border-white/10">
-            <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
+        <div className="w-full max-w-5xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-12 text-center">
+          {/* Row 1: Featured Video */}
+          <div className="w-full relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#4285F4] to-[#9B72CB] rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
+            <div className="relative bg-black p-2 rounded-2xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
+              <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
+            </div>
           </div>
           
-          {/* Row 2: Content */}
-          <div className="space-y-8 flex flex-col items-center w-full">
-            <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">{t('video_result_title')}</h2>
+          {/* Row 2: Actions & Details */}
+          <div className="space-y-10 flex flex-col items-center w-full">
+            <div className="space-y-4">
+              <h2 className="text-6xl md:text-8xl font-bold text-white font-headline tracking-tighter">{t('video_result_title')}</h2>
+              <p className="text-xl md:text-2xl text-white/50 font-headline">{t('video_result_subtitle')}</p>
+            </div>
             
-            <div className="flex flex-col items-center gap-6">
-              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
+            <div className="flex flex-col md:flex-row items-center gap-12 justify-center">
+              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform">
                 <a 
                   href={getShareUrl()} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                  className="w-full h-full block cursor-pointer"
                   title="Tap to download"
                 >
                   <img 
@@ -1011,10 +1025,16 @@ export default function KioskFlow() {
                   />
                 </a>
               </div>
-              <p className="text-xl md:text-2xl text-white/50 font-headline">{t('video_result_subtitle')}</p>
-              <Button onClick={() => setStep('thanks')} className="bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-12 py-6 text-xl font-bold shadow-xl transition-all active:scale-95">
-                {t('btn_done')}
-              </Button>
+
+              <div className="flex flex-col gap-4">
+                 <Button onClick={() => setStep('thanks')} className="bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95 h-auto">
+                  {t('btn_done')}
+                </Button>
+                <Button variant="ghost" onClick={() => setStep('results')} className="text-white/40 text-lg font-headline">
+                   <ChevronLeft className="mr-2 h-5 w-5" />
+                   Back to photo
+                </Button>
+              </div>
             </div>
           </div>
         </div>
