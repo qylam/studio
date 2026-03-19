@@ -1,9 +1,8 @@
-
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
-import { Download, Instagram, Twitter, Facebook, Zap, Loader2, Film } from 'lucide-react';
+import { Download, Zap, Loader2, Film } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { useParams } from 'next/navigation';
@@ -28,7 +27,6 @@ export default function SharePortal() {
 
     try {
       if (vision.imageUrl) {
-        // New Storage Flow: Fetch the image from URL
         const response = await fetch(vision.imageUrl);
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -38,9 +36,8 @@ export default function SharePortal() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 100);
+        setTimeout(() => window.URL.revokeObjectURL(url), 100);
       } else if (vision.imageData) {
-        // Old Base64 Flow: Backward compatibility
         const parts = vision.imageData.split(',');
         const mime = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
         const bstr = atob(parts[1]);
@@ -65,7 +62,6 @@ export default function SharePortal() {
     }
   };
 
-  
   const [isVideoDownloading, setIsVideoDownloading] = React.useState(false);
 
   const handleVideoDownload = async () => {
@@ -89,17 +85,15 @@ export default function SharePortal() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading video (CORS block or network issue):', error);
+      console.error('Error downloading video:', error);
       window.open(vision.videoUrl, '_blank');
     } finally {
       setIsVideoDownloading(false);
     }
   };
 
-
   if (!docId) return null;
 
-  // Render loader while loading OR if we have no data yet and no error
   if (isLoading || (!vision && !error)) {
     return (
       <div className="min-h-screen bg-[#16181B] flex items-center justify-center">
@@ -116,7 +110,7 @@ export default function SharePortal() {
       <div className="min-h-screen bg-[#16181B] flex flex-col items-center justify-center p-8 text-center space-y-6">
         <Zap className="w-12 h-12 text-red-500/50" />
         <h1 className="text-3xl font-bold text-white">Vision not found</h1>
-        <p className="text-white/60 max-w-xs">We couldn't find the AI vision you're looking for. It may have been deleted or the link might be incorrect.</p>
+        <p className="text-white/60 max-w-xs">We couldn't find the AI vision you're looking for.</p>
         <Button variant="outline" className="rounded-full px-8" onClick={() => window.location.href = '/'}>Back to Home</Button>
       </div>
     );
@@ -134,11 +128,10 @@ export default function SharePortal() {
             className="w-10 h-10 object-contain mx-auto"
           />
           <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none font-headline">
-            Free-Time <span className="text-[#4290FF]">Vision</span>
+            Free-Time <span className="text-[#4290FF]">Machine</span>
           </h1>
         </header>
 
-        
         {vision.videoUrl && (
           <div className="relative group mb-8">
             <div className="absolute -inset-1 bg-[#9B72CB]/20 rounded-lg blur-lg"></div>
@@ -168,7 +161,6 @@ export default function SharePortal() {
         )}
 
         <div className="relative group">
-
           <div className="absolute -inset-1 bg-[#4290FF]/20 rounded-lg blur-lg"></div>
           <div className="relative rounded-sm shadow-2xl overflow-hidden bg-white p-2 pb-10">
             <img src={vision.imageUrl || vision.imageData} alt="Your AI Vision" className="w-full h-auto" />
@@ -183,18 +175,6 @@ export default function SharePortal() {
             <Download className="mr-3 h-6 w-6" />
             Download Polaroid
           </Button>
-          
-          <div className="grid grid-cols-3 gap-3">
-            <Button variant="outline" className="h-16 rounded-xl border-white/10 bg-white/5 hover:bg-white/10">
-              <Instagram className="h-6 w-6" />
-            </Button>
-            <Button variant="outline" className="h-16 rounded-xl border-white/10 bg-white/5 hover:bg-white/10">
-              <Twitter className="h-6 w-6" />
-            </Button>
-            <Button variant="outline" className="h-16 rounded-xl border-white/10 bg-white/5 hover:bg-white/10">
-              <Facebook className="h-6 w-6" />
-            </Button>
-          </div>
         </div>
 
         <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 text-center">

@@ -3,7 +3,7 @@ export type Language = 'en' | 'ko';
 export const dictionaries = {
   en: {
     // --- Home Page ---
-    home_title_main: "The free-time machine",
+    home_title_main: "The Free-Time Machine",
     home_title_sub: "Gemini Connect",
     home_description: "Picture yourself with up to 10 hours back per week, thanks to Gemini.",
     home_start_button: "Start",
