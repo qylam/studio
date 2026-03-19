@@ -135,7 +135,7 @@ const newResultsUI = `
                   className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl flex items-center gap-2"
                 >
                   <Film className="w-5 h-5" />
-                  Make it a Video
+                  Animate Me!
                 </Button>
               ) : globalVideoCount < 100 && videoStatus === 'FAILED' ? (
                 <Button onClick={() => triggerVideoGeneration(visionId!, resultImage!)} className="w-full sm:w-auto bg-red-500/80 hover:bg-red-500 rounded-full px-8 py-6 text-xl">

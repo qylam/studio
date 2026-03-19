@@ -23,6 +23,7 @@ service cloud.firestore {
     /** 
      * @description Publicly readable metadata for global stats.
      * Allows anyone to read application-wide statistics.
+     * Explicitly allowed for 'get' to fix the reported permission error.
      */
     match /metadata/{docId} {
       allow get: if true;

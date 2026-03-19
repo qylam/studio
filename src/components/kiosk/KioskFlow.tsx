@@ -992,7 +992,7 @@ export default function KioskFlow() {
 
       {step === 'video-results' && videoUrl && (
         <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
-          {/* Row 1: Featured Video */}
+          {/* Row 1: Featured Video - Prominently on Top */}
           <div className="w-full relative group max-w-4xl mx-auto">
             <div className="absolute -inset-1 bg-gradient-to-r from-[#4285F4] to-[#9B72CB] rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
             <div className="relative bg-black p-2 rounded-2xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
@@ -1000,11 +1000,11 @@ export default function KioskFlow() {
             </div>
           </div>
           
-          {/* Row 2: Actions & Details */}
+          {/* Row 2: Actions & Details - Stacked Below */}
           <div className="space-y-10 flex flex-col items-center w-full max-w-4xl mx-auto">
             <div className="space-y-4">
-              <h2 className="text-5xl md:text-7xl font-bold text-white font-headline tracking-tighter">Action!</h2>
-              <p className="text-xl md:text-2xl text-white/50 font-headline">Scan to download your photo & video.</p>
+              <h2 className="text-5xl md:text-7xl font-bold text-white font-headline tracking-tighter">{t('video_result_title')}</h2>
+              <p className="text-xl md:text-2xl text-white/50 font-headline">{t('video_result_subtitle')}</p>
             </div>
             
             <div className="flex flex-col md:flex-row items-center gap-12 justify-center w-full">
@@ -1026,7 +1026,7 @@ export default function KioskFlow() {
 
               <div className="flex flex-col gap-4 w-full md:w-auto">
                  <Button onClick={() => setStep('thanks')} className="bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95 h-auto">
-                  I'm done!
+                  {t('btn_done')}
                 </Button>
                 <Button variant="ghost" onClick={() => setStep('results')} className="text-white/40 text-lg font-headline">
                    <ChevronLeft className="mr-2 h-5 w-5" />
