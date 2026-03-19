@@ -22,46 +22,76 @@ export default function SharePortal() {
   const { data: vision, isLoading, error } = useDoc(visionRef);
 
   const handleDownload = async () => {
-    if (!vision?.imageData) return;
+    if (!vision) return;
 
     try {
-      // Convert base64 data to a Blob for a more reliable download
-      const parts = vision.imageData.split(',');
-      const mime = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
-      const bstr = atob(parts[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
+      if (vision.imageUrl) {
+        // New Storage Flow: Fetch the image from URL
+        const response = await fetch(vision.imageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `my-free-time-vision-${docId.slice(0, 5)}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      } else if (vision.imageData) {
+        // Old Base64 Flow: Backward compatibility
+        const parts = vision.imageData.split(',');
+        const mime = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `my-free-time-vision-${docId.slice(0, 5)}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 100);
       }
-      const blob = new Blob([u8arr], { type: mime });
-      const url = URL.createObjectURL(blob);
-
-      // Create a temporary link and trigger the download
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `my-free-time-vision-${docId.slice(0, 5)}.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Clean up the object URL to free memory
-      setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
       console.error('Download failed:', err);
     }
   };
 
   
-  const handleVideoDownload = () => {
-    if (!vision?.videoUrl) return;
-    const link = document.createElement('a');
-    link.href = vision.videoUrl;
-    link.download = `my-free-time-video-${docId.slice(0, 5)}.mp4`;
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const [isVideoDownloading, setIsVideoDownloading] = React.useState(false);
+
+  const handleVideoDownload = async () => {
+    if (!vision?.videoUrl || isVideoDownloading) return;
+    
+    try {
+      setIsVideoDownloading(true);
+      
+      const response = await fetch(vision.videoUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `my-free-time-video-${docId.slice(0, 5)}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading video (CORS block or network issue):', error);
+      window.open(vision.videoUrl, '_blank');
+    } finally {
+      setIsVideoDownloading(false);
+    }
   };
 
 
@@ -107,13 +137,23 @@ export default function SharePortal() {
             <div className="relative rounded-xl shadow-2xl overflow-hidden bg-black border border-white/10 aspect-video">
               <video src={vision.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
             </div>
-            <div className="mt-4">
+            <div className="mt-4 relative z-10">
               <Button 
                 onClick={handleVideoDownload}
-                className="w-full bg-[#9B72CB] hover:bg-[#9B72CB]/90 text-white py-6 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg"
+                disabled={isVideoDownloading}
+                className="w-full bg-[#9B72CB] hover:bg-[#9B72CB]/90 text-white py-6 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg transition-all"
               >
-                <Film className="mr-3 h-6 w-6" />
-                Download Video
+                {isVideoDownloading ? (
+                  <>
+                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                    Saving Video...
+                  </>
+                ) : (
+                  <>
+                    <Film className="mr-3 h-6 w-6" />
+                    Download Video
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -123,7 +163,7 @@ export default function SharePortal() {
 
           <div className="absolute -inset-1 bg-[#4290FF]/20 rounded-lg blur-lg"></div>
           <div className="relative rounded-sm shadow-2xl overflow-hidden bg-white p-2 pb-10">
-            <img src={vision.imageData} alt="Your AI Vision" className="w-full h-auto" />
+            <img src={vision.imageUrl || vision.imageData} alt="Your AI Vision" className="w-full h-auto" />
           </div>
         </div>
 

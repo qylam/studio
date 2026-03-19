@@ -7,6 +7,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { withAiRetry } from '@/lib/ai-retry';
 
 const SuggestDetailsInputSchema = z.object({
   scene: z.string().describe('The primary scene or location.'),
@@ -60,7 +61,7 @@ const suggestDetailsFlow = ai.defineFlow(
     outputSchema: SuggestDetailsOutputSchema,
   },
   async (input) => {
-    const { output } = await suggestDetailsPrompt(input);
+    const { output } = await withAiRetry(() => suggestDetailsPrompt(input));
     if (!output) throw new Error('Failed to generate suggestions.');
     return output;
   }

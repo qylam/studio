@@ -8,11 +8,13 @@ import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { collection, addDoc } from 'firebase/firestore';
+import { useLanguage } from '@/i18n/LanguageProvider';
+import { TranslationKey } from '@/i18n/dictionaries';
+import { collection, addDoc, doc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { useFirestore, useAuth, useStorage, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { startVideoGeneration, checkVideoJobStatus } from '@/ai/flows/video';
-import { doc } from 'firebase/firestore';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
@@ -27,39 +29,44 @@ type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'proce
 
 const STYLES = [
   { 
+    id: 'style-figurine', 
+    title: 'Figurine', 
+    detail: 'Medium: 1/7 scale collectible PVC figurine. Render the subject as a highly detailed plastic statue placed within the requested environment. Frame the shot as macro photography, ensuring the lighting matches the scene but highlights the glossy, painted finish of a physical collectible. Do not use a generic studio background; integrate the figurine directly into the requested setting.' 
+  },
+  { 
     id: 'style-keychain', 
     title: '3D Keychain', 
-    detail: 'Transform the person or group of people in the image into a keychain character version of themselves, placed on a tabletop. Preserve recognizable features but redesign them in a kawaii, Pixar-inspired style — slightly oversized head, small body, soft rounded features, glossy expressive eyes, and a warm, heartwarming smile. The character should feel like a premium animated collectible toy, with smooth materials, soft shading, and subtle skin glow. Keep outfit colors and key visual identity, but simplify details into clean, cute shapes. Use soft cinematic lighting, shallow depth of field, warm tones, and a cozy tabletop setting. Ultra-detailed 3D render.' 
+    detail: 'Medium: 3D Keychain character toy. Render the subject as a chunky, stylized plastic toy attached to a metal keyring. Position the keychain within the requested environment using macro photography scale. Ensure the lighting matches the scene while reflecting off the glossy, solid plastic textures of the toy.' 
   },
   { 
     id: 'style-oil', 
     title: 'Oil Painting', 
-    detail: 'Transform the person or group of people in this photo into a classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes and a rich, deep color palette. The lighting should be dramatic chiaroscuro, with soft shadows and a warm glow on the persons face. The background should be a soft, textured abstract landscape or a dark studio setting. Ensure the final result looks like a physical painting with subtle canvas texture visible. Maintain their facial features.' 
+    detail: 'Style: Classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes. Adapt the lighting of the requested scene into a dramatic chiaroscuro style, maintaining soft shadows and a painted aesthetic across the entire environment. Ensure subtle canvas texture is visible throughout the image.' 
   },
   { 
     id: 'style-clay', 
     title: 'Claymation', 
-    detail: 'Transform the person or group of people in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons and Edward Goreys illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold. Maintain their facial features.' 
+    detail: 'Medium: Handcrafted stop-motion claymation. Render the subject and the immediate environment using smooth, sculpted clay textures. Ensure the lighting matches the requested scene but highlights the tactile, fingerprint-textured nature of physical clay. Use a charming, stylized stop-motion aesthetic.' 
   },
   { 
     id: 'style-editorial', 
     title: 'Magazine Editorial', 
-    detail: 'Transform the person or group of people in the image into a High-end business magazine cover photoshoot, crisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
+    detail: 'Style: High-end magazine cover photoshoot. Use professional editorial flash lighting and sharp focus to capture the subject in the requested environment. Apply sophisticated styling and color grading to create a premium, aspirational, hyper-detailed aesthetic.' 
   },
   { 
     id: 'style-cinematic', 
     title: 'Cinematic Epic', 
-    detail: 'Transform the person or group of people in the image into a Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
+    detail: 'Style: Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
   },
   { 
     id: 'style-noir', 
     title: 'Timeless Noir', 
-    detail: 'Transform the person or group of people in the image into a Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage Leica camera aesthetic, sophisticated and powerful.' 
+    detail: 'Style: Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage 35mm rangefinder camera aesthetic, sophisticated and powerful.' 
   },
   { 
     id: 'style-visionary', 
     title: 'Tech Visionary', 
-    detail: 'Transform the person or group of people in the image into a Sleek futuristic aesthetic, subtle glowing neon accents, clean high-tech environment, hyper-realistic 3D render, forward-thinking corporate leadership vibe.' 
+    detail: 'Style: Sleek futuristic sci-fi aesthetic. Render the subject and requested environment as a hyper-realistic 3D render. Infuse the scene with subtle glowing neon accents, holographic elements, and a clean, forward-thinking high-tech vibe without losing the core setting.' 
   }
 ];
 
@@ -86,7 +93,7 @@ const THEMES = [
     id: 'theme-active', 
     title: 'Get more active', 
     variations: [
-      { scene: 'neon-lit urban rooftop', activity: 'mastering high-speed parkour' },
+      { scene: 'neon-lit urban rooftop', activity: 'striking a dynamic athletic pose on a secure rooftop' },
       { scene: 'underwater coral gymnasium', activity: 'swimming with mechanical dolphins' },
       { scene: 'desert canyon adventure', activity: 'rock climbing up a vertical mesa' }
     ]
@@ -96,7 +103,7 @@ const THEMES = [
     title: 'Take a well-earned break', 
     variations: [
       { scene: 'luxury cloud resort', activity: 'lounging in a golden hammock' },
-      { scene: 'secluded hot spring cave', activity: 'soaking in steaming mineral waters' },
+      { scene: 'secluded x hot spring cave', activity: 'relaxing in steaming mineral waters wearing a plush luxury spa robe' },
       { scene: 'vintage jazz lounge on Mars', activity: 'sipping a cosmic mocktail' }
     ]
   },
@@ -158,9 +165,9 @@ const THEMES = [
     id: 'theme-racing', 
     title: 'Chase the Grand Prix thrill', 
     variations: [
-      { scene: 'sweeping corner of a sunlit private race circuit', activity: 'steering a roaring vintage Ferrari' },
-      { scene: 'glamorous Monaco street circuit at dusk', activity: 'celebrating a first-place podium finish' },
-      { scene: 'pristine, high-tech luxury racing garage', activity: 'analyzing telemetry data next to a Le Mans hypercar' }
+      { scene: 'sweeping corner of a sunlit private race circuit', activity: 'steering a roaring classic red Italian sports car' },
+      { scene: 'glamorous European coastal street circuit at dusk', activity: 'celebrating a first-place podium finish' },
+      { scene: 'pristine, high-tech luxury racing garage', activity: 'analyzing telemetry data next to a prototype endurance hypercar' }
     ]
   },
   { 
@@ -168,19 +175,10 @@ const THEMES = [
     title: 'Conquer the Alpine peaks', 
     variations: [
       { scene: 'dramatic, snow-capped Swiss summit', activity: 'standing victorious with an ice axe in hand' },
-      { scene: 'sheer, vertical granite rock face above the clouds', activity: 'free-climbing with intense focus and grip' },
+      { scene: 'sheer, vertical granite rock face above the clouds', activity: 'scaling a rock face wearing a high-tech climbing harness and safety ropes' },
       { scene: 'remote, untouched glacier in British Columbia', activity: 'carving the first tracks after a thrilling heli-drop' }
     ]
   }
-];
-
-const PROCESSING_MESSAGES = [
-  "Gemini is imagining your dream life...",
-  "Analyzing your unique pose...",
-  "Crafting the perfect environment...",
-  "Polishing the cinematic details...",
-  "Developing your free-time vision...",
-  "Applying high-end artistic styles..."
 ];
 
 export default function KioskFlow() {
@@ -204,19 +202,32 @@ export default function KioskFlow() {
   const [videoStatus, setVideoStatus] = useState<'IDLE' | 'STARTING' | 'PENDING' | 'SUCCEEDED' | 'FAILED'>('IDLE');
   const [videoJobId, setVideoJobId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-
-  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const { t } = useLanguage();
   const db = useFirestore();
   const auth = useAuth();
+  const storage = useStorage();
   const statsDocRef = useMemo(() => db ? doc(db, 'metadata', 'globalStats') : null, [db]);
   const { data: statsData } = useDoc<{videoCount: number}>(statsDocRef);
   const globalVideoCount = statsData?.videoCount || 0;
+
+  
+  
+  
+  const translatedProcessingMessages = [
+    t('loading_message_0'),
+    t('loading_message_1'),
+    t('loading_message_2'),
+    t('loading_message_3'),
+    t('loading_message_4'),
+  ];
+
+
 
   const toLowerFirst = (s: string | undefined | null) => {
     if (!s) return '';
@@ -279,7 +290,6 @@ export default function KioskFlow() {
     };
   }, [step, toast]);
 
-  
   useEffect(() => {
     if (videoStatus === 'PENDING' && videoJobId && visionId) {
       pollTimerRef.current = setInterval(async () => {
@@ -289,13 +299,13 @@ export default function KioskFlow() {
             setVideoUrl(res.videoUrl || null);
             setVideoStatus('SUCCEEDED');
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-            // If user was waiting on the video-loading screen, transition them automatically
             if (step === 'video-loading') {
               setStep('video-results');
             }
           } else if (res.status === 'FAILED') {
             setVideoStatus('FAILED');
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+            if (step === 'video-loading') setStep('results');
           }
         } catch (e) {
           console.error("Poll error", e);
@@ -307,7 +317,6 @@ export default function KioskFlow() {
       };
     }
   }, [videoStatus, videoJobId, visionId, step]);
-
 
   useEffect(() => {
     if (countdown === null) return;
@@ -324,12 +333,11 @@ export default function KioskFlow() {
   useEffect(() => {
     if (step !== 'processing') return;
     const timer = setInterval(() => {
-      setProcessingMsgIdx((prev) => (prev + 1) % PROCESSING_MESSAGES.length);
+      setProcessingMsgIdx((prev) => (prev + 1) % translatedProcessingMessages.length);
     }, 2500);
     return () => clearInterval(timer);
   }, [step]);
 
-  
   const triggerVideoGeneration = async (vId: string, imgData: string) => {
     if (globalVideoCount >= 100) return;
     setVideoStatus('STARTING');
@@ -345,7 +353,6 @@ export default function KioskFlow() {
       setVideoStatus('FAILED');
     }
   };
-
 
   const performCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -488,10 +495,6 @@ export default function KioskFlow() {
         details: details,
       });
       
-      console.log("---------- CLIENT LOG: FULL_GENERATION_RESULT ----------");
-      console.log(response);
-      console.log("---------------------------------------------------------");
-
       if (!response.success || !response.data) {
         throw new Error(response.error || 'AI failed to generate vision.');
       }
@@ -506,33 +509,38 @@ export default function KioskFlow() {
       setResultImage(bakedPolaroid);
       setStep('results');
 
-      if (db) {
+      if (db && storage) {
         setIsSaving(true);
-        const data = {
-          imageData: bakedPolaroid,
-          activity: aiResult.selectedActivity,
-          theme: theme.title,
-          createdAt: new Date().toISOString(),
-          ownerId: auth.currentUser?.uid
-        };
-        const visionsRef = collection(db, 'visions');
+        try {
+          const imagePath = `visions/${auth.currentUser?.uid || 'anonymous'}/${Date.now()}.jpg`;
+          const imageRef = ref(storage, imagePath);
+          await uploadString(imageRef, bakedPolaroid, 'data_url');
+          const downloadUrl = await getDownloadURL(imageRef);
 
-        addDoc(visionsRef, data)
-          .then((docRef) => {
-            setVisionId(docRef.id);
-            setIsSaving(false);
-            triggerVideoGeneration(docRef.id, bakedPolaroid);
-          })
-          .catch(async (serverError) => {
-            console.error("FIRESTORE_SAVE_ERROR:", serverError);
-            setIsSaving(false);
-            const permissionError = new FirestorePermissionError({
-              path: 'visions',
-              operation: 'create',
-              requestResourceData: data,
-            });
-            errorEmitter.emit('permission-error', permissionError);
+          const data = {
+            imageUrl: downloadUrl,
+            activity: aiResult.selectedActivity,
+            theme: theme.title,
+            createdAt: new Date().toISOString(),
+            ownerId: auth.currentUser?.uid
+          };
+          const visionsRef = collection(db, 'visions');
+
+          const docRef = await addDoc(visionsRef, data);
+          setVisionId(docRef.id);
+          setIsSaving(false);
+          // Still pass bakedPolaroid to maintain video functionality
+          triggerVideoGeneration(docRef.id, bakedPolaroid);
+
+        } catch (serverError) {
+          console.error("STORAGE_OR_FIRESTORE_SAVE_ERROR:", serverError);
+          setIsSaving(false);
+          toast({ 
+            variant: 'destructive', 
+            title: 'Save Error', 
+            description: 'Could not save your image to the cloud.' 
           });
+        }
       }
     } catch (error: any) {
       console.error("VISION_GENERATION_FAILED:", error);
@@ -574,6 +582,9 @@ export default function KioskFlow() {
     setVideoJobId(null);
     setVideoUrl(null);
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    
+    // Navigate back to the home page
+    router.push('/');
   };
 
   const getShareUrl = () => {
@@ -587,11 +598,8 @@ export default function KioskFlow() {
       case 'theme-green': return <>Looking sharp,<br />pro player!</>;
       case 'theme-culinary': return <>What's cookin',<br />good lookin'!</>;
       case 'theme-warrior': return <>Ready for<br />the wild?</>;
-      case 'theme-deepsea': return <>Making a<br />big splash!</>;
       case 'theme-racing': return <>Leading the<br />pack today!</>;
-      case 'theme-vineyard': return <>A vintage<br />look, indeed!</>;
       case 'theme-alpine': return <>Reaching new<br />heights!</>;
-      case 'theme-space': return <>Looking out<br />of this world!</>;
       default: return <>Looking good,<br />good lookin'!</>;
     }
   };
@@ -667,7 +675,7 @@ export default function KioskFlow() {
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-6">
               <div className="flex items-center space-x-3 bg-white/5 px-4 py-3 md:px-6 md:py-4 rounded-full border border-white/10">
                 <Checkbox id="wheelchair" checked={isWheelchairUser} onCheckedChange={(c) => setIsWheelchairUser(!!c)} className="w-5 h-5 md:w-6 md:h-6 border-white/20" />
-                <label htmlFor="wheelchair" className="text-lg md:text-xl text-white/70 font-headline cursor-pointer">I'm a wheelchair user</label>
+                <label htmlFor="wheelchair" className="text-lg md:text-xl text-white/70 font-headline cursor-pointer">{t('camera_wheelchair')}</label>
               </div>
               <Button 
                 onClick={triggerInstantSurprise}
@@ -687,15 +695,20 @@ export default function KioskFlow() {
                 <div 
                   key={theme.id} 
                   onClick={() => handleThemeSelect(theme)} 
-                  className="group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
+                  className={cn(
+                    "group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 transition-all bg-zinc-900 snap-center",
+                    selectedTheme?.id === theme.id 
+                      ? "border-[#4285F4] scale-[1.02] shadow-[0_0_30px_rgba(66,133,244,0.3)]" 
+                      : "border-transparent hover:border-[#4285F4]/50"
+                  )}
                 >
                   <img 
                     src={PlaceHolderImages.find(i => i.id === theme.id)?.imageUrl || ''} 
-                    alt={theme.title} 
+                    alt={t(`theme_${theme.id.split('-')[1]}_title` as TranslationKey)} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-end p-4 md:p-6">
-                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{theme.title}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{t(`theme_${theme.id.split('-')[1]}_title` as TranslationKey)}</h3>
                   </div>
                 </div>
               ))}
@@ -723,15 +736,20 @@ export default function KioskFlow() {
                 <div 
                   key={style.id} 
                   onClick={() => generateVision(style)} 
-                  className="group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
+                  className={cn(
+                    "group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 transition-all bg-zinc-900 snap-center",
+                    selectedStyle?.id === style.id 
+                      ? "border-[#4285F4] scale-[1.02] shadow-[0_0_30px_rgba(66,133,244,0.3)]" 
+                      : "border-transparent hover:border-[#4285F4]/50"
+                  )}
                 >
                   <img 
                     src={PlaceHolderImages.find(i => i.id === style.id)?.imageUrl || ''} 
-                    alt={style.title} 
+                    alt={t(`style_${style.id.split('-')[1]}_title` as TranslationKey)} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-end p-4 md:p-6">
-                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{style.title}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{t(`style_${style.id.split('-')[1]}_title` as TranslationKey)}</h3>
                   </div>
                 </div>
               ))}
@@ -773,7 +791,7 @@ export default function KioskFlow() {
 
           <div className="space-y-4 max-w-2xl px-4">
             <h2 className="text-3xl md:text-5xl text-white font-headline font-bold transition-all duration-500 min-h-[4rem] flex items-center justify-center">
-              {PROCESSING_MESSAGES[processingMsgIdx]}
+              {translatedProcessingMessages[processingMsgIdx]}
             </h2>
             <p className="text-sm md:text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
               Powered by Nano Banana 2
@@ -788,7 +806,7 @@ export default function KioskFlow() {
             <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
           </div>
           <div className="flex-1 space-y-8 text-center lg:text-left w-full">
-            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">Ta-da!</h2>
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('result_title')}</h2>
             
             <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
               {isSaving || !visionId ? (
@@ -813,10 +831,9 @@ export default function KioskFlow() {
               )}
             </div>
             
-            
-            <p className="text-xl md:text-2xl text-white/50 font-headline">Scan the code to download your masterpiece.</p>
+            <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">Adjust style</Button>
+              <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
               {globalVideoCount < 100 && videoStatus !== 'FAILED' ? (
                 <Button 
                   onClick={() => {
@@ -841,10 +858,9 @@ export default function KioskFlow() {
             {globalVideoCount < 100 && (videoStatus === 'PENDING' || videoStatus === 'STARTING') && (
                <div className="flex items-center gap-2 text-white/50 justify-center lg:justify-start mt-4">
                  <Loader2 className="w-4 h-4 animate-spin" />
-                 <span className="text-sm uppercase tracking-wider">Generating Video...</span>
+                 <span className="text-sm uppercase tracking-wider">{t('btn_generating_video')}</span>
                </div>
             )}
-
           </div>
         </div>
       )}
@@ -890,7 +906,7 @@ export default function KioskFlow() {
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                       {THEMES.map(t => (
                         <SelectItem key={t.id} value={t.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                          {toLowerFirst(t.title)}
+                          {toLowerFirst(t(`theme_${t.id.split('-')[1]}_title` as TranslationKey))}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -913,7 +929,7 @@ export default function KioskFlow() {
                       <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                         {selectedTheme?.variations.map((v, i) => (
                           <SelectItem key={i} value={v.activity} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                            {toLowerFirst(v.activity)}
+                            {toLowerFirst(t(`theme_${selectedTheme.id.split('-')[1]}_var${i}_activity` as TranslationKey))}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -937,7 +953,7 @@ export default function KioskFlow() {
                       <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                         {STYLES.map(s => (
                           <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                            {s.title}
+                            {t(`style_${s.id.split('-')[1]}_title` as TranslationKey)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -959,7 +975,6 @@ export default function KioskFlow() {
         </div>
       )}
 
-      
       {step === 'video-loading' && (
         <div className="w-full space-y-12 text-center py-12 md:py-20 flex flex-col items-center">
           <div className="relative w-32 h-32 md:w-48 md:h-48 mb-8">
@@ -986,44 +1001,48 @@ export default function KioskFlow() {
       )}
 
       {step === 'video-results' && videoUrl && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
-          <div className="bg-black p-4 rounded-xl shadow-2xl w-full max-w-xs md:max-w-2xl aspect-video overflow-hidden border border-white/10">
-            <video src={videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
+          {/* Row 1: Video */}
+          <div className="bg-black p-4 rounded-xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
+            <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
           </div>
-          <div className="flex-1 space-y-8 text-center lg:text-left w-full">
-            <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">Action!</h2>
+          
+          {/* Row 2: Content */}
+          <div className="space-y-12 w-full flex flex-col items-center">
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('video_result_title')}</h2>
             
-            <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
-              <a 
-                href={getShareUrl()} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                title="Tap to download"
-              >
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
-                  alt="QR Code" 
-                  className="w-full h-full" 
-                />
-              </a>
-            </div>
-            
-            <p className="text-xl md:text-2xl text-white/50 font-headline">Scan to download your photo & video.</p>
-            <div className="flex justify-center lg:justify-start">
-              <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-12 py-6 text-xl">
-                I'm done!
-              </Button>
+            <div className="flex flex-col md:flex-row items-center gap-12 w-full justify-center">
+              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
+                <a 
+                  href={getShareUrl()} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                  title="Tap to download"
+                >
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
+                    alt="QR Code" 
+                    className="w-full h-full" 
+                  />
+                </a>
+              </div>
+              
+              <div className="space-y-6 text-center md:text-left max-w-md">
+                <p className="text-2xl md:text-3xl text-white/50 font-headline leading-tight">Scan the code to download your photo & video.</p>
+                <Button onClick={() => setStep('thanks')} className="w-full md:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95">
+                  I'm done!
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-
       {step === 'thanks' && (
         <div className="text-center space-y-10 animate-in zoom-in duration-500 py-20">
-          <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">Enjoy your free time!</h2>
-          <Button onClick={resetKiosk} className="bg-white text-[#4285F4] hover:bg-zinc-100 rounded-full px-12 py-6 md:px-16 md:py-8 text-xl md:text-2xl font-bold transition-all shadow-xl">Start over</Button>
+          <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">{t('thanks_title')}</h2>
+          <Button onClick={resetKiosk} className="bg-white text-[#4285F4] hover:bg-zinc-100 rounded-full px-12 py-6 md:px-16 md:py-8 text-xl md:text-2xl font-bold transition-all shadow-xl">{t('thanks_start_over')}</Button>
         </div>
       )}
     </div>

@@ -9,6 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { withAiRetry } from '@/lib/ai-retry';
 
 const ThemeVariationSchema = z.object({
   scene: z.string().describe('The primary scene or location.'),
@@ -87,7 +88,7 @@ const themedPhotoPrompt = ai.definePrompt({
     responseModalities: ['TEXT', 'IMAGE'],
     imageConfig: {
       aspectRatio: '1:1',
-      imageSize: "2K"
+      imageSize: "1K"
     },
     safetySettings: [
       {
@@ -149,7 +150,8 @@ const generateThemedPhotoFlow = ai.defineFlow(
     outputSchema: GenerateThemedPhotoOutputSchema,
   },
   async (input) => {
-    const { text, media } = await themedPhotoPrompt(input);
+    // Execute the Genkit prompt inside the Exponential Backoff wrapper
+    const { text, media } = await withAiRetry(() => themedPhotoPrompt(input));
 
     // LOGGING THE FULL RESPONSE DATA
     console.log("---------- AI RESPONSE START ----------");
