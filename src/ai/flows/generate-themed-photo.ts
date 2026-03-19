@@ -92,7 +92,7 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
   input: { schema: GenerateThemedPhotoInputSchema },
-  model: 'googleai/gemini-2.5-flash',
+  model: 'googleai/gemini-2.5-flash-image',
   config: {
     responseModalities: ['TEXT', 'IMAGE'],
     imageConfig: {

@@ -4,7 +4,7 @@ export const dictionaries = {
   en: {
     // --- Home Page ---
     home_title_main: "The free-time machine",
-    home_title_sub: "Chrome Connect",
+    home_title_sub: "Gemini Connect",
     home_description: "Picture yourself with up to 10 hours back per week, thanks to Gemini.",
     home_start_button: "Start",
     home_link_details: "See how Gemini is helping you save up to 10 hours per week",
@@ -182,7 +182,7 @@ export const dictionaries = {
   ko: {
     // --- Home Page ---
     home_title_main: "The Free-Time Machine",
-    home_title_sub: "Chrome Connect",
+    home_title_sub: "Gemini Connect",
     home_description: "Gemini 덕분에 매주 최대 10시간의 여유를 되찾은 모습을 상상해 보세요.",
     home_start_button: "시작하기",
     home_link_details: "Gemini 이 교육자와 리더들에게 어떻게 매주 10시간의 여유를 선사하는지 확인해 보세요.",

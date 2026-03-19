@@ -1,6 +1,8 @@
+
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Download, Instagram, Twitter, Facebook, Zap, Loader2, Film } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
@@ -124,7 +126,13 @@ export default function SharePortal() {
     <main className="min-h-screen bg-[#16181B] text-white p-4 md:p-8 flex flex-col items-center">
       <div className="w-full max-w-md space-y-8 py-8 animate-in fade-in slide-in-from-bottom duration-700">
         <header className="text-center space-y-2">
-          <Zap className="w-10 h-10 text-[#4290FF] mx-auto" />
+          <Image 
+            src="/images/spark_4c.png" 
+            alt="Gemini Connect" 
+            width={40} 
+            height={40} 
+            className="w-10 h-10 object-contain mx-auto"
+          />
           <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none font-headline">
             Free-Time <span className="text-[#4290FF]">Vision</span>
           </h1>
@@ -170,7 +178,7 @@ export default function SharePortal() {
         <div className="space-y-4">
           <Button 
             onClick={handleDownload}
-            className="w-full bg-[#4290FF] hover:bg-[#4290FF]/90 text-white py-8 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg"
+            className="w-full bg-[#4290FF] hover:bg-[#4285F4] text-white py-8 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg"
           >
             <Download className="mr-3 h-6 w-6" />
             Download Polaroid
@@ -196,7 +204,7 @@ export default function SharePortal() {
         </div>
 
         <footer className="pt-8 text-center text-[10px] text-white/20 uppercase font-black tracking-widest">
-          © 2024 FREE-TIME MACHINE PROJECT
+          © 2024 GEMINI CONNECT PROJECT
         </footer>
       </div>
     </main>

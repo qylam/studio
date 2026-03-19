@@ -2,6 +2,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -58,20 +59,15 @@ export default function Home() {
 
       {/* Left Content Column */}
       <div className="w-full md:w-2/5 p-8 md:p-24 flex flex-col justify-center relative z-20">
-        <header className="mb-12 flex items-center gap-2">
-          <div className="flex items-center">
-            <svg viewBox="0 0 24 24" className="w-6 h-6 mr-1" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="url(#gemini-grad)" />
-              <defs>
-                <linearGradient id="gemini-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#4285F4" />
-                  <stop offset="0.5" stopColor="#9B72CB" />
-                  <stop offset="1" stopColor="#D96570" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <span className="text-xl font-medium tracking-tight text-white">{t('home_title_sub')}</span>
-          </div>
+        <header className="mb-12 flex items-center gap-3">
+          <Image 
+            src="/images/spark_4c.png" 
+            alt="Gemini Connect" 
+            width={32} 
+            height={32} 
+            className="w-8 h-8 object-contain"
+          />
+          <span className="text-xl font-medium tracking-tight text-white">{t('home_title_sub')}</span>
         </header>
 
         <div className="space-y-8 animate-in fade-in slide-in-from-left duration-1000">

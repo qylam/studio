@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -388,24 +389,20 @@ export default function KioskFlow() {
 
     ctx.save();
     const logoX = SIDE_MARGIN;
-    const logoY = 40;
-    ctx.fillStyle = '#4285F4';
-    ctx.beginPath();
-    ctx.moveTo(logoX + 22, logoY);
-    ctx.lineTo(logoX + 28, logoY + 18);
-    ctx.lineTo(logoX + 46, logoY + 22);
-    ctx.lineTo(logoX + 28, logoY + 26);
-    ctx.lineTo(logoX + 22, logoY + 46);
-    ctx.lineTo(logoX + 16, logoY + 26);
-    ctx.lineTo(logoX, logoY + 22);
-    ctx.lineTo(logoX + 16, logoY + 18);
-    ctx.closePath();
-    ctx.fill();
+    const logoY = 32;
+    
+    // Load and draw the logo image
+    const logoImg = new Image();
+    logoImg.src = '/images/spark_4c.png';
+    await new Promise((resolve) => {
+      logoImg.onload = resolve;
+    });
+    ctx.drawImage(logoImg, logoX, logoY, 48, 48);
 
     ctx.fillStyle = '#27272a';
     ctx.font = 'bold 36px "Google Sans", sans-serif'; 
     ctx.textAlign = 'left';
-    ctx.fillText('Chrome Connect', logoX + 60, logoY + 36);
+    ctx.fillText('Gemini Connect', logoX + 64, logoY + 36);
     ctx.restore();
 
     const img = new Image();
