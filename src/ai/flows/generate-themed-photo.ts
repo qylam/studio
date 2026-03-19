@@ -45,10 +45,12 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
     return { success: true, data: result };
   } catch (error: any) {
     // LOGGING THE TRUE REASON FOR FAILURE
+    // We use Object.getOwnPropertyNames to ensure we capture non-enumerable properties like 'message' and 'stack'
     const errorDetails = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
     
     console.error("---------- AI_GENERATION_FAILED: API DIAGNOSTICS ----------");
     console.error("Timestamp:", new Date().toISOString());
+    // console.error("Full Error Object:", errorDetails);
     console.error("Full Error Object:")
     console.dir(error, { depth: null, colors: true });
     
@@ -64,10 +66,20 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
     console.error("Input Context (Redacted Image):", { ...input, photoDataUri: "REDACTED_FOR_LOGS" });
     console.error("-----------------------------------------------------------");
 
-    // Return a generic, safe error message for the UI
+    let specificErrorMsg = "The AI was unable to process your request. Please try a different style or photo.";
+    
+    // Auto-Diagnosis for UI Feedback
+    if (error?.message?.toLowerCase().includes("safety") || errorDetails.toLowerCase().includes("safety") || errorDetails.includes("HARM_CATEGORY")) {
+      specificErrorMsg = "Safety filter triggered. Please try a more neutral theme or photo.";
+    } else if (error?.status === 429 || error?.message?.includes("429")) {
+      specificErrorMsg = "The AI service is currently busy. Please wait a moment and try again.";
+    } else if (error?.status >= 500) {
+      specificErrorMsg = "Google AI is experiencing server issues. Please try again later.";
+    }
+
     return { 
       success: false, 
-      error: "The AI was unable to process your request. This can happen due to safety filters or technical timeouts. Please try a different style or photo."
+      error: specificErrorMsg
     };
   }
 }
@@ -80,9 +92,13 @@ export async function generateThemedPhoto(input: GenerateThemedPhotoInput): Prom
 const themedPhotoPrompt = ai.definePrompt({
   name: 'themedPhotoPrompt',
   input: { schema: GenerateThemedPhotoInputSchema },
-  model: 'googleai/gemini-2.5-flash-image',
+  model: 'googleai/gemini-2.5-flash',
   config: {
     responseModalities: ['TEXT', 'IMAGE'],
+    imageConfig: {
+      aspectRatio: '1:1',
+      imageSize: "1K"
+    },
     safetySettings: [
       {
         category: 'HARM_CATEGORY_HATE_SPEECH',
@@ -102,47 +118,38 @@ const themedPhotoPrompt = ai.definePrompt({
       },
     ],
   },
+  prompt: `You are an expert high-end photo editor and cinematic AI artist working for a luxury lifestyle magazine. Your task is to transform the provided photo of an executive into a stylized, aspirational masterpiece.
 
-  prompt: 
-  `
-    You are an elite visual effects artist creating high-end, stylized imagery. Your task is to reimagine the provided subject based on a specific artistic direction and environmental context.
+STEP 1: IDENTIFY THE THEME
+{{#if scene}}
+Use the provided scene: "{{{scene}}}" and activity: "{{{activity}}}"
+{{else}}
+Analyze the user's pose, expression, and clothing in the photo. From the following list of variations, select the ONE that would result in the most natural and cinematic transformation for this specific person:
+{{#each themeVariations}}
+Option {{@index}}: Scene: "{{{this.scene}}}", Activity: "{{{this.activity}}}"
+{{/each}}
+{{/if}}
 
-    STEP 1: THEME & CONTEXT
-    {{#if scene}}
-    Setting: "{{{scene}}}"
-    Action: "{{{activity}}}"
-    {{else}}
-    Analyze the original photo's composition. Select the most fitting context from the following options:
-    {{#each themeVariations}}
-    Option {{@index}}: Setting: "{{{this.scene}}}", Action: "{{{this.activity}}}"
-    {{/each}}
-    {{/if}}
+STEP 2: APPLY ARTISTIC STYLE & INTEGRATION
+Transform the subject based on the chosen theme. You MUST adhere to these strict constraints:
+1. IDENTITY PRESERVATION: Do NOT alter the subject's facial features, identity, gender, age, or ethnicity. The face must remain instantly recognizable.
+2. POSE MATCHING: Keep the subject's original body pose and structural silhouette intact.
+3. ENVIRONMENTAL BLENDING: Seamlessly integrate the subject into the new scene. Cast appropriate environmental lighting, reflections, and shadows onto the subject so they do not look like a pasted sticker.
+4. PREMIUM TONE: The final image must feel expensive, aspirational, and high-quality.
 
-    STEP 2: ARTISTIC EXECUTION
-    Apply the following stylistic and medium requirements:
-    {{#each details}}
-    - {{{this}}}
-    {{/each}}
+Include these specific stylistic details:
+{{#each details}}
+- {{{this}}}
+{{/each}}
 
-    STEP 3: INTEGRATION RULES (STRICT)
-    1. SUBJECT LIKENESS: Maintain the structural silhouette, recognizable features, and core visual essence of the original subject.
-    2. HARMONY: If the artistic style dictates a specific setting (e.g., "on a computer desk"), that takes precedence. Otherwise, blend the subject seamlessly into the Theme Setting.
-    3. LIGHTING: Ensure the lighting on the subject matches the environmental lighting perfectly.
+TEXT OUTPUT FORMAT:
+You MUST output ONLY the following three lines at the very beginning of your response. Do not include any conversational filler, markdown formatting, or greetings.
 
-    STEP 4: REQUIRED OUTPUT (TEXT AND IMAGE)
-    You MUST provide BOTH the text description AND generate the final image.
+SELECTED_SCENE: [The chosen scene]
+SELECTED_ACTIVITY: [The chosen activity]
+DESCRIPTION: [A highly detailed, 2-sentence visual description of the final image, integrating the subject, the scene, and the lighting]
 
-    TEXT FORMAT (Start your response with these exact lines):
-    SELECTED_SCENE: [The chosen setting]
-    SELECTED_ACTIVITY: [The chosen action]
-    DESCRIPTION: [A detailed, 2-sentence visual description of the image, describing the stylistic medium, the subject, and the environment]
-
-    IMAGE GENERATION:
-    After outputting the text above, you MUST generate the image based on your DESCRIPTION.
-
-    Photo: {{media url=photoDataUri}}
-  `,
-
+Photo: {{media url=photoDataUri}}`,
 });
 
 const generateThemedPhotoFlow = ai.defineFlow(
@@ -152,25 +159,39 @@ const generateThemedPhotoFlow = ai.defineFlow(
     outputSchema: GenerateThemedPhotoOutputSchema,
   },
   async (input) => {
+    // Execute the Genkit prompt directly
     const { text, media } = await themedPhotoPrompt(input);
+
+    // LOGGING THE FULL RESPONSE DATA
+    console.log("---------- AI RESPONSE START ----------");
+    console.log("RAW TEXT RESPONSE:\n", text);
+    console.log("IMAGE GENERATED:", media ? "YES" : "NO");
+    if (media) {
+      console.log("IMAGE CONTENT TYPE:", media.contentType);
+      console.log("IMAGE DATA LENGTH:", media.url?.length || 0);
+    }
+    console.log("---------- AI RESPONSE END ------------");
 
     if (!media) {
       throw new Error('AI failed to generate the stylized image part of the response.');
     }
 
+    // Manual parsing of the text response to extract selections. 
     const lines = text ? text.split('\n') : [];
+    
+    // Helper to strip internal prefixes from theme strings
     const cleanStr = (str: string) => str.replace(/^Variation \d+ (Scene|Activity): /i, '').trim();
 
     const selectedScene = cleanStr(
       lines.find(l => l.startsWith('SELECTED_SCENE:'))?.replace('SELECTED_SCENE:', '').trim() 
       || input.scene 
-      || (input.themeVariations?.[0]?.scene || 'Unknown Scene')
+      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].scene : 'Unknown Scene')
     );
       
     const selectedActivity = cleanStr(
       lines.find(l => l.startsWith('SELECTED_ACTIVITY:'))?.replace('SELECTED_ACTIVITY:', '').trim() 
       || input.activity 
-      || (input.themeVariations?.[0]?.activity || 'Unknown Activity')
+      || (input.themeVariations && input.themeVariations.length > 0 ? input.themeVariations[0].activity : 'Unknown Activity')
     );
       
     const description = lines.find(l => l.startsWith('DESCRIPTION:'))?.replace('DESCRIPTION:', '').trim() 
