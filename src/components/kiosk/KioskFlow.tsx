@@ -12,8 +12,9 @@ import { useLanguage } from '@/i18n/LanguageProvider';
 import { TranslationKey } from '@/i18n/dictionaries';
 import { collection, addDoc, doc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { useFirestore, useAuth, errorEmitter, FirestorePermissionError, useDoc } from '@/firebase';
+import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { startVideoGeneration, checkVideoJobStatus } from '@/ai/flows/video';
+import { useDoc } from '@/firebase/firestore/use-doc';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
   Select,
@@ -29,42 +30,42 @@ const STYLES = [
   { 
     id: 'style-figurine', 
     title: 'Figurine', 
-    detail: 'Medium: 1/7 scale commercialized figurine. Placed on a computer desk. Round transparent acrylic base. Realistic materials and lighting. Packaging box visible in the background.' 
+    detail: 'Medium: 1/7 scale collectible PVC figurine. Render the subject as a highly detailed plastic statue placed within the requested environment. Frame the shot as macro photography, ensuring the lighting matches the scene but highlights the glossy, painted finish of a physical collectible. Do not use a generic studio background; integrate the figurine directly into the requested setting.' 
   },
   { 
     id: 'style-keychain', 
     title: '3D Keychain', 
-    detail: 'Medium: 3D Keychain character toy on a tabletop. Kawaii, Pixar-inspired style. Oversized head, small body, soft rounded features, glossy expressive eyes. Premium collectible toy with soft cinematic lighting.' 
+    detail: 'Medium: 3D Keychain character toy. Render the subject as a chunky, stylized plastic toy attached to a metal keyring. Position the keychain within the requested environment using macro photography scale. Ensure the lighting matches the scene while reflecting off the glossy, solid plastic textures of the toy.' 
   },
   { 
     id: 'style-oil', 
     title: 'Oil Painting', 
-    detail: 'Medium: Classic 19th-century oil painting on canvas. Thick, visible impasto brushstrokes and a rich color palette. Dramatic chiaroscuro lighting. Visible canvas texture.' 
+    detail: 'Style: Classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes. Adapt the lighting of the requested scene into a dramatic chiaroscuro style, maintaining soft shadows and a painted aesthetic across the entire environment. Ensure subtle canvas texture is visible throughout the image.' 
   },
   { 
     id: 'style-clay', 
     title: 'Claymation', 
-    detail: 'Medium: Handcrafted stop-motion claymation miniature. Eccentric, Tim Burton-inspired proportions. Shallow depth of field, moody practical lighting, storybook palette of midnight blue and antique gold.' 
+    detail: 'Medium: Handcrafted stop-motion claymation. Render the subject and the immediate environment using smooth, sculpted clay textures. Ensure the lighting matches the requested scene but highlights the tactile, fingerprint-textured nature of physical clay. Use a charming, stylized stop-motion aesthetic.' 
   },
   { 
     id: 'style-editorial', 
     title: 'Magazine Editorial', 
-    detail: 'Style: High-end business magazine cover photoshoot. Crisp studio lighting, sharp focus, hyper-detailed, sophisticated GQ/Forbes aesthetic.' 
+    detail: 'Style: High-end magazine cover photoshoot. Use professional editorial flash lighting and sharp focus to capture the subject in the requested environment. Apply sophisticated styling and color grading to create a premium, aspirational, hyper-detailed aesthetic.' 
   },
   { 
     id: 'style-cinematic', 
     title: 'Cinematic Epic', 
-    detail: 'Style: Hollywood blockbuster cinematography. Shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic with shallow depth of field.' 
+    detail: 'Style: Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
   },
   { 
     id: 'style-noir', 
     title: 'Timeless Noir', 
-    detail: 'Style: Classic black and white film noir. Dramatic high-contrast lighting, sharp shadows, vintage Leica camera aesthetic.' 
+    detail: 'Style: Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage 35mm rangefinder camera aesthetic, sophisticated and powerful.' 
   },
   { 
     id: 'style-visionary', 
     title: 'Tech Visionary', 
-    detail: 'Style: Sleek futuristic aesthetic. Subtle glowing neon accents, clean high-tech environment, hyper-realistic 3D render.' 
+    detail: 'Style: Sleek futuristic sci-fi aesthetic. Render the subject and requested environment as a hyper-realistic 3D render. Infuse the scene with subtle glowing neon accents, holographic elements, and a clean, forward-thinking high-tech vibe without losing the core setting.' 
   }
 ];
 
@@ -91,7 +92,7 @@ const THEMES = [
     id: 'theme-active', 
     title: 'Get more active', 
     variations: [
-      { scene: 'neon-lit urban rooftop', activity: 'mastering high-speed parkour' },
+      { scene: 'neon-lit urban rooftop', activity: 'striking a dynamic athletic pose on a secure rooftop' },
       { scene: 'underwater coral gymnasium', activity: 'swimming with mechanical dolphins' },
       { scene: 'desert canyon adventure', activity: 'rock climbing up a vertical mesa' }
     ]
@@ -101,7 +102,7 @@ const THEMES = [
     title: 'Take a well-earned break', 
     variations: [
       { scene: 'luxury cloud resort', activity: 'lounging in a golden hammock' },
-      { scene: 'secluded x hot spring cave', activity: 'soaking in steaming mineral waters' },
+      { scene: 'secluded x hot spring cave', activity: 'relaxing in steaming mineral waters wearing a plush luxury spa robe' },
       { scene: 'vintage jazz lounge on Mars', activity: 'sipping a cosmic mocktail' }
     ]
   },
@@ -163,9 +164,9 @@ const THEMES = [
     id: 'theme-racing', 
     title: 'Chase the Grand Prix thrill', 
     variations: [
-      { scene: 'sweeping corner of a sunlit private race circuit', activity: 'steering a roaring vintage Ferrari' },
-      { scene: 'glamorous Monaco street circuit at dusk', activity: 'celebrating a first-place podium finish' },
-      { scene: 'pristine, high-tech luxury racing garage', activity: 'analyzing telemetry data next to a Le Mans hypercar' }
+      { scene: 'sweeping corner of a sunlit private race circuit', activity: 'steering a roaring classic red Italian sports car' },
+      { scene: 'glamorous European coastal street circuit at dusk', activity: 'celebrating a first-place podium finish' },
+      { scene: 'pristine, high-tech luxury racing garage', activity: 'analyzing telemetry data next to a prototype endurance hypercar' }
     ]
   },
   { 
@@ -173,7 +174,7 @@ const THEMES = [
     title: 'Conquer the Alpine peaks', 
     variations: [
       { scene: 'dramatic, snow-capped Swiss summit', activity: 'standing victorious with an ice axe in hand' },
-      { scene: 'sheer, vertical granite rock face above the clouds', activity: 'free-climbing with intense focus and grip' },
+      { scene: 'sheer, vertical granite rock face above the clouds', activity: 'scaling a rock face wearing a high-tech climbing harness and safety ropes' },
       { scene: 'remote, untouched glacier in British Columbia', activity: 'carving the first tracks after a thrilling heli-drop' }
     ]
   }
@@ -200,7 +201,7 @@ export default function KioskFlow() {
   const [videoStatus, setVideoStatus] = useState<'IDLE' | 'STARTING' | 'PENDING' | 'SUCCEEDED' | 'FAILED'>('IDLE');
   const [videoJobId, setVideoJobId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -209,7 +210,6 @@ export default function KioskFlow() {
   const { t } = useLanguage();
   const db = useFirestore();
   const auth = useAuth();
-  
   const statsDocRef = useMemo(() => db ? doc(db, 'metadata', 'globalStats') : null, [db]);
   const { data: statsData } = useDoc<{videoCount: number}>(statsDocRef);
   const globalVideoCount = statsData?.videoCount || 0;
@@ -221,21 +221,6 @@ export default function KioskFlow() {
     t('loading_message_3'),
     t('loading_message_4'),
   ];
-
-  const translatedStyles = STYLES.map(style => ({
-    ...style,
-    title: t(`style_${style.id.split('-')[1]}_title` as TranslationKey),
-    detail: t(`style_${style.id.split('-')[1]}_detail` as TranslationKey)
-  }));
-
-  const translatedThemes = THEMES.map(theme => ({
-    ...theme,
-    title: t(`theme_${theme.id.split('-')[1]}_title` as TranslationKey),
-    variations: theme.variations.map((v, idx) => ({
-      scene: t(`theme_${theme.id.split('-')[1]}_var${idx}_scene` as TranslationKey),
-      activity: t(`theme_${theme.id.split('-')[1]}_var${idx}_activity` as TranslationKey)
-    }))
-  }));
 
   const toLowerFirst = (s: string | undefined | null) => {
     if (!s) return '';
@@ -559,9 +544,9 @@ export default function KioskFlow() {
   };
 
   const triggerInstantSurprise = () => {
-    const randomTheme = translatedThemes[Math.floor(Math.random() * translatedThemes.length)];
+    const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
     const randomVariation = randomTheme.variations[Math.floor(Math.random() * randomTheme.variations.length)];
-    const randomStyle = translatedStyles[Math.floor(Math.random() * translatedStyles.length)];
+    const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
 
     setSelectedTheme(randomTheme);
     setSelectedScene(randomVariation.scene);
@@ -585,6 +570,8 @@ export default function KioskFlow() {
     setVideoJobId(null);
     setVideoUrl(null);
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    
+    // Navigate back to the home page
     router.push('/');
   };
 
@@ -692,19 +679,24 @@ export default function KioskFlow() {
           
           <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
             <div className="flex gap-4 md:gap-6 px-4 md:px-12 min-w-full">
-              {translatedThemes.map((theme) => (
+              {THEMES.map((theme) => (
                 <div 
                   key={theme.id} 
                   onClick={() => handleThemeSelect(theme)} 
-                  className="group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
+                  className={cn(
+                    "group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 transition-all bg-zinc-900 snap-center",
+                    selectedTheme?.id === theme.id 
+                      ? "border-[#4285F4] scale-[1.02] shadow-[0_0_30px_rgba(66,133,244,0.3)]" 
+                      : "border-transparent hover:border-[#4285F4]/50"
+                  )}
                 >
                   <img 
                     src={PlaceHolderImages.find(i => i.id === theme.id)?.imageUrl || ''} 
-                    alt={theme.title} 
+                    alt={t(`theme_${theme.id.split('-')[1]}_title` as TranslationKey)} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-end p-4 md:p-6">
-                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{theme.title}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{t(`theme_${theme.id.split('-')[1]}_title` as TranslationKey)}</h3>
                   </div>
                 </div>
               ))}
@@ -728,19 +720,24 @@ export default function KioskFlow() {
 
           <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
             <div className="flex gap-4 md:gap-6 px-4 md:px-12 min-w-full">
-              {translatedStyles.map((style) => (
+              {STYLES.map((style) => (
                 <div 
                   key={style.id} 
                   onClick={() => generateVision(style)} 
-                  className="group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4285F4] transition-all bg-zinc-900 snap-center"
+                  className={cn(
+                    "group flex-shrink-0 cursor-pointer relative w-[240px] md:w-[320px] aspect-square rounded-2xl overflow-hidden border-2 transition-all bg-zinc-900 snap-center",
+                    selectedStyle?.id === style.id 
+                      ? "border-[#4285F4] scale-[1.02] shadow-[0_0_30px_rgba(66,133,244,0.3)]" 
+                      : "border-transparent hover:border-[#4285F4]/50"
+                  )}
                 >
                   <img 
                     src={PlaceHolderImages.find(i => i.id === style.id)?.imageUrl || ''} 
-                    alt={style.title} 
+                    alt={t(`style_${style.id.split('-')[1]}_title` as TranslationKey)} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-end p-4 md:p-6">
-                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{style.title}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-white font-headline">{t(`style_${style.id.split('-')[1]}_title` as TranslationKey)}</h3>
                   </div>
                 </div>
               ))}
@@ -768,10 +765,20 @@ export default function KioskFlow() {
                   <Zap className="w-5 h-5 md:w-8 md:h-8 text-[#4285F4]" />
                </div>
             </div>
+            <div className="absolute inset-0 animate-spin duration-[12s] linear infinite reverse">
+               <div className="absolute bottom-0 right-1/4 bg-white/10 p-2 md:p-3 rounded-full backdrop-blur-md">
+                  <Stars className="w-4 h-4 md:w-6 md:h-6 text-[#9B72CB]" />
+               </div>
+            </div>
+            <div className="absolute inset-0 animate-spin duration-[10s] linear infinite">
+               <div className="absolute left-0 top-1/4 bg-white/10 p-2 md:p-3 rounded-full backdrop-blur-md">
+                  <Wand2 className="w-4 h-4 md:w-6 md:h-6 text-[#D96570]" />
+               </div>
+            </div>
           </div>
 
           <div className="space-y-4 max-w-2xl px-4">
-            <h2 className="text-3xl md:text-5xl text-white font-headline font-bold">
+            <h2 className="text-3xl md:text-5xl text-white font-headline font-bold transition-all duration-500 min-h-[4rem] flex items-center justify-center">
               {translatedProcessingMessages[processingMsgIdx]}
             </h2>
             <p className="text-sm md:text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
@@ -782,75 +789,66 @@ export default function KioskFlow() {
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-w-5xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-12 text-center">
-          {/* Row 1: Featured Photo */}
-          <div className="w-full max-w-md mx-auto">
-            <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform lg:-rotate-1 w-full">
-              <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
-            </div>
+        <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
+          <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform lg:-rotate-1 w-full max-w-xs md:max-w-md">
+            <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
           </div>
-
-          {/* Row 2: Actions */}
-          <div className="flex-1 space-y-8 w-full">
-            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline tracking-tighter">{t('result_title')}</h2>
+          <div className="flex-1 space-y-8 text-center lg:text-left w-full">
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('result_title')}</h2>
             
-            <div className="flex flex-col md:flex-row items-center gap-12 justify-center">
-              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform">
-                {isSaving || !visionId ? (
-                  <div className="flex flex-col items-center gap-3 text-zinc-400">
-                    <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin text-[#4290FF]" />
-                    <span className="text-xs font-bold uppercase tracking-widest">Link...</span>
-                  </div>
-                ) : (
-                  <a 
-                    href={getShareUrl()} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="w-full h-full block cursor-pointer"
-                    title="Tap to download"
-                  >
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
-                      alt="QR Code" 
-                      className="w-full h-full" 
-                    />
-                  </a>
-                )}
-              </div>
-              
-              <div className="space-y-6 text-center md:text-left">
-                <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
-                  {globalVideoCount < 100 && videoStatus !== 'FAILED' ? (
-                    <Button 
-                      onClick={() => {
-                        if (videoStatus === 'SUCCEEDED') setStep('video-results');
-                        else setStep('video-loading');
-                      }} 
-                      className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl flex items-center gap-2"
-                    >
-                      <Film className="w-5 h-5" />
-                      Make it a Video
-                    </Button>
-                  ) : globalVideoCount < 100 && videoStatus === 'FAILED' ? (
-                    <Button onClick={() => triggerVideoGeneration(visionId!, resultImage!)} className="w-full sm:w-auto bg-red-500/80 hover:bg-red-500 rounded-full px-8 py-6 text-xl">
-                      Retry Video
-                    </Button>
-                  ) : (
-                    <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">
-                      I'm done!
-                    </Button>
-                  )}
+            <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
+              {isSaving || !visionId ? (
+                <div className="flex flex-col items-center gap-3 text-zinc-400">
+                  <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin text-[#4290FF]" />
+                  <span className="text-xs font-bold uppercase tracking-widest">Link...</span>
                 </div>
-                {globalVideoCount < 100 && (videoStatus === 'PENDING' || videoStatus === 'STARTING') && (
-                   <div className="flex items-center gap-2 text-white/50 justify-center md:justify-start mt-4">
-                     <Loader2 className="w-4 h-4 animate-spin" />
-                     <span className="text-sm uppercase tracking-wider">{t('btn_generating_video')}</span>
-                   </div>
-                )}
-              </div>
+              ) : (
+                <a 
+                  href={getShareUrl()} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                  title="Tap to download"
+                >
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
+                    alt="QR Code" 
+                    className="w-full h-full" 
+                  />
+                </a>
+              )}
             </div>
+            
+            <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
+              {globalVideoCount < 100 && videoStatus !== 'FAILED' ? (
+                <Button 
+                  onClick={() => {
+                    if (videoStatus === 'SUCCEEDED') setStep('video-results');
+                    else setStep('video-loading');
+                  }} 
+                  className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl flex items-center gap-2"
+                >
+                  <Film className="w-5 h-5" />
+                  Make it a Video
+                </Button>
+              ) : globalVideoCount < 100 && videoStatus === 'FAILED' ? (
+                <Button onClick={() => triggerVideoGeneration(visionId!, resultImage!)} className="w-full sm:w-auto bg-red-500/80 hover:bg-red-500 rounded-full px-8 py-6 text-xl">
+                  Retry Video
+                </Button>
+              ) : (
+                <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">
+                  I'm done!
+                </Button>
+              )}
+            </div>
+            {globalVideoCount < 100 && (videoStatus === 'PENDING' || videoStatus === 'STARTING') && (
+               <div className="flex items-center gap-2 text-white/50 justify-center lg:justify-start mt-4">
+                 <Loader2 className="w-4 h-4 animate-spin" />
+                 <span className="text-sm uppercase tracking-wider">{t('btn_generating_video')}</span>
+               </div>
+            )}
           </div>
         </div>
       )}
@@ -882,7 +880,7 @@ export default function KioskFlow() {
                   <Select 
                     value={selectedTheme?.id} 
                     onValueChange={(val) => {
-                      const theme = translatedThemes.find(t => t.id === val);
+                      const theme = THEMES.find(t => t.id === val);
                       if (theme) {
                         setSelectedTheme(theme);
                         setSelectedActivity(theme.variations[0].activity);
@@ -894,9 +892,9 @@ export default function KioskFlow() {
                       <SelectValue placeholder="Select a theme" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
-                      {translatedThemes.map(t => (
+                      {THEMES.map(t => (
                         <SelectItem key={t.id} value={t.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                          {toLowerFirst(t.title)}
+                          {toLowerFirst(t(`theme_${t.id.split('-')[1]}_title` as TranslationKey))}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -919,7 +917,7 @@ export default function KioskFlow() {
                       <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                         {selectedTheme?.variations.map((v, i) => (
                           <SelectItem key={i} value={v.activity} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                            {toLowerFirst(v.activity)}
+                            {toLowerFirst(t(`theme_${selectedTheme.id.split('-')[1]}_var${i}_activity` as TranslationKey))}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -933,7 +931,7 @@ export default function KioskFlow() {
                     <Select 
                       value={selectedStyle?.id} 
                       onValueChange={(val) => {
-                        const style = translatedStyles.find(s => s.id === val);
+                        const style = STYLES.find(s => s.id === val);
                         if (style) setSelectedStyle(style);
                       }}
                     >
@@ -941,9 +939,9 @@ export default function KioskFlow() {
                         <SelectValue placeholder="Select a style" />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
-                        {translatedStyles.map(s => (
+                        {STYLES.map(s => (
                           <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                            {s.title}
+                            {t(`style_${s.id.split('-')[1]}_title` as TranslationKey)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -991,29 +989,23 @@ export default function KioskFlow() {
       )}
 
       {step === 'video-results' && videoUrl && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
-          {/* Row 1: Featured Video - Prominently on Top */}
-          <div className="w-full relative group max-w-4xl mx-auto">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#4285F4] to-[#9B72CB] rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
-            <div className="relative bg-black p-2 rounded-2xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
-              <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
-            </div>
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
+          {/* Row 1: Video */}
+          <div className="bg-black p-4 rounded-xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
+            <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
           </div>
           
-          {/* Row 2: Actions & Details - Stacked Below */}
-          <div className="space-y-10 flex flex-col items-center w-full max-w-4xl mx-auto">
-            <div className="space-y-4">
-              <h2 className="text-5xl md:text-7xl font-bold text-white font-headline tracking-tighter">{t('video_result_title')}</h2>
-              <p className="text-xl md:text-2xl text-white/50 font-headline">{t('video_result_subtitle')}</p>
-            </div>
+          {/* Row 2: Content */}
+          <div className="space-y-12 w-full flex flex-col items-center">
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('video_result_title')}</h2>
             
-            <div className="flex flex-col md:flex-row items-center gap-12 justify-center w-full">
-              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform">
+            <div className="flex flex-col md:flex-row items-center gap-12 w-full justify-center">
+              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
                 <a 
                   href={getShareUrl()} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-full h-full block cursor-pointer"
+                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
                   title="Tap to download"
                 >
                   <img 
@@ -1023,14 +1015,11 @@ export default function KioskFlow() {
                   />
                 </a>
               </div>
-
-              <div className="flex flex-col gap-4 w-full md:w-auto">
-                 <Button onClick={() => setStep('thanks')} className="bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95 h-auto">
+              
+              <div className="space-y-6 text-center md:text-left max-w-md">
+                <p className="text-2xl md:text-3xl text-white/50 font-headline leading-tight">{t('video_result_subtitle')}</p>
+                <Button onClick={() => setStep('thanks')} className="w-full md:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95">
                   {t('btn_done')}
-                </Button>
-                <Button variant="ghost" onClick={() => setStep('results')} className="text-white/40 text-lg font-headline">
-                   <ChevronLeft className="mr-2 h-5 w-5" />
-                   Back to photo
                 </Button>
               </div>
             </div>

@@ -3,7 +3,7 @@ export type Language = 'en' | 'ko';
 export const dictionaries = {
   en: {
     // --- Home Page ---
-    home_title_main: "The Free-Time Machine",
+    home_title_main: "The free-time machine",
     home_title_sub: "Chrome Connect",
     home_description: "Picture yourself with up to 10 hours back per week, thanks to Gemini.",
     home_start_button: "Start",
@@ -37,22 +37,22 @@ export const dictionaries = {
     camera_retaking: "Retaking in...",
     
     // --- STYLES ---
-    style_figurine_title: "Scale Figurine",
-    style_figurine_detail: "Transform the person or group of people in the image into a 1/7 scale commercialized figurine set. The figures should be made of shiny PVC or ABS plastic. The lighting should be bright studio product lighting, highlighting the contours and glossy finish of the figures. Include a subtle, clean studio background. Maintain their facial features but stylize them as high-quality collectible figurines.",
+    style_figurine_title: "1/7 Scale Figurine",
+    style_figurine_detail: "Medium: 1/7 scale collectible PVC figurine. Render the subject as a highly detailed plastic statue placed within the requested environment. Frame the shot as macro photography, ensuring the lighting matches the scene but highlights the glossy, painted finish of a physical collectible. Do not use a generic studio background; integrate the figurine directly into the requested setting.",
     style_keychain_title: "3D Keychain",
-    style_keychain_detail: "Transform the person or group of people in the image into a keychain character version of themselves. They should appear to be made of shiny, solid plastic, attached to a thick metal chain and a keyring. The lighting should be bright and colorful. Ensure the subjects maintain their distinct facial features but in a highly stylized, chunky keychain form. Focus on bold, saturated colors and glossy textures. Only include a single person or group on a single keychain.",
+    style_keychain_detail: "Medium: 3D Keychain character toy. Render the subject as a chunky, stylized plastic toy attached to a metal keyring. Position the keychain within the requested environment using macro photography scale. Ensure the lighting matches the scene while reflecting off the glossy, solid plastic textures of the toy.",
     style_oil_title: "Oil Painting",
-    style_oil_detail: "Transform the person or group of people in this photo into a classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes and a rich, deep color palette. The lighting should be dramatic chiaroscuro, with soft shadows and a warm glow on the persons face. The background should be a soft, textured abstract landscape or a dark studio setting. Ensure the final result looks like a physical painting with subtle canvas texture visible. Maintain their facial features.",
+    style_oil_detail: "Style: Classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes. Adapt the lighting of the requested scene into a dramatic chiaroscuro style, maintaining soft shadows and a painted aesthetic across the entire environment. Ensure subtle canvas texture is visible throughout the image.",
     style_clay_title: "Claymation",
-    style_clay_detail: "Transform the person or group of people in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons and Edward Goreys illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold. Maintain their facial features.",
+    style_clay_detail: "Medium: Handcrafted stop-motion claymation. Render the subject and the immediate environment using smooth, sculpted clay textures. Ensure the lighting matches the requested scene but highlights the tactile, fingerprint-textured nature of physical clay. Use a charming, stylized stop-motion aesthetic.",
     style_editorial_title: "Magazine Editorial",
-    style_editorial_detail: "Transform the person or group of people in the image into a High-end business magazine cover photoshoot, crisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.",
+    style_editorial_detail: "Style: High-end magazine cover photoshoot. Use professional editorial flash lighting and sharp focus to capture the subject in the requested environment. Apply sophisticated styling and color grading to create a premium, aspirational, hyper-detailed aesthetic.",
     style_cinematic_title: "Cinematic Epic",
-    style_cinematic_detail: "Transform the person or group of people in the image into a Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.",
+    style_cinematic_detail: "Style: Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.",
     style_noir_title: "Timeless Noir",
-    style_noir_detail: "Transform the person or group of people in the image into a Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage Leica camera aesthetic, sophisticated and powerful.",
+    style_noir_detail: "Style: Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage 35mm rangefinder camera aesthetic, sophisticated and powerful.",
     style_visionary_title: "Tech Visionary",
-    style_visionary_detail: "Transform the person or group of people in the image into a Sleek futuristic aesthetic, subtle glowing neon accents, clean high-tech environment, hyper-realistic 3D render, forward-thinking corporate leadership vibe.",
+    style_visionary_detail: "Style: Sleek futuristic sci-fi aesthetic. Render the subject and requested environment as a hyper-realistic 3D render. Infuse the scene with subtle glowing neon accents, holographic elements, and a clean, forward-thinking high-tech vibe without losing the core setting.",
 
     // --- THEMES ---
     theme_recipe_title: "Learn a new recipe",
@@ -73,7 +73,7 @@ export const dictionaries = {
 
     theme_active_title: "Get more active",
     theme_active_var0_scene: "neon-lit urban rooftop",
-    theme_active_var0_activity: "mastering high-speed parkour",
+    theme_active_var0_activity: "striking a dynamic athletic pose on a secure rooftop",
     theme_active_var1_scene: "underwater coral gymnasium",
     theme_active_var1_activity: "swimming with mechanical dolphins",
     theme_active_var2_scene: "desert canyon adventure",
@@ -83,7 +83,7 @@ export const dictionaries = {
     theme_break_var0_scene: "luxury cloud resort",
     theme_break_var0_activity: "lounging in a golden hammock",
     theme_break_var1_scene: "secluded x hot spring cave",
-    theme_break_var1_activity: "soaking in steaming mineral waters",
+    theme_break_var1_activity: "relaxing in steaming mineral waters wearing a plush luxury spa robe",
     theme_break_var2_scene: "vintage jazz lounge on Mars",
     theme_break_var2_activity: "sipping a cosmic mocktail",
 
@@ -137,17 +137,17 @@ export const dictionaries = {
 
     theme_racing_title: "Chase the Grand Prix thrill",
     theme_racing_var0_scene: "sweeping corner of a sunlit private race circuit",
-    theme_racing_var0_activity: "steering a roaring vintage Ferrari",
-    theme_racing_var1_scene: "glamorous Monaco street circuit at dusk",
+    theme_racing_var0_activity: "steering a roaring classic red Italian sports car",
+    theme_racing_var1_scene: "glamorous European coastal street circuit at dusk",
     theme_racing_var1_activity: "celebrating a first-place podium finish",
     theme_racing_var2_scene: "pristine, high-tech luxury racing garage",
-    theme_racing_var2_activity: "analyzing telemetry data next to a Le Mans hypercar",
+    theme_racing_var2_activity: "analyzing telemetry data next to a prototype endurance hypercar",
 
     theme_alpine_title: "Conquer the Alpine peaks",
     theme_alpine_var0_scene: "dramatic, snow-capped Swiss summit",
     theme_alpine_var0_activity: "standing victorious with an ice axe in hand",
     theme_alpine_var1_scene: "sheer, vertical granite rock face above the clouds",
-    theme_alpine_var1_activity: "free-climbing with intense focus and grip",
+    theme_alpine_var1_activity: "scaling a rock face wearing a high-tech climbing harness and safety ropes",
     theme_alpine_var2_scene: "remote, untouched glacier in British Columbia",
     theme_alpine_var2_activity: "carving the first tracks after a thrilling heli-drop",
 
@@ -162,7 +162,7 @@ export const dictionaries = {
     result_title: "Ta-da!",
     result_subtitle: "Scan the code to download your masterpiece.",
     btn_adjust_style: "Adjust style",
-    btn_make_video: "Animate Me!",
+    btn_make_video: "Make it a Video",
     btn_generating_video: "Generating Video...",
     btn_retry_video: "Retry Video",
     btn_done: "I'm done!",

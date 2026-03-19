@@ -102,6 +102,7 @@ const themedPhotoPrompt = ai.definePrompt({
       },
     ],
   },
+
   prompt: 
   `
     You are an elite visual effects artist creating high-end, stylized imagery. Your task is to reimagine the provided subject based on a specific artistic direction and environmental context.

@@ -27,6 +27,7 @@ service cloud.firestore {
      */
     match /metadata/{docId} {
       allow get: if true;
+      allow read: if true;
       allow list: if true;
       allow write: if false;
     }
