@@ -104,41 +104,43 @@ const themedPhotoPrompt = ai.definePrompt({
   },
   prompt: 
   `
-  You are an elite visual effects artist and prompt engineer creating high-end, stylized imagery. Your task is to reimagine the provided subject based on a specific artistic direction and environmental context.
+    You are an elite visual effects artist creating high-end, stylized imagery. Your task is to reimagine the provided subject based on a specific artistic direction and environmental context.
 
-  STEP 1: THEME & CONTEXT
-  {{#if scene}}
-  Setting: "{{{scene}}}"
-  Action: "{{{activity}}}"
-  {{else}}
-  Analyze the original photo's composition. Select the most fitting context from the following options to create a natural, compelling scene:
-  {{#each themeVariations}}
-  Option {{@index}}: Setting: "{{{this.scene}}}", Action: "{{{this.activity}}}"
-  {{/each}}
-  {{/if}}
+    STEP 1: THEME & CONTEXT
+    {{#if scene}}
+    Setting: "{{{scene}}}"
+    Action: "{{{activity}}}"
+    {{else}}
+    Analyze the original photo's composition. Select the most fitting context from the following options:
+    {{#each themeVariations}}
+    Option {{@index}}: Setting: "{{{this.scene}}}", Action: "{{{this.activity}}}"
+    {{/each}}
+    {{/if}}
 
-  STEP 2: ARTISTIC EXECUTION
-  Apply the following specific stylistic and medium requirements to the final image:
-  {{#each details}}
-  - {{{this}}}
-  {{/each}}
+    STEP 2: ARTISTIC EXECUTION
+    Apply the following stylistic and medium requirements:
+    {{#each details}}
+    - {{{this}}}
+    {{/each}}
 
-  STEP 3: INTEGRATION RULES (STRICT)
-  You MUST follow these rules to ensure a high-quality, safe generation:
-  1. SUBJECT LIKENESS: Maintain the structural silhouette, recognizable features, and core visual essence of the original subject. Translate their appearance naturally into the requested artistic style (e.g., if the style is "Claymation", they should look like a clay version of
-  themselves, not a different person).
-  2. HARMONY: If the artistic style dictates a specific setting (e.g., "on a computer desk"), that takes precedence. Otherwise, blend the subject seamlessly into the Theme Setting chosen in Step 1.
-  3. LIGHTING: Ensure the lighting on the subject matches the environmental lighting perfectly.
+    STEP 3: INTEGRATION RULES (STRICT)
+    1. SUBJECT LIKENESS: Maintain the structural silhouette, recognizable features, and core visual essence of the original subject.
+    2. HARMONY: If the artistic style dictates a specific setting (e.g., "on a computer desk"), that takes precedence. Otherwise, blend the subject seamlessly into the Theme Setting.
+    3. LIGHTING: Ensure the lighting on the subject matches the environmental lighting perfectly.
 
-  TEXT OUTPUT FORMAT:
-  You MUST output ONLY the following three lines at the very beginning of your response. Do not include any conversational filler, markdown formatting, or greetings.
+    STEP 4: REQUIRED OUTPUT (TEXT AND IMAGE)
+    You MUST provide BOTH the text description AND generate the final image.
 
-  SELECTED_SCENE: [The chosen setting]
-  SELECTED_ACTIVITY: [The chosen action]
-  DESCRIPTION: [A 2-sentence visual description of the final image, describing the stylistic medium, the subject, and the environment]
+    TEXT FORMAT (Start your response with these exact lines):
+    SELECTED_SCENE: [The chosen setting]
+    SELECTED_ACTIVITY: [The chosen action]
+    DESCRIPTION: [A detailed, 2-sentence visual description of the image, describing the stylistic medium, the subject, and the environment]
 
-  Photo: {{media url=photoDataUri}}
-`,
+    IMAGE GENERATION:
+    After outputting the text above, you MUST generate the image based on your DESCRIPTION.
+
+    Photo: {{media url=photoDataUri}}
+  `,
 
 });
 

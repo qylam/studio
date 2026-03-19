@@ -21,11 +21,12 @@ service cloud.firestore {
     // --- Rules ---
 
     /** 
-     * @description Publicly readable metadata for global stats (e.g., video count). 
+     * @description Publicly readable metadata for global stats.
      * Allows anyone to read application-wide statistics.
      */
     match /metadata/{docId} {
-      allow read: if true;
+      allow get: if true;
+      allow list: if true;
       allow write: if false;
     }
 

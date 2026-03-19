@@ -10,12 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/i18n/LanguageProvider';
 import { TranslationKey } from '@/i18n/dictionaries';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useFirestore, useAuth, errorEmitter, FirestorePermissionError, useDoc } from '@/firebase';
 import { startVideoGeneration, checkVideoJobStatus } from '@/ai/flows/video';
-import { doc } from 'firebase/firestore';
-import { useDoc } from '@/firebase/firestore/use-doc';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
   Select,
@@ -31,42 +29,42 @@ const STYLES = [
   { 
     id: 'style-figurine', 
     title: 'Figurine', 
-    detail: 'Transform the person or group of people in this photo into a 1/7 scale commercialized figurine of the characters in the picture, in a realistic style, in a real environment. The figurine is placed on a computer desk. The figurine has a round transparent acrylic base with no text on the base. The content on the computer screen is the brush modeling process of this figurine. Packaging box printed with the original artwork.' 
+    detail: 'Medium: 1/7 scale commercialized figurine. Placed on a computer desk. Round transparent acrylic base. Realistic materials and lighting. Packaging box visible in the background.' 
   },
   { 
     id: 'style-keychain', 
     title: '3D Keychain', 
-    detail: 'Transform the person or group of people in the image into a keychain character version of themselves, placed on a tabletop. Preserve recognizable features but redesign them in a kawaii, Pixar-inspired style — slightly oversized head, small body, soft rounded features, glossy expressive eyes, and a warm, heartwarming smile. The character should feel like a premium animated collectible toy, with smooth materials, soft shading, and subtle skin glow. Keep outfit colors and key visual identity, but simplify details into clean, cute shapes. Use soft cinematic lighting, shallow depth of field, warm tones, and a cozy tabletop setting. Ultra-detailed 3D render.' 
+    detail: 'Medium: 3D Keychain character toy on a tabletop. Kawaii, Pixar-inspired style. Oversized head, small body, soft rounded features, glossy expressive eyes. Premium collectible toy with soft cinematic lighting.' 
   },
   { 
     id: 'style-oil', 
     title: 'Oil Painting', 
-    detail: 'Transform the person or group of people in this photo into a classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes and a rich, deep color palette. The lighting should be dramatic chiaroscuro, with soft shadows and a warm glow on the persons face. The background should be a soft, textured abstract landscape or a dark studio setting. Ensure the final result looks like a physical painting with subtle canvas texture visible. Maintain their facial features.' 
+    detail: 'Medium: Classic 19th-century oil painting on canvas. Thick, visible impasto brushstrokes and a rich color palette. Dramatic chiaroscuro lighting. Visible canvas texture.' 
   },
   { 
     id: 'style-clay', 
     title: 'Claymation', 
-    detail: 'Transform the person or group of people in the image into a handcrafted stop-motion claymation miniature, reimagined as an eccentric character with elongated limbs, expressive eyes, and a warm, heartwarming smile in a style merging Tim Burtons and Edward Goreys illustrations. This ultra-detailed cinematic shot features a shallow depth of field, moody practical lighting with deep shadows, and a storybook palette of midnight blue, deep plum, and antique gold. Maintain their facial features.' 
+    detail: 'Medium: Handcrafted stop-motion claymation miniature. Eccentric, Tim Burton-inspired proportions. Shallow depth of field, moody practical lighting, storybook palette of midnight blue and antique gold.' 
   },
   { 
     id: 'style-editorial', 
     title: 'Magazine Editorial', 
-    detail: 'Transform the person or group of people in the image into a High-end business magazine cover photoshoot, crisp studio lighting, sharp focus, hyper-detailed, sophisticated styling, GQ or Forbes aesthetic.' 
+    detail: 'Style: High-end business magazine cover photoshoot. Crisp studio lighting, sharp focus, hyper-detailed, sophisticated GQ/Forbes aesthetic.' 
   },
   { 
     id: 'style-cinematic', 
     title: 'Cinematic Epic', 
-    detail: 'Transform the person or group of people in the image into a Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
+    detail: 'Style: Hollywood blockbuster cinematography. Shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic with shallow depth of field.' 
   },
   { 
     id: 'style-noir', 
     title: 'Timeless Noir', 
-    detail: 'Transform the person or group of people in the image into a Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage Leica camera aesthetic, sophisticated and powerful.' 
+    detail: 'Style: Classic black and white film noir. Dramatic high-contrast lighting, sharp shadows, vintage Leica camera aesthetic.' 
   },
   { 
     id: 'style-visionary', 
     title: 'Tech Visionary', 
-    detail: 'Transform the person or group of people in the image into a Sleek futuristic aesthetic, subtle glowing neon accents, clean high-tech environment, hyper-realistic 3D render, forward-thinking corporate leadership vibe.' 
+    detail: 'Style: Sleek futuristic aesthetic. Subtle glowing neon accents, clean high-tech environment, hyper-realistic 3D render.' 
   }
 ];
 
@@ -993,9 +991,9 @@ export default function KioskFlow() {
       )}
 
       {step === 'video-results' && videoUrl && (
-        <div className="w-full max-w-5xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-12 text-center">
+        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
           {/* Row 1: Featured Video */}
-          <div className="w-full relative group">
+          <div className="w-full relative group max-w-4xl mx-auto">
             <div className="absolute -inset-1 bg-gradient-to-r from-[#4285F4] to-[#9B72CB] rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
             <div className="relative bg-black p-2 rounded-2xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
               <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
@@ -1003,13 +1001,13 @@ export default function KioskFlow() {
           </div>
           
           {/* Row 2: Actions & Details */}
-          <div className="space-y-10 flex flex-col items-center w-full">
+          <div className="space-y-10 flex flex-col items-center w-full max-w-4xl mx-auto">
             <div className="space-y-4">
-              <h2 className="text-6xl md:text-8xl font-bold text-white font-headline tracking-tighter">{t('video_result_title')}</h2>
-              <p className="text-xl md:text-2xl text-white/50 font-headline">{t('video_result_subtitle')}</p>
+              <h2 className="text-5xl md:text-7xl font-bold text-white font-headline tracking-tighter">Action!</h2>
+              <p className="text-xl md:text-2xl text-white/50 font-headline">Scan to download your photo & video.</p>
             </div>
             
-            <div className="flex flex-col md:flex-row items-center gap-12 justify-center">
+            <div className="flex flex-col md:flex-row items-center gap-12 justify-center w-full">
               <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform">
                 <a 
                   href={getShareUrl()} 
@@ -1026,9 +1024,9 @@ export default function KioskFlow() {
                 </a>
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 w-full md:w-auto">
                  <Button onClick={() => setStep('thanks')} className="bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95 h-auto">
-                  {t('btn_done')}
+                  I'm done!
                 </Button>
                 <Button variant="ghost" onClick={() => setStep('results')} className="text-white/40 text-lg font-headline">
                    <ChevronLeft className="mr-2 h-5 w-5" />
