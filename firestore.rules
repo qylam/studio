@@ -1,15 +1,11 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * CORE PHILOSOPHY
-     * This ruleset enforces Path-Based Ownership for user data and public readability 
-     * for shared assets (visions) and global metadata.
+     * Helper functions for security rules.
      */
-
-    // --- Helper Functions ---
-
     function isSignedIn() {
       return request.auth != null;
     }
@@ -18,22 +14,17 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- Rules ---
-
     /** 
-     * @description Publicly readable metadata for global stats.
-     * Allows anyone to read application-wide statistics.
-     * Explicitly allowed for 'get' to fix the reported permission error.
+     * @description Public metadata access for global stats.
+     * Explicitly allows reading the globalStats document for usage tracking.
      */
-    match /metadata/{docId} {
+    match /metadata/globalStats {
       allow get: if true;
-      allow read: if true;
-      allow list: if true;
-      allow write: if false;
+      allow list: if false;
     }
 
     /**
-     * @description Publicly readable collection for shared AI visions.
+     * @description Publicly shared AI visions.
      */
     match /visions/{visionId} {
       allow get: if true;
@@ -50,7 +41,6 @@ service cloud.firestore {
       }
     }
 
-    // Global Deny
     match /{path=**} {
       allow read, write: if false;
     }

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -12,7 +13,7 @@ import { useLanguage } from '@/i18n/LanguageProvider';
 import { TranslationKey } from '@/i18n/dictionaries';
 import { collection, addDoc, doc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { useFirestore, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useFirestore, useAuth, errorEmitter, FirestorePermissionError, useMemoFirebase } from '@/firebase';
 import { startVideoGeneration, checkVideoJobStatus } from '@/ai/flows/video';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -201,7 +202,7 @@ export default function KioskFlow() {
   const [videoStatus, setVideoStatus] = useState<'IDLE' | 'STARTING' | 'PENDING' | 'SUCCEEDED' | 'FAILED'>('IDLE');
   const [videoJobId, setVideoJobId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -210,7 +211,9 @@ export default function KioskFlow() {
   const { t } = useLanguage();
   const db = useFirestore();
   const auth = useAuth();
-  const statsDocRef = useMemo(() => db ? doc(db, 'metadata', 'globalStats') : null, [db]);
+  
+  // Use useMemoFirebase to stabilize the Firestore reference
+  const statsDocRef = useMemoFirebase(() => db ? doc(db, 'metadata', 'globalStats') : null, [db]);
   const { data: statsData } = useDoc<{videoCount: number}>(statsDocRef);
   const globalVideoCount = statsData?.videoCount || 0;
 
@@ -570,8 +573,6 @@ export default function KioskFlow() {
     setVideoJobId(null);
     setVideoUrl(null);
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-    
-    // Navigate back to the home page
     router.push('/');
   };
 
@@ -789,14 +790,14 @@ export default function KioskFlow() {
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
+        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
           <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform lg:-rotate-1 w-full max-w-xs md:max-w-md">
             <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
           </div>
-          <div className="flex-1 space-y-8 text-center lg:text-left w-full">
+          <div className="flex-1 space-y-8 text-center w-full">
             <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('result_title')}</h2>
             
-            <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
+            <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto shadow-2xl flex items-center justify-center">
               {isSaving || !visionId ? (
                 <div className="flex flex-col items-center gap-3 text-zinc-400">
                   <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin text-[#4290FF]" />
@@ -820,7 +821,7 @@ export default function KioskFlow() {
             </div>
             
             <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
               {globalVideoCount < 100 && videoStatus !== 'FAILED' ? (
                 <Button 
@@ -831,20 +832,20 @@ export default function KioskFlow() {
                   className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl flex items-center gap-2"
                 >
                   <Film className="w-5 h-5" />
-                  Make it a Video
+                  {t('btn_make_video')}
                 </Button>
               ) : globalVideoCount < 100 && videoStatus === 'FAILED' ? (
                 <Button onClick={() => triggerVideoGeneration(visionId!, resultImage!)} className="w-full sm:w-auto bg-red-500/80 hover:bg-red-500 rounded-full px-8 py-6 text-xl">
-                  Retry Video
+                  {t('btn_retry_video')}
                 </Button>
               ) : (
                 <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">
-                  I'm done!
+                  {t('btn_done')}
                 </Button>
               )}
             </div>
             {globalVideoCount < 100 && (videoStatus === 'PENDING' || videoStatus === 'STARTING') && (
-               <div className="flex items-center gap-2 text-white/50 justify-center lg:justify-start mt-4">
+               <div className="flex items-center gap-2 text-white/50 justify-center mt-4">
                  <Loader2 className="w-4 h-4 animate-spin" />
                  <span className="text-sm uppercase tracking-wider">{t('btn_generating_video')}</span>
                </div>
@@ -955,7 +956,7 @@ export default function KioskFlow() {
                   onClick={() => generateVision()}
                   className="w-full h-20 md:h-32 text-2xl md:text-4xl rounded-full bg-gradient-to-r from-[#4285F4] to-[#4290FF] hover:opacity-90 text-white font-bold shadow-2xl transition-all active:scale-95"
                 >
-                  Make these updates
+                  {t('btn_generate')}
                 </Button>
               </div>
             </div>
@@ -989,36 +990,53 @@ export default function KioskFlow() {
       )}
 
       {step === 'video-results' && videoUrl && (
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
-          {/* Row 1: Video */}
-          <div className="bg-black p-4 rounded-xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
-            <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
+        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
+          {/* Row 1: Cinematic Video (Prominently on top) */}
+          <div className="w-full max-w-4xl bg-black p-2 md:p-4 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] aspect-video overflow-hidden border border-white/10 relative group">
+             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10" />
+             <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover rounded-2xl" />
           </div>
           
-          {/* Row 2: Content */}
-          <div className="space-y-12 w-full flex flex-col items-center">
-            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('video_result_title')}</h2>
+          {/* Row 2: QR Code and Action Details */}
+          <div className="space-y-10 w-full flex flex-col items-center">
+            <h2 className="text-5xl md:text-7xl font-bold text-white font-headline leading-tight">{t('video_result_title')}</h2>
             
-            <div className="flex flex-col md:flex-row items-center gap-12 w-full justify-center">
-              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
-                <a 
-                  href={getShareUrl()} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                  title="Tap to download"
-                >
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
-                    alt="QR Code" 
-                    className="w-full h-full" 
-                  />
-                </a>
+            <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20 w-full justify-center">
+              {/* QR Code Card */}
+              <div className="relative group">
+                <div className="absolute -inset-4 bg-white/5 rounded-[2.5rem] blur-2xl opacity-50 group-hover:opacity-100 transition-opacity" />
+                <div className="relative bg-white p-6 rounded-3xl w-56 h-56 md:w-72 md:h-72 shadow-2xl flex items-center justify-center transform transition-transform group-hover:scale-[1.02]">
+                  <a 
+                    href={getShareUrl()} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full h-full block cursor-pointer"
+                    title="Tap to download"
+                  >
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(getShareUrl())}`} 
+                      alt="QR Code" 
+                      className="w-full h-full" 
+                    />
+                  </a>
+                </div>
               </div>
               
-              <div className="space-y-6 text-center md:text-left max-w-md">
-                <p className="text-2xl md:text-3xl text-white/50 font-headline leading-tight">{t('video_result_subtitle')}</p>
-                <Button onClick={() => setStep('thanks')} className="w-full md:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95">
+              {/* Instructions and Primary Action */}
+              <div className="space-y-10 text-center md:text-left max-w-md">
+                <div className="space-y-3">
+                  <p className="text-2xl md:text-3xl text-white font-bold font-headline leading-tight">
+                    {t('video_result_subtitle')}
+                  </p>
+                  <p className="text-lg md:text-xl text-white/40 font-headline">
+                    Your vision has been brought to life with Veo 3.1.
+                  </p>
+                </div>
+                
+                <Button 
+                  onClick={() => setStep('thanks')} 
+                  className="w-full md:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 text-white rounded-full px-16 py-8 text-2xl font-bold shadow-[0_10px_30px_rgba(66,133,244,0.4)] transition-all active:scale-95"
+                >
                   {t('btn_done')}
                 </Button>
               </div>
