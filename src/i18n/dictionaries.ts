@@ -162,7 +162,7 @@ export const dictionaries = {
     result_title: "Ta-da!",
     result_subtitle: "Scan the code to download your masterpiece.",
     btn_adjust_style: "Adjust style",
-    btn_make_video: "Make it a Video",
+    btn_make_video: "Animate Me",
     btn_generating_video: "Generating Video...",
     btn_retry_video: "Retry Video",
     btn_done: "I'm done!",
@@ -340,9 +340,9 @@ export const dictionaries = {
     result_title: "짜잔!",
     result_subtitle: "QR 코드를 스캔하여 나만의 마스터피스를 다운로드하세요.",
     btn_adjust_style: "스타일 변경하기",
-    btn_make_video: "[KOREAN] Make it a Video",
-    btn_generating_video: "[KOREAN] Generating Video...",
-    btn_retry_video: "[KOREAN] Retry Video",
+    btn_make_video: "움직이게 하기",
+    btn_generating_video: "영상 생성 중…",
+    btn_retry_video: "다시 시도",
     btn_done: "다 했어요!",
 
     // --- Kiosk Flow: Video Loading ---
@@ -350,8 +350,8 @@ export const dictionaries = {
     video_loading_subtitle: "[KOREAN] This usually takes 1-2 minutes.",
 
     // --- Kiosk Flow: Video Results ---
-    video_result_title: "[KOREAN] Action!",
-    video_result_subtitle: "[KOREAN] Scan to download your photo & video.",
+    video_result_title: "액션!",
+    video_result_subtitle: "QR 코드를 스캔해 사진과 영상을 저장해 보세요!",
 
     // --- Kiosk Flow: Thanks ---
     thanks_title: "나만의 여유를 즐겨보세요!",

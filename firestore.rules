@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -10,6 +11,7 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Explicitly allow public read of metadata for statistics tracking
     match /metadata/globalStats {
       allow get: if true;
       allow list: if false;

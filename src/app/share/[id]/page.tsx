@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -119,13 +120,13 @@ export default function SharePortal() {
   return (
     <main className="min-h-screen bg-[#16181B] text-white p-4 md:p-8 flex flex-col items-center">
       <div className="w-full max-w-md space-y-8 py-8 animate-in fade-in slide-in-from-bottom duration-700">
-        <header className="text-center space-y-2">
+        <header className="text-center space-y-4">
           <Image 
-            src="/images/spark_4c.png" 
+            src="/images/Gemini_PrimaryLogo_FullColor_White.png" 
             alt="Gemini Connect" 
-            width={40} 
-            height={40} 
-            className="w-10 h-10 object-contain mx-auto"
+            width={120} 
+            height={32} 
+            className="h-8 w-auto object-contain mx-auto"
           />
           <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none font-headline">
             Free-Time <span className="text-[#4290FF]">Machine</span>
@@ -184,7 +185,7 @@ export default function SharePortal() {
         </div>
 
         <footer className="pt-8 text-center text-[10px] text-white/20 uppercase font-black tracking-widest">
-          © 2024 GEMINI CONNECT PROJECT
+          © 2026 GEMINI CONNECT PROJECT
         </footer>
       </div>
     </main>

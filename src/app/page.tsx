@@ -61,13 +61,12 @@ export default function Home() {
       <div className="w-full md:w-2/5 p-8 md:p-24 flex flex-col justify-center relative z-20">
         <header className="mb-12 flex items-center gap-3">
           <Image 
-            src="/images/spark_4c.png" 
+            src="/images/Gemini_PrimaryLogo_FullColor_White.png" 
             alt="Gemini Connect" 
-            width={32} 
-            height={32} 
-            className="w-8 h-8 object-contain"
+            width={140} 
+            height={40} 
+            className="h-8 w-auto object-contain"
           />
-          <span className="text-xl font-medium tracking-tight text-white">{t('home_title_sub')}</span>
         </header>
 
         <div className="space-y-8 animate-in fade-in slide-in-from-left duration-1000">

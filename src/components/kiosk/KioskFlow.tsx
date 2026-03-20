@@ -388,21 +388,21 @@ export default function KioskFlow() {
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     ctx.save();
-    const logoX = SIDE_MARGIN;
     const logoY = 32;
     
-    // Load and draw the logo image
+    // Load and draw the primary logo
     const logoImg = new Image();
-    logoImg.src = '/images/spark_4c.png';
+    logoImg.src = '/images/Gemini_PrimaryLogo_FullColor_White.png';
     await new Promise((resolve) => {
       logoImg.onload = resolve;
     });
-    ctx.drawImage(logoImg, logoX, logoY, 48, 48);
-
-    ctx.fillStyle = '#27272a';
-    ctx.font = 'bold 36px "Google Sans", sans-serif'; 
-    ctx.textAlign = 'left';
-    ctx.fillText('Gemini Connect', logoX + 64, logoY + 36);
+    
+    // Calculate logo width while maintaining aspect ratio, max height 48px
+    const logoAspectRatio = logoImg.width / logoImg.height;
+    const drawHeight = 48;
+    const drawWidth = drawHeight * logoAspectRatio;
+    
+    ctx.drawImage(logoImg, SIDE_MARGIN, logoY, drawWidth, drawHeight);
     ctx.restore();
 
     const img = new Image();
@@ -836,7 +836,7 @@ export default function KioskFlow() {
                   className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl flex items-center gap-2"
                 >
                   <Film className="w-5 h-5" />
-                  Make it a Video
+                  Animate Me!
                 </Button>
               ) : globalVideoCount < 100 && videoStatus === 'FAILED' ? (
                 <Button onClick={() => triggerVideoGeneration(visionId!, resultImage!)} className="w-full sm:w-auto bg-red-500/80 hover:bg-red-500 rounded-full px-8 py-6 text-xl">
@@ -844,7 +844,7 @@ export default function KioskFlow() {
                 </Button>
               ) : (
                 <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">
-                  I'm done!
+                  {t('btn_done')}
                 </Button>
               )}
             </div>
