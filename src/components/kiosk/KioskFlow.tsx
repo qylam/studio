@@ -760,26 +760,8 @@ export default function KioskFlow() {
 
       {step === 'processing' && (
         <div className="w-full space-y-12 text-center py-12 md:py-20 flex flex-col items-center">
-          <div className="relative w-32 h-32 md:w-48 md:h-48 mb-8">
-            <div className="absolute inset-0 bg-[#4285F4]/30 blur-[40px] md:blur-[60px] rounded-full animate-glow" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Sparkles className="w-16 h-16 md:w-24 md:h-24 text-white animate-pulse" />
-            </div>
-            <div className="absolute inset-0 animate-spin duration-[8s] linear infinite">
-               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/10 p-2 md:p-4 rounded-full backdrop-blur-md">
-                  <Zap className="w-5 h-5 md:w-8 md:h-8 text-[#4285F4]" />
-               </div>
-            </div>
-            <div className="absolute inset-0 animate-spin duration-[12s] linear infinite reverse">
-               <div className="absolute bottom-0 right-1/4 bg-white/10 p-2 md:p-3 rounded-full backdrop-blur-md">
-                  <Stars className="w-4 h-4 md:w-6 md:h-6 text-[#9B72CB]" />
-               </div>
-            </div>
-            <div className="absolute inset-0 animate-spin duration-[10s] linear infinite">
-               <div className="absolute left-0 top-1/4 bg-white/10 p-2 md:p-3 rounded-full backdrop-blur-md">
-                  <Wand2 className="w-4 h-4 md:w-6 md:h-6 text-[#D96570]" />
-               </div>
-            </div>
+          <div className="flex flex-col items-center gap-8 mb-8">
+            <Loader2 className="w-24 h-24 text-[#4285F4] animate-spin" />
           </div>
 
           <div className="space-y-4 max-w-2xl px-4">
@@ -970,16 +952,8 @@ export default function KioskFlow() {
 
       {step === 'video-loading' && (
         <div className="w-full space-y-12 text-center py-12 md:py-20 flex flex-col items-center">
-          <div className="relative w-32 h-32 md:w-48 md:h-48 mb-8">
-            <div className="absolute inset-0 bg-[#9B72CB]/30 blur-[40px] md:blur-[60px] rounded-full animate-glow" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Film className="w-16 h-16 md:w-24 md:h-24 text-white animate-bounce" />
-            </div>
-            <div className="absolute inset-0 animate-spin duration-[8s] linear infinite">
-               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/10 p-2 md:p-4 rounded-full backdrop-blur-md">
-                  <PlayCircle className="w-5 h-5 md:w-8 md:h-8 text-[#9B72CB]" />
-               </div>
-            </div>
+          <div className="flex flex-col items-center gap-8 mb-8">
+            <Loader2 className="w-24 h-24 text-[#9B72CB] animate-spin" />
           </div>
 
           <div className="space-y-4 max-w-2xl px-4">

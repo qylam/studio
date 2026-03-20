@@ -12,9 +12,9 @@ service cloud.firestore {
     }
 
     // Explicitly allow public read of metadata for statistics tracking
-    match /metadata/globalStats {
-      allow get: if true;
-      allow list: if false;
+    match /metadata/{docId} {
+      allow read: if true;
+      allow write: if false;
     }
 
     match /visions/{visionId} {

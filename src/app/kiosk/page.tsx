@@ -24,9 +24,6 @@ export default function KioskPage() {
         <KioskFlow />
       </main>
 
-      <footer className="mt-12 text-center text-white/20 text-xs uppercase tracking-widest font-bold">
-        Gemini Connect
-      </footer>
     </div>
   );
 }

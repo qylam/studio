@@ -62,7 +62,7 @@ export default function Home() {
         <header className="mb-12 flex items-center gap-3">
           <Image 
             src="/images/Gemini_PrimaryLogo_FullColor_White.png" 
-            alt="Gemini Connect" 
+            alt="Gemini" 
             width={140} 
             height={40} 
             className="h-8 w-auto object-contain"
