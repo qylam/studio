@@ -14,17 +14,31 @@ export const dictionaries = {
     home_consent_decline: "Do not accept",
     home_consent_loading: "Connecting...",
 
+    // --- Study Page ---
+    study_header: "Empowering Educators: How Gemini is Helping Transform the Classroom",
+    study_body_1: "A recent six-month pilot program involving 100 teachers in Northern Ireland has revealed that integrating Gemini into the classroom doesn't just modernise education—it gives teachers their most valuable resource back: time",
+    study_head_2: "10 Hours Saved Per Week", 
+    study_body_2: "On average, participating teachers saved 10 hours per week by using Gemini to handle time-consuming administrative tasks.",
+    study_head_3: "More Time for Teaching",
+    study_body_3: "Teachers reinvested this saved time directly into student engagement and their own professional development.",
+    study_head_4: "600+ Unique Use Cases",
+    study_body_4: "From drafting risk assessments to brainstorming creative content, educators found hundreds of ways to streamline their workload.",
+    btn_continue: "Continue",
+    
+
     // --- Kiosk Flow: Camera ---
     camera_title: "Strike a Pose!",
     camera_subtitle: "Look directly into the camera. A clean, well-lit face works best.",
-    camera_btn_take: "Take Photo",
+    camera_btn_take: "Take your Photo",
     camera_btn_retake: "Retake Photo",
-    camera_btn_continue: "Looks Good",
+    camera_rdy_title: "Get Ready...",
+    camera_continue_subtitle: "Looking good?",
+    camera_btn_continue: "Looks Great!",
     
     // --- Kiosk Flow: Themes & Styles ---
-    theme_title: "What's your vibe?",
+    theme_title: "What would you do with your free time?",
     theme_subtitle: "Choose a theme for your AI portrait.",
-    style_title: "Choose an Art Style",
+    style_title: "Select your style",
     style_subtitle: "How should Gemini render your vision?",
     btn_back: "Back",
     btn_surprise: "Surprise me!",
@@ -32,12 +46,12 @@ export const dictionaries = {
 
 
     // --- Kiosk Flow: Dynamic UI ---
-    camera_smile: "Smile!",
+    camera_smile: "Hold still...",
     camera_wheelchair: "I'm a wheelchair user",
     camera_retaking: "Retaking in...",
     
     // --- STYLES ---
-    style_figurine_title: "1/7 Scale Figurine",
+    style_figurine_title: "Figurine",
     style_figurine_detail: "Medium: 1/7 scale collectible PVC figurine. Render the subject as a highly detailed plastic statue placed within the requested environment. Frame the shot as macro photography, ensuring the lighting matches the scene but highlights the glossy, painted finish of a physical collectible. Do not use a generic studio background; integrate the figurine directly into the requested setting.",
     style_keychain_title: "3D Keychain",
     style_keychain_detail: "Medium: 3D Keychain character toy. Render the subject as a chunky, stylized plastic toy attached to a metal keyring. Position the keychain within the requested environment using macro photography scale. Ensure the lighting matches the scene while reflecting off the glossy, solid plastic textures of the toy.",
@@ -151,6 +165,21 @@ export const dictionaries = {
     theme_alpine_var2_scene: "remote, untouched glacier in British Columbia",
     theme_alpine_var2_activity: "carving the first tracks after a thrilling heli-drop",
 
+    // --- Kiosk Flow: Caption ---
+    caption_default: "Enjoying my free-time, thanks to Gemini",
+    caption_zen: "Finding my zen, thanks to Gemini",
+    caption_break: "Taking a well-earned break, thanks to Gemini",
+    caption_creative: "Getting more creative, thanks to Gemini",
+    caption_recipe: "Learning a new recipe, thanks to Gemini",
+    caption_active: "Getting more active, thanks to Gemini",
+    caption_skill: "Learning a new skill, thanks to Gemini",
+    caption_imagination: "Letting my imagination run loose, thanks to Gemini",
+    caption_green: "Mastering the green, thanks to Gemini",
+    caption_culinary: "Indulging in my inner foodie, thanks to Gemini",
+    caption_warrior: "Unleashing the weekend warrior, thanks to Gemini",
+    caption_racing: "Chasing the Grand Prix thrill, thanks to Gemini",
+    caption_alpine: "Conquering the Alpine peaks, thanks to Gemini",
+
     // --- Kiosk Flow: Loading ---
     loading_message_0: "Initializing Gemini Nano Banana 2 model...",
     loading_message_1: "Analyzing facial structure and lighting...",
@@ -163,9 +192,28 @@ export const dictionaries = {
     result_subtitle: "Scan the code to download your masterpiece.",
     btn_adjust_style: "Adjust style",
     btn_make_video: "Animate Me",
-    btn_generating_video: "Generating Video...",
     btn_retry_video: "Retry Video",
     btn_done: "I'm done!",
+
+    // --- Kiosk Sub-Flow: Refine ---
+    refine_description: "Now for the fun part. Refine your prompt to create your masterpiece.",
+    refine_label_imagine: "Imagine me",
+    refine_label_style: "in the style of",
+
+    // --- Kiosk Sub-Flow: Refine Titles ---
+    refine_greet_recipe: "Cooking up\na storm!",
+    refine_greet_zen: "Finding your\ninner peace!",
+    refine_greet_active: "Bursting with\npure energy!",
+    refine_greet_break: "Kicking back\nand relaxing!",
+    refine_greet_skill: "Leveling up\nlike a pro!",
+    refine_greet_creative: "Sparking some\npure genius!",
+    refine_greet_imagination: "Dreaming up\nsomething wild!",
+    refine_greet_green: "Looking sharp,\npro player!",
+    refine_greet_culinary: "What's cookin',\ngood lookin'!",
+    refine_greet_warrior: "Ready for\nthe wild?",
+    refine_greet_racing: "Leading the\npack today!",
+    refine_greet_alpine: "Reaching new\nheights!",
+    refine_greet_default: "Looking good,\ngood lookin'!",
 
     // --- Kiosk Flow: Video Loading ---
     video_loading_title: "Veo 3.1 is directing your cinematic shot...",
@@ -177,7 +225,12 @@ export const dictionaries = {
 
     // --- Kiosk Flow: Thanks ---
     thanks_title: "Enjoy your free time!",
-    thanks_start_over: "Start over"
+    thanks_start_over: "Start over",
+
+    // --- Download Page ---
+    loading_download_caption: "Retrieving your vision...",
+    btn_download: "Download Polaroid",
+    download_caption: "This vision was created using Gemini, reimagining your free time based on your unique pose."
   },
   ko: {
     // --- Home Page ---
@@ -192,30 +245,43 @@ export const dictionaries = {
     home_consent_decline: "동의하지 않음",
     home_consent_loading: "연결중입니다...",
 
+    // --- Study Page ---
+    study_header: "교육자 역량 강화: Gemini가 교실의 변화를 돕는 방법",
+    study_body_1: "최근 북아일랜드에서 100명의 교사를 대상으로 6개월간 진행된 파일럿 프로그램 결과, Gemini의 도입은 단순한 교육 현대화를 넘어 교육자들에게 가장 소중한 자원인 '시간'을 되돌려주었습니다.",
+    study_head_2: "매주 10시간 절약", 
+    study_body_2: "참여 교사들은 시간이 많이 소요되는 행정 업무에 Gemini를 활용하여 주당 평균 10시간을 절약했습니다.",
+    study_head_3: "가르치는 시간 증가",
+    study_body_3: "절약된 시간은 학생들과의 긴밀한 소통과 교육자의 전문성 개발에 재투자되었습니다.",
+    study_head_4: "600개 이상의 혁신적 활용 사례",
+    study_body_4: "리스크 평가 초안 작성부터 창의적인 강의 콘텐츠 구상까지, 업무 전반에 걸쳐 수백 가지의 효율적인 활용 방법을 찾아냈습니다.",
+    btn_continue: "계속하기",
+
     // --- Kiosk Flow: Camera ---
     camera_title: "준비하세요...",
     camera_subtitle: "[KOREAN] Look directly into the camera. A clean, well-lit face works best.",
     camera_btn_take: "사진 찍기",
     camera_btn_retake: "사진 다시 찍기",
+    camera_rdy_title: "준비...",
+    camera_continue_subtitle: "좋아 보이나요?",
     camera_btn_continue: "좋아 보이네요!",
     
     // --- Kiosk Flow: Themes & Styles ---
-    theme_title: "[KOREAN] What's your vibe?",
+    theme_title: "여유 시간에 무엇을 하시겠습니까?",
     theme_subtitle: "[KOREAN] Choose a theme for your AI portrait.",
-    style_title: "[KOREAN] Choose an Art Style",
+    style_title: "당신의 스타일을 선택하세요",
     style_subtitle: "[KOREAN] How should Gemini render your vision?",
-    btn_back: "취소",
+    btn_back: "돌아가기",
     btn_surprise: "알아서 만들어줘!",
     btn_generate: "이렇게 바꿔볼게요",
 
 
     // --- Kiosk Flow: Dynamic UI ---
-    camera_smile: "준비하세요...",
+    camera_smile: "움직이지 마세요...",
     camera_wheelchair: "저는 휠체어 사용자입니다",
     camera_retaking: "[KOREAN] Retaking in...",
     
     // --- STYLES ---
-    style_figurine_title: "[KOREAN] 1/7 Scale Figurine",
+    style_figurine_title: "피규어",
     style_figurine_detail: "[KOREAN] Transform the person or group of people in the image into a 1/7 scale commercialized figurine set. The figures should be made of shiny PVC or ABS plastic. The lighting should be bright studio product lighting, highlighting the contours and glossy finish of the figures. Include a subtle, clean studio background. Maintain their facial features but stylize them as high-quality collectible figurines.",
     style_keychain_title: "3D 키링",
     style_keychain_detail: "[KOREAN] Transform the person or group of people in the image into a keychain character version of themselves. They should appear to be made of shiny, solid plastic, attached to a thick metal chain and a keyring. The lighting should be bright and colorful. Ensure the subjects maintain their distinct facial features but in a highly stylized, chunky keychain form. Focus on bold, saturated colors and glossy textures. Only include a single person or group on a single keychain.",
@@ -234,100 +300,91 @@ export const dictionaries = {
 
     // --- THEMES ---
     theme_recipe_title: "새로운 레시피 배우기",
-    theme_recipe_var0_scene: "[KOREAN] rustic Italian villa kitchen",
+    theme_recipe_title_short: "새로운 레시피 배우기",
     theme_recipe_var0_activity: "신선한 파스타 반죽 빚기",
-    theme_recipe_var1_scene: "[KOREAN] molecular gastronomy lab",
     theme_recipe_var1_activity: "식용 액체 질소 아트 만들기",
-    theme_recipe_var2_scene: "[KOREAN] bustling street food market",
     theme_recipe_var2_activity: "완벽한 수제 피자 도우 공중으로 던지기",
 
     theme_zen_title: "마음의 평화 찾기",
-    theme_zen_var0_scene: "[KOREAN] misty mountaintop temple",
+    theme_zen_title_short: "내면의 평화 찾기",
     theme_zen_var0_activity: "우아하고 여유롭게 태극권 수련하기",
-    theme_zen_var1_scene: "[KOREAN] floating crystal lotus pod",
     theme_zen_var1_activity: "무중력 상태에서 깊은 명상하기",
-    theme_zen_var2_scene: "[KOREAN] glowing bioluminescent forest",
     theme_zen_var2_activity: "오래된 고목의 속삭임에 귀 기울이기",
 
     theme_active_title: "더욱 활동적으로 변하기",
-    theme_active_var0_scene: "[KOREAN] neon-lit urban rooftop",
+    theme_active_title_short: "활기찬 액티비티 즐기기",
     theme_active_var0_activity: "초고속 파쿠르 마스터하기",
-    theme_active_var1_scene: "[KOREAN] underwater coral gymnasium",
     theme_active_var1_activity: "로봇 돌고래와 함께 수영하기",
-    theme_active_var2_scene: "[KOREAN] desert canyon adventure",
     theme_active_var2_activity: "아찔한 수직 암벽 등반하기",
 
     theme_break_title: "꿀맛 같은 휴식 즐기기",
-    theme_break_var0_scene: "[KOREAN] luxury cloud resort",
+    theme_break_title_short: "달콤한 휴식 취하기",
     theme_break_var0_activity: "금빛 해먹에 누워 여유 즐기기",
-    theme_break_var1_scene: "[KOREAN] secluded x hot spring cave",
     theme_break_var1_activity: "따뜻한 온천수에 몸 담그기",
-    theme_break_var2_scene: "[KOREAN] vintage jazz lounge on Mars",
     theme_break_var2_activity: "신비로운 무알콜 칵테일 음미하기",
 
     theme_skill_title: "새로운 기술 배우기",
-    theme_skill_var0_scene: "[KOREAN] master glassblower workshop",
+    theme_skill_title_short: "새로운 스킬 배우기",
     theme_skill_var0_activity: "뜨거운 유리로 불사조 모양 빚기",
-    theme_skill_var1_scene: "[KOREAN] grand symphony hall",
     theme_skill_var1_activity: "웅장한 오케스트라 지휘하기",
-    theme_skill_var2_scene: "[KOREAN] digital neon arcade",
     theme_skill_var2_activity: "e스포츠 챔피언십 우승하기",
 
     theme_creative_title: "더욱 창의적으로 변하기",
-    theme_creative_var0_scene: "[KOREAN] rooftop garden studio",
+    theme_creative_title_short: "창의성 깨우기",
     theme_creative_var0_activity: "거대한 꽃 조각상 만들기",
-    theme_creative_var1_scene: "[KOREAN] street art alleyway",
     theme_creative_var1_activity: "화려한 그래피티 벽화 그리기",
-    theme_creative_var2_scene: "[KOREAN] grand symphony hall",
     theme_creative_var2_activity: "환상적인 빛의 오케스트라 지휘하기",
 
     theme_imagination_title: "상상력 마음껏 발휘하기",
-    theme_imagination_var0_scene: "[KOREAN] steampunk airship bridge",
+    theme_imagination_title_short: "무한한 상상력 펼치기",
     theme_imagination_var0_activity: "거대한 번개구름 속 뚫고 비행하기",
-    theme_imagination_var1_scene: "[KOREAN] giant mushroom kingdom",
     theme_imagination_var1_activity: "호기심 많은 드래곤과 대화하기",
-    theme_imagination_var2_scene: "[KOREAN] floating clockwork city",
     theme_imagination_var2_activity: "거대한 시간의 톱니바퀴 되감기",
 
     theme_green_title: "그린 위의 마스터",
-    theme_green_var0_scene: "[KOREAN] lush, sun-drenched championship golf course",
-    theme_green_var0_activity: "[KOREAN] 토너먼트 우승을 확정 짓는 완벽한 퍼팅 성공하기",
-    theme_green_var1_scene: "[KOREAN] exclusive private grass tennis court at golden hour",
+    theme_green_title_short: "그린 위의 마스터",
+    theme_green_var0_activity: "토너먼트 우승을 확정 짓는 완벽한 퍼팅 성공하기",
     theme_green_var1_activity: "완벽한 점프 백핸드 스매시 날리기",
-    theme_green_var2_scene: "[KOREAN] dramatic cliffside golf hole overlooking a crashing ocean",
     theme_green_var2_activity: "환상적인 노을을 향해 티샷 날리기",
 
     theme_culinary_title: "숨겨진 미식가 본능",
-    theme_culinary_var0_scene: "[KOREAN] exclusive Chef's table in a Michelin-star kitchen",
+    theme_culinary_title_short: "숨겨진 미식가 본능",
     theme_culinary_var0_activity: "분자 요리의 걸작 맛보기",
-    theme_culinary_var1_scene: "[KOREAN] sunlit luxury terrace overlooking the Amalfi coast",
     theme_culinary_var1_activity: "완벽하게 플레이팅된 트러플 리조또 즐기기",
-    theme_culinary_var2_scene: "[KOREAN] misty, ancient forest in the Piedmont region",
     theme_culinary_var2_activity: "전문가와 함께 희귀한 화이트 트러플 채집하기",
 
     theme_warrior_title: "열정적인 주말 액티비티",
-    theme_warrior_var0_scene: "[KOREAN] rugged, pine-covered mountain bike trail",
+    theme_warrior_title_short: "열정적인 주말 액티비티",
     theme_warrior_var0_activity: "거대한 흙탕물 위로 멋지게 점프하기",
-    theme_warrior_var1_scene: "[KOREAN] remote, untouched backcountry mountain peak",
     theme_warrior_var1_activity: "새하얀 파우더 스노우 위를 스노보드로 가르기",
-    theme_warrior_var2_scene: "[KOREAN] roaring, crystal-clear white-water canyon river",
     theme_warrior_var2_activity: "날렵한 카본 카약 능숙하게 조종하기",
 
     theme_racing_title: "짜릿한 그랑프리 레이싱",
-    theme_racing_var0_scene: "[KOREAN] sweeping corner of a sunlit private race circuit",
+    theme_racing_title_short: "짜릿한 그랑프리 레이싱",
     theme_racing_var0_activity: "맹렬한 엔진음의 빈티지 페라리 몰기",
-    theme_racing_var1_scene: "[KOREAN] glamorous Monaco street circuit at dusk",
     theme_racing_var1_activity: "시상대 정상에서 1위 우승 축하하기",
-    theme_racing_var2_scene: "[KOREAN] pristine, high-tech luxury racing garage",
     theme_racing_var2_activity: "르망 하이퍼카 옆에서 주행 데이터 분석하기",
 
     theme_alpine_title: "알프스 설산 정복",
-    theme_alpine_var0_scene: "[KOREAN] dramatic, snow-capped Swiss summit",
+    theme_alpine_title_short: "알프스 설산 정복",
     theme_alpine_var0_activity: "얼음도끼를 들고 승리감에 취해 정상에 서기",
-    theme_alpine_var1_scene: "[KOREAN] sheer, vertical granite rock face above the clouds",
     theme_alpine_var1_activity: "강렬한 집중력으로 프리 클라이밍 하기",
-    theme_alpine_var2_scene: "[KOREAN] remote, untouched glacier in British Columbia",
     theme_alpine_var2_activity: "짜릿한 헬기 강하 후 새하얀 설원의 첫 트랙 가르기",
+
+    // --- Kiosk Flow: Caption ---
+    caption_default: "Gemini 덕분에 자유 시간 만끽하기",
+    caption_zen: "Gemini 덕분에 마음의 평화 찾기",
+    caption_break: "Gemini 덕분에 즐기는 꿀맛 같은 휴식",
+    caption_creative: "Gemini 덕분에 더욱 창의적으로 변하기",
+    caption_recipe: "Gemini 덕분에 새로운 레시피 배우기",
+    caption_active: "Gemini 덕분에 더욱 활동적으로 변하기",
+    caption_skill: "Gemini 덕분에 새로운 기술 배우기",
+    caption_imagination: "Gemini 덕분에 상상력 마음껏 발휘하기",
+    caption_green: "Gemini 덕분에 그린 위의 마스터 되기",
+    caption_culinary: "Gemini 덕분에 숨겨진 미식가 본능 만끽하기",
+    caption_warrior: "Gemini 덕분에 열정적인 주말 액티비티 즐기기",
+    caption_racing: "Gemini 덕분에 짜릿한 그랑프리 레이싱 즐기기",
+    caption_alpine: "Gemini 덕분에 알프스 설산 정복하기",
 
     // --- Kiosk Flow: Loading ---
     loading_message_0: "Gemini가 당신이 꿈꾸는 일상을 상상하는 중...",
@@ -341,9 +398,28 @@ export const dictionaries = {
     result_subtitle: "QR 코드를 스캔하여 나만의 마스터피스를 다운로드하세요.",
     btn_adjust_style: "스타일 변경하기",
     btn_make_video: "움직이게 하기",
-    btn_generating_video: "영상 생성 중…",
     btn_retry_video: "다시 시도",
     btn_done: "다 했어요!",
+
+    // --- Kiosk Sub-Flow: Refine ---
+    refine_description: "이제 가장 재미있는 단계입니다. 프롬프트를 다듬어 최종 이미지를 만들어 보세요.",
+    refine_label_imagine: "상상해 보세요: 나는",
+    refine_label_style: "표현 스타일",
+
+    // --- Kiosk Sub-Flow: Refine Titles ---
+    refine_greet_recipe: "오늘의 셰프는\n바로 당신!",
+    refine_greet_zen: "마음의 평화를\n찾은 모습이네요!",
+    refine_greet_active: "에너지가 넘치는\n멋진 모습이네요!",
+    refine_greet_break: "달콤한 휴식을\n즐기는 중!",
+    refine_greet_skill: "프로처럼 멋지게\n레벨 업!",
+    refine_greet_creative: "예술적 영감이\n빛나는 순간!",
+    refine_greet_imagination: "무한한 상상력이\n펼쳐지는 중!",
+    refine_greet_green: "프로 선수처럼\n멋진 폼이네요!",
+    refine_greet_culinary: "매력 만점 셰프의\n탄생이네요!",
+    refine_greet_warrior: "와일드한 모험을\n떠날 준비 완료?",
+    refine_greet_racing: "오늘 트랙의\n선두주자네요!",
+    refine_greet_alpine: "새로운 정상을\n정복할 기세네요!",
+    refine_greet_default: "정말 멋진걸요!",
 
     // --- Kiosk Flow: Video Loading ---
     video_loading_title: "[KOREAN] Veo 3.1 is directing your cinematic shot...",
@@ -355,7 +431,12 @@ export const dictionaries = {
 
     // --- Kiosk Flow: Thanks ---
     thanks_title: "나만의 여유를 즐겨보세요!",
-    thanks_start_over: "새로 촬영하기"
+    thanks_start_over: "새로 촬영하기",
+
+    // --- Download Page ---
+    loading_download_caption: "상상 속 일상을 현실로 꺼내는 중...",
+    btn_download: "폴라로이드 저장하기",
+    download_caption: "Gemini가 당신의 개성 있는 포즈를 바탕으로 새롭게 상상해 낸 여유로운 일상의 모습입니다"
   }
 };
 

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/i18n/LanguageProvider';
+import { FullscreenToggle } from '@/components/FullscreenToggle';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -41,6 +42,11 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-black text-white overflow-hidden flex flex-col md:flex-row relative">
+      
+      {/* Top Right Controls */}
+      <div className="absolute top-8 right-8 z-50">
+        <FullscreenToggle />
+      </div>
       
       {/* Language Dropdown */}
       <div className="absolute top-8 left-8 z-50">

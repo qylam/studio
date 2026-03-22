@@ -1,6 +1,7 @@
 import KioskFlow from '@/components/kiosk/KioskFlow';
 import { Clock } from 'lucide-react';
 import Link from 'next/link';
+import { FullscreenToggle } from '@/components/FullscreenToggle';
 
 export default function KioskPage() {
   return (
@@ -15,8 +16,11 @@ export default function KioskPage() {
             Free-Time <span className="text-[#4290FF]">Machine</span>
           </span>
         </Link>
-        <div className="text-xs font-mono text-[#ABDFE6]/60 uppercase tracking-widest hidden md:block">
-          GEMINI • NANO BANANA 2
+        <div className="flex items-center gap-6">
+          <div className="text-xs font-mono text-[#ABDFE6]/60 uppercase tracking-widest hidden md:block">
+            GEMINI • NANO BANANA 2
+          </div>
+          <FullscreenToggle />
         </div>
       </header>
 

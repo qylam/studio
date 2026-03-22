@@ -10,10 +10,10 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/i18n/LanguageProvider';
-import { TranslationKey } from '@/i18n/dictionaries';
+import { dictionaries, TranslationKey } from '@/i18n/dictionaries';
 import { collection, addDoc, doc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { ref, uploadString, getDownloadURL, uploadBytes } from 'firebase/storage';
 import { useFirestore, useAuth, useStorage, useMemoFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { startVideoGeneration, checkVideoJobStatus } from '@/ai/flows/video';
 import { useDoc } from '@/firebase/firestore/use-doc';
@@ -26,160 +26,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'refine' | 'video-loading' | 'video-results' | 'thanks';
+type KioskStep = 'capture' | 'review' | 'select-theme' | 'select-style' | 'processing' | 'results' | 'refine' | 'thanks';
 
 const STYLES = [
-  { 
-    id: 'style-figurine', 
-    title: 'Figurine', 
-    detail: 'Medium: 1/7 scale collectible PVC figurine. Render the subject as a highly detailed plastic statue placed within the requested environment. Frame the shot as macro photography, ensuring the lighting matches the scene but highlights the glossy, painted finish of a physical collectible. Do not use a generic studio background; integrate the figurine directly into the requested setting.' 
-  },
-  { 
-    id: 'style-keychain', 
-    title: '3D Keychain', 
-    detail: 'Medium: 3D Keychain character toy. Render the subject as a chunky, stylized plastic toy attached to a metal keyring. Position the keychain within the requested environment using macro photography scale. Ensure the lighting matches the scene while reflecting off the glossy, solid plastic textures of the toy.' 
-  },
-  { 
-    id: 'style-oil', 
-    title: 'Oil Painting', 
-    detail: 'Style: Classic 19th-century oil painting on canvas. Use thick, visible impasto brushstrokes. Adapt the lighting of the requested scene into a dramatic chiaroscuro style, maintaining soft shadows and a painted aesthetic across the entire environment. Ensure subtle canvas texture is visible throughout the image.' 
-  },
-  { 
-    id: 'style-clay', 
-    title: 'Claymation', 
-    detail: 'Medium: Handcrafted stop-motion claymation. Render the subject and the immediate environment using smooth, sculpted clay textures. Ensure the lighting matches the requested scene but highlights the tactile, fingerprint-textured nature of physical clay. Use a charming, stylized stop-motion aesthetic.' 
-  },
-  { 
-    id: 'style-editorial', 
-    title: 'Magazine Editorial', 
-    detail: 'Style: High-end magazine cover photoshoot. Use professional editorial flash lighting and sharp focus to capture the subject in the requested environment. Apply sophisticated styling and color grading to create a premium, aspirational, hyper-detailed aesthetic.' 
-  },
-  { 
-    id: 'style-cinematic', 
-    title: 'Cinematic Epic', 
-    detail: 'Style: Hollywood blockbuster cinematography, shot on 35mm anamorphic lens, dramatic rim lighting, epic scale, photorealistic, shallow depth of field.' 
-  },
-  { 
-    id: 'style-noir', 
-    title: 'Timeless Noir', 
-    detail: 'Style: Classic black and white film noir style, dramatic high-contrast lighting, sharp shadows, elegant, vintage 35mm rangefinder camera aesthetic, sophisticated and powerful.' 
-  },
-  { 
-    id: 'style-visionary', 
-    title: 'Tech Visionary', 
-    detail: 'Style: Sleek futuristic sci-fi aesthetic. Render the subject and requested environment as a hyper-realistic 3D render. Infuse the scene with subtle glowing neon accents, holographic elements, and a clean, forward-thinking high-tech vibe without losing the core setting.' 
-  }
+  { id: 'style-figurine' },
+  { id: 'style-keychain' },
+  { id: 'style-oil' },
+  { id: 'style-clay' },
+  { id: 'style-editorial' },
+  { id: 'style-cinematic' },
+  { id: 'style-noir' },
+  { id: 'style-visionary' } 
 ];
 
 const THEMES = [
-  { 
-    id: 'theme-recipe', 
-    title: 'Learn a new recipe', 
-    variations: [
-      { scene: 'rustic Italian villa kitchen', activity: 'kneading fresh pasta dough' },
-      { scene: 'molecular gastronomy lab', activity: 'creating edible liquid nitrogen art' },
-      { scene: 'bustling street food market', activity: 'tossing a perfect artisan pizza' }
-    ]
-  },
-  { 
-    id: 'theme-zen', 
-    title: 'Find my zen', 
-    variations: [
-      { scene: 'misty mountaintop temple', activity: 'performing slow, graceful Tai Chi' },
-      { scene: 'floating crystal lotus pod', activity: 'deep meditation in zero gravity' },
-      { scene: 'glowing bioluminescent forest', activity: 'listening to the whispers of ancient trees' }
-    ]
-  },
-  { 
-    id: 'theme-active', 
-    title: 'Get more active', 
-    variations: [
-      { scene: 'neon-lit urban rooftop', activity: 'striking a dynamic athletic pose on a secure rooftop' },
-      { scene: 'underwater coral gymnasium', activity: 'swimming with mechanical dolphins' },
-      { scene: 'desert canyon adventure', activity: 'rock climbing up a vertical mesa' }
-    ]
-  },
-  { 
-    id: 'theme-break', 
-    title: 'Take a well-earned break', 
-    variations: [
-      { scene: 'luxury cloud resort', activity: 'lounging in a golden hammock' },
-      { scene: 'secluded x hot spring cave', activity: 'relaxing in steaming mineral waters wearing a plush luxury spa robe' },
-      { scene: 'vintage jazz lounge on Mars', activity: 'sipping a cosmic mocktail' }
-    ]
-  },
-  { 
-    id: 'theme-skill', 
-    title: 'Learn a new skill', 
-    variations: [
-      { scene: 'master glassblower workshop', activity: 'shaping a molten glass phoenix' },
-      { scene: 'grand symphony hall', activity: 'conducting an orchestra of musicians' },
-      { scene: 'digital neon arcade', activity: 'winning a pro-gaming championship' }
-    ]
-  },
-  { 
-    id: 'theme-creative', 
-    title: 'Get more creative', 
-    variations: [
-      { scene: 'rooftop garden studio', activity: 'sculpting a giant floral statue' },
-      { scene: 'street art alleyway', activity: 'spray painting a vibrant mural' },
-      { scene: 'grand symphony hall', activity: 'conducting an orchestra of lights' }
-    ]
-  },
-  { 
-    id: 'theme-imagination', 
-    title: 'Let my imagination run loose', 
-    variations: [
-      { scene: 'steampunk airship bridge', activity: 'navigating through a thundercloud' },
-      { scene: 'giant mushroom kingdom', activity: 'talking to a curious dragon' },
-      { scene: 'floating clockwork city', activity: 'rewinding the gears of time' }
-    ]
-  },
-  { 
-    id: 'theme-green', 
-    title: 'Master the Green', 
-    variations: [
-      { scene: 'lush, sun-drenched championship golf course', activity: 'sinking a perfect tournament-winning putt' },
-      { scene: 'exclusive private grass tennis court at golden hour', activity: 'executing a flawless jumping backhand smash' },
-      { scene: 'dramatic cliffside golf hole overlooking a crashing ocean', activity: 'teeing off into a spectacular sunset' }
-    ]
-  },
-  { 
-    id: 'theme-culinary', 
-    title: 'Indulge my inner foodie', 
-    variations: [
-      { scene: 'exclusive Chef\'s table in a Michelin-star kitchen', activity: 'tasting a masterpiece of molecular gastronomy' },
-      { scene: 'sunlit luxury terrace overlooking the Amalfi coast', activity: 'enjoying a perfectly plated truffle risotto' },
-      { scene: 'misty, ancient forest in the Piedmont region', activity: 'foraging for rare white truffles with a master guide' }
-    ]
-  },
-  { 
-    id: 'theme-warrior', 
-    title: 'Unleash the weekend warrior', 
-    variations: [
-      { scene: 'rugged, pine-covered mountain bike trail', activity: 'catching air over a massive dirt jump' },
-      { scene: 'remote, untouched backcountry mountain peak', activity: 'carving fresh powder tracks on a snowboard' },
-      { scene: 'roaring, crystal-clear white-water canyon river', activity: 'expertly navigating a sleek carbon-fiber kayak' }
-    ]
-  },
-  { 
-    id: 'theme-racing', 
-    title: 'Chase the Grand Prix thrill', 
-    variations: [
-      { scene: 'sweeping corner of a sunlit private race circuit', activity: 'steering a roaring classic red Italian sports car' },
-      { scene: 'glamorous European coastal street circuit at dusk', activity: 'celebrating a first-place podium finish' },
-      { scene: 'pristine, high-tech luxury racing garage', activity: 'analyzing telemetry data next to a prototype endurance hypercar' }
-    ]
-  },
-  { 
-    id: 'theme-alpine', 
-    title: 'Conquer the Alpine peaks', 
-    variations: [
-      { scene: 'dramatic, snow-capped Swiss summit', activity: 'standing victorious with an ice axe in hand' },
-      { scene: 'sheer, vertical granite rock face above the clouds', activity: 'scaling a rock face wearing a high-tech climbing harness and safety ropes' },
-      { scene: 'remote, untouched glacier in British Columbia', activity: 'carving the first tracks after a thrilling heli-drop' }
-    ]
-  }
+  { id: 'theme-recipe', variationCount: 3 },
+  { id: 'theme-zen', variationCount: 3 },
+  { id: 'theme-active', variationCount: 3 },
+  { id: 'theme-break', variationCount: 3 },
+  { id: 'theme-skill', variationCount: 3 },
+  { id: 'theme-creative', variationCount: 3 },
+  { id: 'theme-imagination', variationCount: 3 },
+  { id: 'theme-green', variationCount: 3 },
+  { id: 'theme-culinary', variationCount: 3 },
+  { id: 'theme-warrior', variationCount: 3 },
+  { id: 'theme-racing', variationCount: 3 },
+  { id: 'theme-alpine', variationCount: 3 }   
 ];
 
 export default function KioskFlow() {
@@ -191,8 +63,7 @@ export default function KioskFlow() {
   const [isWheelchairUser, setIsWheelchairUser] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<typeof THEMES[0] | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<typeof STYLES[0] | null>(null);
-  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
-  const [selectedScene, setSelectedScene] = useState<string | null>(null);
+  const [selectedVariationIdx, setSelectedVariationIdx] = useState<number | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [visionId, setVisionId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -209,7 +80,7 @@ export default function KioskFlow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const db = useFirestore();
   const auth = useAuth();
   const storage = useStorage();
@@ -234,18 +105,25 @@ export default function KioskFlow() {
     return s.charAt(0).toLowerCase() + s.slice(1);
   };
 
-  useEffect(() => {
-    if (selectedTheme && selectedActivity) {
-      const isValid = selectedTheme.variations.some(v => v.activity === selectedActivity);
-      if (!isValid) {
-        setSelectedActivity(selectedTheme.variations[0].activity);
-        setSelectedScene(selectedTheme.variations[0].scene);
+  const getDropdownText = (baseKey: string, isLowerFirst: boolean = false) => {
+    if (language === 'ko') {
+      const shortKey = `${baseKey}_short` as TranslationKey;
+      const shortText = t(shortKey);
+      if (shortText !== shortKey) {
+        return shortText;
       }
-    } else if (selectedTheme && !selectedActivity) {
-      setSelectedActivity(selectedTheme.variations[0].activity);
-      setSelectedScene(selectedTheme.variations[0].scene);
     }
-  }, [selectedTheme, selectedActivity]);
+    const text = t(baseKey as TranslationKey);
+    return isLowerFirst ? toLowerFirst(text) : text;
+  };
+  
+
+  useEffect(() => {
+    if (selectedTheme && selectedVariationIdx === null) {
+      setSelectedVariationIdx(0);
+      }
+    }, [selectedTheme, selectedVariationIdx]);
+
 
   useEffect(() => {
     if (!auth) return;
@@ -299,13 +177,9 @@ export default function KioskFlow() {
             setVideoUrl(res.videoUrl || null);
             setVideoStatus('SUCCEEDED');
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-            if (step === 'video-loading') {
-              setStep('video-results');
-            }
           } else if (res.status === 'FAILED') {
             setVideoStatus('FAILED');
             if (pollTimerRef.current) clearInterval(pollTimerRef.current);
-            if (step === 'video-loading') setStep('results');
           }
         } catch (e) {
           console.error("Poll error", e);
@@ -316,7 +190,7 @@ export default function KioskFlow() {
         if (pollTimerRef.current) clearInterval(pollTimerRef.current);
       };
     }
-  }, [videoStatus, videoJobId, visionId, step]);
+  }, [videoStatus, videoJobId, visionId]);
 
   useEffect(() => {
     if (countdown === null) return;
@@ -331,12 +205,13 @@ export default function KioskFlow() {
   }, [countdown]);
 
   useEffect(() => {
-    if (step !== 'processing') return;
-    const timer = setInterval(() => {
-      setProcessingMsgIdx((prev) => (prev + 1) % translatedProcessingMessages.length);
-    }, 2500);
-    return () => clearInterval(timer);
-  }, [step]);
+    if (step === 'processing') {
+      const timer = setInterval(() => {
+        setProcessingMsgIdx((prev) => (prev + 1) % translatedProcessingMessages.length);
+      }, 2500);
+      return () => clearInterval(timer);
+    }
+  }, [step, translatedProcessingMessages.length]);
 
   const triggerVideoGeneration = async (vId: string, imgData: string) => {
     if (globalVideoCount >= 100) return;
@@ -367,9 +242,7 @@ export default function KioskFlow() {
     }
   };
 
-  const getCleanText = (text: string) => text.replace(/^Variation \d+ (Scene|Activity): /i, '').trim();
-
-  const composePolaroid = async (imageUrl: string, rawActivity: string): Promise<string> => {
+  const composePolaroid = async (imageUrl: string, themeId: string): Promise<string> => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return imageUrl;
@@ -390,14 +263,12 @@ export default function KioskFlow() {
     ctx.save();
     const logoY = 32;
     
-    // Load and draw the primary logo
     const logoImg = new Image();
-    logoImg.src = '/images/Gemini_PrimaryLogo_FullColor_White.png';
+    logoImg.src = '/images/Gemini_PrimaryLogo_FullColor.png';
     await new Promise((resolve) => {
       logoImg.onload = resolve;
     });
     
-    // Calculate logo width while maintaining aspect ratio, max height 48px
     const logoAspectRatio = logoImg.width / logoImg.height;
     const drawHeight = 48;
     const drawWidth = drawHeight * logoAspectRatio;
@@ -416,9 +287,14 @@ export default function KioskFlow() {
     ctx.fillStyle = '#27272a';
     ctx.font = 'bold 38px "Google Sans", sans-serif';
     ctx.textAlign = 'center';
-    
-    const cleanActivity = getCleanText(rawActivity);
-    const caption = `${cleanActivity.charAt(0).toUpperCase() + cleanActivity.slice(1)}, thanks to Gemini`;
+
+    const themeName = themeId ? themeId.split('-')[1] : '';
+    const captionKey = themeName ? `caption_${themeName}` as TranslationKey : 'caption_default';
+
+    let caption = t(captionKey);
+    if (caption === captionKey) {
+      caption = t('caption_default');
+    } 
     
     await document.fonts.ready;
 
@@ -455,21 +331,21 @@ export default function KioskFlow() {
 
   const handleThemeSelect = (theme: typeof THEMES[0]) => {
     setSelectedTheme(theme);
+    const randomIndex = Math.floor(Math.random() * theme.variationCount);
+    setSelectedVariationIdx(randomIndex); 
     setStep('select-style');
   };
 
   const generateVision = async (
     styleOverride?: typeof STYLES[0],
     themeOverride?: typeof THEMES[0],
-    sceneOverride?: string,
-    activityOverride?: string
+    variationIdxOverride?: number
   ) => {
     const theme = themeOverride || selectedTheme;
     const style = styleOverride || selectedStyle;
-    const scene = sceneOverride || selectedScene;
-    const activity = activityOverride || selectedActivity;
+    const variationIdx = variationIdxOverride !== undefined ? variationIdxOverride : selectedVariationIdx;
 
-    if (!capturedImage || !theme || !isAuthReady || !style) return;
+    if (!capturedImage || !theme || !isAuthReady || !style || variationIdx === null) return;
     
     setIsProcessing(true);
     setStep('processing');
@@ -480,14 +356,23 @@ export default function KioskFlow() {
     if (pollTimerRef.current) clearInterval(pollTimerRef.current);
 
     try {
-      const details = [style.detail];
+      const enDict = dictionaries.en;
+      const themeName = theme.id.split('-')[1];
+      const styleName = style.id.split('-')[1];
+
+      const sceneEn = enDict[`theme_${themeName}_var${variationIdx}_scene` as TranslationKey];
+      const activityEn = enDict[`theme_${themeName}_var${variationIdx}_activity` as TranslationKey];
+      const detailEn = enDict[`style_${styleName}_detail` as TranslationKey];
+      const themeTitleEn = enDict[`theme_${themeName}_title` as TranslationKey];
+
+      const details = [detailEn]; 
       if (isWheelchairUser) details.push('subject is using a wheelchair');
       
       const response = await generateThemedPhoto({
         photoDataUri: capturedImage,
-        themeVariations: theme.variations,
-        scene: scene || undefined,
-        activity: activity || undefined,
+        themeVariations: [], 
+        scene: sceneEn,
+        activity: activityEn,
         details: details,
       });
       
@@ -497,11 +382,10 @@ export default function KioskFlow() {
 
       const aiResult = response.data;
       
-      setSelectedActivity(aiResult.selectedActivity);
-      setSelectedScene(aiResult.selectedScene);
+      setSelectedVariationIdx(variationIdx);
       setSelectedStyle(style);
 
-      const bakedPolaroid = await composePolaroid(aiResult.transformedPhotoDataUri, aiResult.selectedActivity);
+      const bakedPolaroid = await composePolaroid(aiResult.transformedPhotoDataUri, theme.id);
       setResultImage(bakedPolaroid);
       setStep('results');
 
@@ -509,14 +393,37 @@ export default function KioskFlow() {
         setIsSaving(true);
         try {
           const imagePath = `visions/${auth.currentUser?.uid || 'anonymous'}/${Date.now()}.jpg`;
+          const rawImagePath = imagePath.replace('.jpg', '_raw.jpg');
+          
           const imageRef = ref(storage, imagePath);
-          await uploadString(imageRef, bakedPolaroid, 'data_url');
-          const downloadUrl = await getDownloadURL(imageRef);
+          const rawImageRef = ref(storage, rawImagePath);
+
+          const uploadFlexibleImage = async (storageRef: any, source: string) => {
+            if (source.startsWith('data:')) {
+              await uploadString(storageRef, source, 'data_url');
+            } else {
+              const res = await fetch(source);
+              const blob = await res.blob();
+              await uploadBytes(storageRef, blob);
+            }
+          };
+
+          await Promise.all([
+            uploadString(imageRef, bakedPolaroid, 'data_url'),
+            uploadFlexibleImage(rawImageRef, aiResult.transformedPhotoDataUri)
+          ]);
+
+          const [downloadUrl, rawDownloadUrl] = await Promise.all([
+            getDownloadURL(imageRef),
+            getDownloadURL(rawImageRef)
+          ]);
 
           const data = {
             imageUrl: downloadUrl,
-            activity: aiResult.selectedActivity,
-            theme: theme.title,
+            rawImageUrl: rawDownloadUrl,
+            activity: activityEn,
+            theme: themeTitleEn,
+            themeId: theme.id,
             createdAt: new Date().toISOString(),
             ownerId: auth.currentUser?.uid
           };
@@ -525,7 +432,7 @@ export default function KioskFlow() {
           const docRef = await addDoc(visionsRef, data);
           setVisionId(docRef.id);
           setIsSaving(false);
-          triggerVideoGeneration(docRef.id, bakedPolaroid);
+          triggerVideoGeneration(docRef.id, aiResult.transformedPhotoDataUri);
 
         } catch (serverError) {
           console.error("STORAGE_OR_FIRESTORE_SAVE_ERROR:", serverError);
@@ -552,15 +459,14 @@ export default function KioskFlow() {
 
   const triggerInstantSurprise = () => {
     const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
-    const randomVariation = randomTheme.variations[Math.floor(Math.random() * randomTheme.variations.length)];
+    const randomIndex = Math.floor(Math.random() * randomTheme.variationCount);
     const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
 
     setSelectedTheme(randomTheme);
-    setSelectedScene(randomVariation.scene);
-    setSelectedActivity(randomVariation.activity);
+    setSelectedVariationIdx(randomIndex); 
     setSelectedStyle(randomStyle);
 
-    generateVision(randomStyle, randomTheme, randomVariation.scene, randomVariation.activity);
+    generateVision(randomStyle, randomTheme, randomIndex);
   };
 
   const resetKiosk = () => {
@@ -570,8 +476,7 @@ export default function KioskFlow() {
     setVisionId(null);
     setSelectedTheme(null);
     setSelectedStyle(null);
-    setSelectedActivity(null);
-    setSelectedScene(null);
+    setSelectedVariationIdx(null);
     setProcessingMsgIdx(0);
     setVideoStatus('IDLE');
     setVideoJobId(null);
@@ -586,15 +491,27 @@ export default function KioskFlow() {
     return `${baseUrl}/share/${visionId}`;
   };
 
-  const getRefineGreeting = (themeId: string | undefined) => {
-    switch (themeId) {
-      case 'theme-green': return <>Looking sharp,<br />pro player!</>;
-      case 'theme-culinary': return <>What's cookin',<br />good lookin'!</>;
-      case 'theme-warrior': return <>Ready for<br />the wild?</>;
-      case 'theme-racing': return <>Leading the<br />pack today!</>;
-      case 'theme-alpine': return <>Reaching new<br />heights!</>;
-      default: return <>Looking good,<br />good lookin'!</>;
+  const getRefineGreeting = (themeId?: string) => {
+    const themeName = themeId ? themeId.split('-')[1] : '';
+    const greetingKey = themeName ? `refine_greet_${themeName}` as TranslationKey : 'refine_greet_default';
+  
+    let text = t(greetingKey);
+    if (text === greetingKey) {
+      text = t('refine_greet_default');
     }
+  
+    const parts = text.split('\n');
+  
+    return (
+      <>
+        {parts.map((part, index) => (
+          <React.Fragment key={index}>
+            {part}
+            {index < parts.length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </>
+    );
   };
 
   return (
@@ -602,7 +519,7 @@ export default function KioskFlow() {
       {step === 'capture' && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
           <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">
-            {countdown === 1 || countdown === 0 ? "Smile!" : "Strike a Pose"}
+            {countdown === 1 || countdown === 0 ? t('camera_smile' as TranslationKey) : t('camera_title' as TranslationKey)}
           </h2>
           <div className="relative overflow-hidden aspect-video w-full max-w-4xl mx-auto rounded-2xl md:rounded-[2rem] border-2 border-white/10 bg-zinc-900">
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover mirror transform -scale-x-100" />
@@ -622,11 +539,11 @@ export default function KioskFlow() {
               className="btn-google-blue h-auto py-4 px-8 md:py-6 md:px-12 text-xl md:text-2xl rounded-full"
             >
               <Camera className="mr-3 h-6 w-6 md:h-8 md:w-8" />
-              {countdown !== null ? 'Get Ready...' : 'Take your Photo'}
+              {countdown !== null ? t('camera_rdy_title' as TranslationKey) : t('camera_btn_take' as TranslationKey)}
             </Button>
             <Button variant="ghost" onClick={() => router.push('/')} className="text-white/40 text-lg md:text-xl font-headline">
               <ArrowLeft className="mr-2 h-5 w-5 md:h-6 md:w-6" />
-              Back to home
+              {t('btn_back' as TranslationKey)}
             </Button>
           </div>
         </div>
@@ -634,7 +551,7 @@ export default function KioskFlow() {
 
       {step === 'review' && capturedImage && (
         <div className="w-full space-y-8 text-center animate-in zoom-in duration-500">
-          <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">Looking good?</h2>
+          <h2 className="text-4xl md:text-7xl font-bold text-white font-headline">{t('camera_continue_subtitle' as TranslationKey)}</h2>
           <div className="relative w-full max-w-4xl mx-auto rounded-2xl md:rounded-[2rem] border-2 border-white/10 bg-zinc-900 overflow-hidden aspect-video">
              <img src={capturedImage} alt="Captured" className="w-full h-full object-cover transform -scale-x-100" />
           </div>
@@ -648,14 +565,14 @@ export default function KioskFlow() {
               className="w-full md:w-auto h-auto py-4 px-8 md:py-6 md:px-10 text-xl md:text-2xl rounded-full border-white/20 text-white hover:bg-white/10"
             >
               <RefreshCcw className="mr-3 h-5 w-5 md:h-6 md:w-6" />
-              Retake Photo
+              {t('camera_btn_retake' as TranslationKey)}
             </Button>
             <Button 
               onClick={() => setStep('select-theme')}
               className="w-full md:w-auto btn-google-blue h-auto py-4 px-8 md:py-6 md:px-12 text-xl md:text-2xl rounded-full"
             >
               <Check className="mr-3 h-6 w-6 md:h-8 md:w-8" />
-              Looks Great!
+              {t('camera_btn_continue' as TranslationKey)}
             </Button>
           </div>
         </div>
@@ -664,7 +581,7 @@ export default function KioskFlow() {
       {step === 'select-theme' && (
         <div className="w-full space-y-12 animate-in fade-in duration-500">
           <div className="text-center space-y-4">
-            <h2 className="text-4xl md:text-6xl font-bold text-white font-headline leading-tight">What would you do with your free time?</h2>
+            <h2 className="text-4xl md:text-6xl font-bold text-white font-headline leading-tight">{t('theme_title')}</h2>
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-6">
               <div className="flex items-center space-x-3 bg-white/5 px-4 py-3 md:px-6 md:py-4 rounded-full border border-white/10">
                 <Checkbox id="wheelchair" checked={isWheelchairUser} onCheckedChange={(c) => setIsWheelchairUser(!!c)} className="w-5 h-5 md:w-6 md:h-6 border-white/20" />
@@ -677,7 +594,7 @@ export default function KioskFlow() {
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-10 transition-opacity" />
                 <Sparkles className="mr-2 h-5 w-5 md:h-6 md:w-6 text-purple-500" />
-                Surprise me!
+                {t('btn_surprise' as TranslationKey)}
               </Button>
             </div>
           </div>
@@ -711,7 +628,7 @@ export default function KioskFlow() {
           <div className="flex justify-center pt-8">
              <Button variant="ghost" onClick={() => setStep('review')} className="text-white/40 text-lg md:text-xl font-headline">
                <ChevronLeft className="mr-2 h-5 w-5 md:h-6 md:w-6" />
-               Back to photo
+               {t('btn_back' as TranslationKey)}
              </Button>
           </div>
         </div>
@@ -720,7 +637,7 @@ export default function KioskFlow() {
       {step === 'select-style' && (
         <div className="w-full space-y-12 animate-in fade-in duration-500">
           <div className="text-center">
-            <h2 className="text-4xl md:text-6xl font-bold text-white font-headline">Select your style</h2>
+            <h2 className="text-4xl md:text-6xl font-bold text-white font-headline">{t('style_title')}</h2>
           </div>
 
           <div className="w-full max-w-7xl mx-auto overflow-x-auto pb-8 snap-x scrollbar-subtle">
@@ -752,7 +669,7 @@ export default function KioskFlow() {
           <div className="flex justify-center pt-8">
              <Button variant="ghost" onClick={() => setStep('select-theme')} className="text-white/40 text-lg md:text-xl font-headline">
                <ChevronLeft className="mr-2 h-5 w-5 md:h-6 md:w-6" />
-               Back to themes
+               {t('btn_back' as TranslationKey)}
              </Button>
           </div>
         </div>
@@ -809,33 +726,8 @@ export default function KioskFlow() {
             <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
-              {globalVideoCount < 100 && videoStatus !== 'FAILED' ? (
-                <Button 
-                  onClick={() => {
-                    if (videoStatus === 'SUCCEEDED') setStep('video-results');
-                    else setStep('video-loading');
-                  }} 
-                  className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl flex items-center gap-2"
-                >
-                  <Film className="w-5 h-5" />
-                  Animate Me!
-                </Button>
-              ) : globalVideoCount < 100 && videoStatus === 'FAILED' ? (
-                <Button onClick={() => triggerVideoGeneration(visionId!, resultImage!)} className="w-full sm:w-auto bg-red-500/80 hover:bg-red-500 rounded-full px-8 py-6 text-xl">
-                  Retry Video
-                </Button>
-              ) : (
-                <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">
-                  {t('btn_done')}
-                </Button>
-              )}
+                <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">{t('btn_done')}</Button>
             </div>
-            {globalVideoCount < 100 && (videoStatus === 'PENDING' || videoStatus === 'STARTING') && (
-               <div className="flex items-center gap-2 text-white/50 justify-center lg:justify-start mt-4">
-                 <Loader2 className="w-4 h-4 animate-spin" />
-                 <span className="text-sm uppercase tracking-wider">{t('btn_generating_video')}</span>
-               </div>
-            )}
           </div>
         </div>
       )}
@@ -847,7 +739,7 @@ export default function KioskFlow() {
               {getRefineGreeting(selectedTheme?.id)}
             </h2>
             <p className="text-lg md:text-2xl text-white/60 max-w-sm mt-auto pb-2">
-              Now for the fun part. Refine your prompt to create your masterpiece.
+              {t('refine_description')}
             </p>
           </div>
 
@@ -863,15 +755,16 @@ export default function KioskFlow() {
             <div className="lg:col-span-7 space-y-8 md:space-y-12">
               <div className="space-y-6 md:space-y-8">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
-                  <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">Imagine me</span>
+                  <span className="text-xl md:text-3xl font-bold text-white md:min-w-max md:text-right font-headline whitespace-nowrap flex-shrink-0">
+                    {t('refine_label_imagine')}
+                  </span>
                   <Select 
                     value={selectedTheme?.id} 
                     onValueChange={(val) => {
-                      const theme = THEMES.find(t => t.id === val);
+                      const theme = THEMES.find(themeItem => themeItem.id === val);
                       if (theme) {
                         setSelectedTheme(theme);
-                        setSelectedActivity(theme.variations[0].activity);
-                        setSelectedScene(theme.variations[0].scene);
+                        setSelectedVariationIdx(0);
                       }
                     }}
                   >
@@ -879,9 +772,9 @@ export default function KioskFlow() {
                       <SelectValue placeholder="Select a theme" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
-                      {THEMES.map(t => (
-                        <SelectItem key={t.id} value={t.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                          {toLowerFirst(t(`theme_${t.id.split('-')[1]}_title` as TranslationKey))}
+                      {THEMES.map(themeItem => (                                                                                                                                                 
+                        <SelectItem key={themeItem.id} value={themeItem.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">      
+                          {getDropdownText(`theme_${themeItem.id.split('-')[1]}_title`, true)} 
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -891,20 +784,16 @@ export default function KioskFlow() {
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
                   <div className="flex-1 w-full">
                     <Select 
-                      value={selectedActivity || ''} 
-                      onValueChange={(val) => {
-                        setSelectedActivity(val);
-                        const variation = selectedTheme?.variations.find(v => v.activity === val);
-                        if (variation) setSelectedScene(variation.scene);
-                      }}
+                      value={selectedVariationIdx !== null ? selectedVariationIdx.toString() : ''}
+                      onValueChange={(val) => setSelectedVariationIdx(parseInt(val, 10))}
                     >
                       <SelectTrigger className="w-full bg-transparent border-2 border-[#4285F4] hover:bg-[#4285F4]/5 text-white h-14 md:h-20 rounded-full px-6 md:px-8 text-lg md:text-2xl transition-all shadow-[0_0_15px_rgba(66,144,255,0.1)]">
                         <SelectValue placeholder="Select an activity" />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
-                        {selectedTheme?.variations.map((v, i) => (
-                          <SelectItem key={i} value={v.activity} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                            {toLowerFirst(t(`theme_${selectedTheme.id.split('-')[1]}_var${i}_activity` as TranslationKey))}
+                        {selectedTheme && Array.from({ length: selectedTheme.variationCount }).map((_, i) => (
+                          <SelectItem key={i} value={i.toString()} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">  
+                            {getDropdownText(`theme_${selectedTheme.id.split('-')[1]}_var${i}_activity`, true)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -913,7 +802,9 @@ export default function KioskFlow() {
                 </div>
 
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 group w-full">
-                  <span className="text-xl md:text-3xl font-bold text-white md:w-48 md:text-right font-headline whitespace-nowrap">in the style of</span>
+                  <span className="text-xl md:text-3xl font-bold text-white md:min-w-max md:text-right font-headline whitespace-nowrap flex-shrink-0">
+                    {t('refine_label_style')}
+                  </span>
                   <div className="flex-1 w-full">
                     <Select 
                       value={selectedStyle?.id} 
@@ -928,7 +819,7 @@ export default function KioskFlow() {
                       <SelectContent className="bg-zinc-900 border-white/10 text-white rounded-2xl">
                         {STYLES.map(s => (
                           <SelectItem key={s.id} value={s.id} className="text-lg md:text-xl py-3 md:py-4 focus:bg-[#4285F4] focus:text-white transition-colors cursor-pointer">
-                            {t(`style_${s.id.split('-')[1]}_title` as TranslationKey)}
+                            {getDropdownText(`style_${s.id.split('-')[1]}_title`, false)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -942,68 +833,13 @@ export default function KioskFlow() {
                   onClick={() => generateVision()}
                   className="w-full h-20 md:h-32 text-2xl md:text-4xl rounded-full bg-gradient-to-r from-[#4285F4] to-[#4290FF] hover:opacity-90 text-white font-bold shadow-2xl transition-all active:scale-95"
                 >
-                  Make these updates
+                  {t('btn_generate')}
                 </Button>
               </div>
             </div>
           </div>
         </div>
       )}
-
-      {step === 'video-loading' && (
-        <div className="w-full space-y-12 text-center py-12 md:py-20 flex flex-col items-center">
-          <div className="flex flex-col items-center gap-8 mb-8">
-            <Loader2 className="w-24 h-24 text-[#9B72CB] animate-spin" />
-          </div>
-
-          <div className="space-y-4 max-w-2xl px-4">
-            <h2 className="text-3xl md:text-5xl text-white font-headline font-bold">
-              {t('video_loading_title')}
-            </h2>
-            <p className="text-sm md:text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
-              {t('video_loading_subtitle')}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {step === 'video-results' && videoUrl && (
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8 text-center">
-          <div className="bg-black p-4 rounded-xl shadow-2xl w-full aspect-video overflow-hidden border border-white/10">
-            <video src={videoUrl} autoPlay loop playsInline className="w-full h-full object-cover" />
-          </div>
-          
-          <div className="space-y-12 w-full flex flex-col items-center">
-            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('video_result_title')}</h2>
-            
-            <div className="flex flex-col md:flex-row items-center gap-12 w-full justify-center">
-              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
-                <a 
-                  href={getShareUrl()} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                  title="Tap to download"
-                >
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
-                    alt="QR Code" 
-                    className="w-full h-full" 
-                  />
-                </a>
-              </div>
-              
-              <div className="space-y-6 text-center md:text-left max-w-md">
-                <p className="text-2xl md:text-3xl text-white/50 font-headline leading-tight">{t('video_result_subtitle')}</p>
-                <Button onClick={() => setStep('thanks')} className="w-full md:auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-16 py-8 text-2xl font-bold shadow-xl transition-all active:scale-95">
-                  {t('btn_done')}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {step === 'thanks' && (
         <div className="text-center space-y-10 animate-in zoom-in duration-500 py-20">
           <h2 className="text-5xl md:text-7xl font-bold text-white font-headline">{t('thanks_title')}</h2>

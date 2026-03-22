@@ -8,20 +8,31 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { useParams } from 'next/navigation';
 import { doc } from 'firebase/firestore';
+import { TranslationKey } from '@/i18n/dictionaries';
+import { useLanguage } from '@/i18n/LanguageProvider';
 
 export default function SharePortal() {
   const params = useParams();
   const db = useFirestore();
 
   const docId = params?.id as string;
-
+  
   // Stabilize the document reference
   const visionRef = useMemoFirebase(() => {
     if (!db || !docId) return null;
     return doc(db, 'visions', docId);
   }, [db, docId]);
-
+  
   const { data: vision, isLoading, error } = useDoc(visionRef);
+  const { t } = useLanguage();
+
+  let caption = t('caption_default');
+  if (vision && vision.themeId) {
+    const themeName = vision.themeId.split('-')[1];
+    const captionKey = themeName ? `caption_${themeName}` as TranslationKey : 'caption_default';
+    caption = t(captionKey);
+    if (caption === captionKey) caption = t('caption_default'); // Fallback
+  }
 
   const handleDownload = async () => {
     if (!vision) return;
@@ -63,36 +74,6 @@ export default function SharePortal() {
     }
   };
 
-  const [isVideoDownloading, setIsVideoDownloading] = React.useState(false);
-
-  const handleVideoDownload = async () => {
-    if (!vision?.videoUrl || isVideoDownloading) return;
-    
-    try {
-      setIsVideoDownloading(true);
-      
-      const response = await fetch(vision.videoUrl);
-      if (!response.ok) throw new Error('Network response was not ok');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `my-free-time-video-${docId.slice(0, 5)}.mp4`;
-      document.body.appendChild(link);
-      link.click();
-      
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading video:', error);
-      window.open(vision.videoUrl, '_blank');
-    } finally {
-      setIsVideoDownloading(false);
-    }
-  };
-
   if (!docId) return null;
 
   if (isLoading || (!vision && !error)) {
@@ -100,7 +81,7 @@ export default function SharePortal() {
       <div className="min-h-screen bg-[#16181B] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-12 h-12 text-[#4290FF] animate-spin" />
-          <p className="text-white/40 font-medium animate-pulse">Retrieving your vision...</p>
+          <p className="text-white/40 font-medium animate-pulse">{t('loading_download_caption')}</p>
         </div>
       </div>
     );
@@ -133,38 +114,10 @@ export default function SharePortal() {
           </h1>
         </header>
 
-        {vision.videoUrl && (
-          <div className="relative group mb-8">
-            <div className="absolute -inset-1 bg-[#9B72CB]/20 rounded-lg blur-lg"></div>
-            <div className="relative rounded-xl shadow-2xl overflow-hidden bg-black border border-white/10 aspect-video">
-              <video src={vision.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-            </div>
-            <div className="mt-4 relative z-10">
-              <Button 
-                onClick={handleVideoDownload}
-                disabled={isVideoDownloading}
-                className="w-full bg-[#9B72CB] hover:bg-[#9B72CB]/90 text-white py-6 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg transition-all"
-              >
-                {isVideoDownloading ? (
-                  <>
-                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                    Saving Video...
-                  </>
-                ) : (
-                  <>
-                    <Film className="mr-3 h-6 w-6" />
-                    Download Video
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
-
         <div className="relative group">
           <div className="absolute -inset-1 bg-[#4290FF]/20 rounded-lg blur-lg"></div>
           <div className="relative rounded-sm shadow-2xl overflow-hidden bg-white p-2 pb-10">
-            <img src={vision.imageUrl || vision.imageData} alt="Your AI Vision" className="w-full h-auto" />
+            <img src={vision.imageUrl || vision.imageData} alt={caption} className="w-full h-auto" />
           </div>
         </div>
 
@@ -174,19 +127,16 @@ export default function SharePortal() {
             className="w-full bg-[#4290FF] hover:bg-[#4285F4] text-white py-8 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg"
           >
             <Download className="mr-3 h-6 w-6" />
-            Download Polaroid
+            {t('btn_download') as TranslationKey}
           </Button>
         </div>
 
         <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 text-center">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            This vision was created using Gemini, reimagining your free time based on your unique pose.
+            {t('download_caption') as TranslationKey}
           </p>
         </div>
 
-        <footer className="pt-8 text-center text-[10px] text-white/20 uppercase font-black tracking-widest">
-          © 2026 GEMINI CONNECT PROJECT
-        </footer>
       </div>
     </main>
   );
