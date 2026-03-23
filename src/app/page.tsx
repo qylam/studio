@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -68,10 +68,10 @@ export default function Home() {
         <header className="mb-12 flex items-center gap-3">
           <Image 
             src="/images/Gemini_PrimaryLogo_FullColor_White.png" 
-            alt="Gemini" 
+            alt="Gemini Connect" 
             width={140} 
             height={40} 
-            className="h-8 w-auto object-contain"
+            className="h-10 w-auto object-contain"
           />
         </header>
 

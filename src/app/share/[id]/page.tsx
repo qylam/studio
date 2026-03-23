@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Download, Zap, Loader2, Film } from 'lucide-react';
+import { Download, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { useParams } from 'next/navigation';
@@ -38,37 +38,19 @@ export default function SharePortal() {
     if (!vision) return;
 
     try {
-      if (vision.imageUrl) {
-        const response = await fetch(vision.imageUrl);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `my-free-time-vision-${docId.slice(0, 5)}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => window.URL.revokeObjectURL(url), 100);
-      } else if (vision.imageData) {
-        const parts = vision.imageData.split(',');
-        const mime = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
-        const bstr = atob(parts[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        while (n--) {
-          u8arr[n] = bstr.charCodeAt(n);
-        }
-        const blob = new Blob([u8arr], { type: mime });
-        const url = URL.createObjectURL(blob);
+      const imageUrl = vision.imageUrl || vision.imageData;
+      if (!imageUrl) return;
 
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `my-free-time-vision-${docId.slice(0, 5)}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-      }
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `my-free-time-vision-${docId.slice(0, 5)}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => window.URL.revokeObjectURL(url), 100);
     } catch (err) {
       console.error('Download failed:', err);
     }
@@ -107,7 +89,7 @@ export default function SharePortal() {
             alt="Gemini Connect" 
             width={120} 
             height={32} 
-            className="h-8 w-auto object-contain mx-auto"
+            className="h-10 w-auto object-contain mx-auto"
           />
           <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none font-headline">
             Free-Time <span className="text-[#4290FF]">Machine</span>
@@ -136,7 +118,6 @@ export default function SharePortal() {
             {t('download_caption') as TranslationKey}
           </p>
         </div>
-
       </div>
     </main>
   );

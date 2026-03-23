@@ -415,7 +415,7 @@ export const dictionaries = {
     refine_greet_creative: "예술적 영감이\n빛나는 순간!",
     refine_greet_imagination: "무한한 상상력이\n펼쳐지는 중!",
     refine_greet_green: "프로 선수처럼\n멋진 폼이네요!",
-    refine_greet_culinary: "매력 만점 셰프의\n탄생이네요!",
+    refine_greet_culinary: "진정한 미식을 즐길 줄 아는\n매력적인 모습이네요!",
     refine_greet_warrior: "와일드한 모험을\n떠날 준비 완료?",
     refine_greet_racing: "오늘 트랙의\n선두주자네요!",
     refine_greet_alpine: "새로운 정상을\n정복할 기세네요!",

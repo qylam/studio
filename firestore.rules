@@ -11,8 +11,7 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Explicitly allow public read of metadata for statistics tracking. 
-    // This is placed at the top to ensure it is prioritized.
+    // Prioritize public read for metadata to ensure statistics are always accessible.
     match /metadata/{docId} {
       allow read: if true;
       allow write: if false;

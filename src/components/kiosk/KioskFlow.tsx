@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Zap, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2, Sparkles, Stars, Wand2, Film, PlayCircle } from 'lucide-react';
+import { Camera, ChevronLeft, ArrowLeft, RefreshCcw, Check, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { generateThemedPhoto } from '@/ai/flows/generate-themed-photo';
@@ -14,7 +14,7 @@ import { dictionaries, TranslationKey } from '@/i18n/dictionaries';
 import { collection, addDoc, doc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { ref, uploadString, getDownloadURL, uploadBytes } from 'firebase/storage';
-import { useFirestore, useAuth, useStorage, useMemoFirebase, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useFirestore, useAuth, useStorage, useMemoFirebase } from '@/firebase';
 import { startVideoGeneration, checkVideoJobStatus } from '@/ai/flows/video';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -117,13 +117,11 @@ export default function KioskFlow() {
     return isLowerFirst ? toLowerFirst(text) : text;
   };
   
-
   useEffect(() => {
     if (selectedTheme && selectedVariationIdx === null) {
       setSelectedVariationIdx(0);
-      }
-    }, [selectedTheme, selectedVariationIdx]);
-
+    }
+  }, [selectedTheme, selectedVariationIdx]);
 
   useEffect(() => {
     if (!auth) return;
@@ -264,7 +262,7 @@ export default function KioskFlow() {
     const logoY = 32;
     
     const logoImg = new Image();
-    logoImg.src = '/images/Gemini_PrimaryLogo_FullColor.png';
+    logoImg.src = '/images/Gemini_PrimaryLogo_FullColor_White.png'; // Reusing branding logo
     await new Promise((resolve) => {
       logoImg.onload = resolve;
     });
@@ -273,6 +271,7 @@ export default function KioskFlow() {
     const drawHeight = 48;
     const drawWidth = drawHeight * logoAspectRatio;
     
+    // Check if the logo is the "White" version and the canvas is white - might need a background or different logo version
     ctx.drawImage(logoImg, SIDE_MARGIN, logoY, drawWidth, drawHeight);
     ctx.restore();
 
@@ -686,47 +685,50 @@ export default function KioskFlow() {
               {translatedProcessingMessages[processingMsgIdx]}
             </h2>
             <p className="text-sm md:text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
-              Powered by Nano Banana 2
+              Powered by Gemini
             </p>
           </div>
         </div>
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
-          <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform lg:-rotate-1 w-full max-w-xs md:max-w-md">
+        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
+          <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform rotate-1 w-full max-w-xs md:max-w-md">
             <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
           </div>
-          <div className="flex-1 space-y-8 text-center lg:text-left w-full">
+          <div className="flex-1 space-y-8 text-center w-full">
             <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('result_title')}</h2>
             
-            <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0 shadow-2xl flex items-center justify-center">
-              {isSaving || !visionId ? (
-                <div className="flex flex-col items-center gap-3 text-zinc-400">
-                  <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin text-[#4290FF]" />
-                  <span className="text-xs font-bold uppercase tracking-widest">Link...</span>
-                </div>
-              ) : (
-                <a 
-                  href={getShareUrl()} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                  title="Tap to download"
-                >
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
-                    alt="QR Code" 
-                    className="w-full h-full" 
-                  />
-                </a>
-              )}
-            </div>
-            
-            <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
+            <div className="flex flex-col items-center gap-8">
+              <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
+                {isSaving || !visionId ? (
+                  <div className="flex flex-col items-center gap-3 text-zinc-400">
+                    <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin text-[#4290FF]" />
+                    <span className="text-xs font-bold uppercase tracking-widest">Link...</span>
+                  </div>
+                ) : (
+                  <a 
+                    href={getShareUrl()} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full h-full block cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                    title="Tap to download"
+                  >
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getShareUrl())}`} 
+                      alt="QR Code" 
+                      className="w-full h-full" 
+                    />
+                  </a>
+                )}
+              </div>
+              
+              <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
                 <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">{t('btn_done')}</Button>
+              </div>
             </div>
           </div>
         </div>
