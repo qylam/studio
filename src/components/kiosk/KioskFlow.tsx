@@ -692,14 +692,20 @@ export default function KioskFlow() {
       )}
 
       {step === 'results' && resultImage && (
-        <div className="w-full max-w-6xl mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-700 py-8">
-          <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform rotate-1 w-full max-w-xs md:max-w-md">
+        <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 animate-in fade-in zoom-in duration-700 py-8 px-4">
+  
+          {/* LEFT COLUMN: Image */}
+          <div className="bg-white p-4 md:p-6 pb-12 md:pb-20 rounded-sm shadow-2xl transform rotate-1 w-full max-w-xs md:max-w-md lg:max-w-lg flex-shrink-0">
             <img src={resultImage} alt="AI Vision" className="w-full h-auto object-contain" />
           </div>
-          <div className="flex-1 space-y-8 text-center w-full">
-            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">{t('result_title')}</h2>
+
+          {/* RIGHT COLUMN: Content */}
+          <div className="flex-1 w-full flex flex-col items-center md:items-start space-y-8 text-center md:text-left">
+            <h2 className="text-6xl md:text-8xl font-bold text-white font-headline">
+              {t('result_title')}
+            </h2>
             
-            <div className="flex flex-col items-center gap-8">
+            <div className="flex flex-col items-center md:items-start gap-8">
               <div className="relative bg-white p-4 rounded-2xl w-48 h-48 md:w-64 md:h-64 shadow-2xl flex items-center justify-center">
                 {isSaving || !visionId ? (
                   <div className="flex flex-col items-center gap-3 text-zinc-400">
@@ -723,11 +729,17 @@ export default function KioskFlow() {
                 )}
               </div>
               
-              <p className="text-xl md:text-2xl text-white/50 font-headline">{t('result_subtitle')}</p>
+              <p className="text-xl md:text-2xl text-white/50 font-headline">
+                {t('result_subtitle')}
+              </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">{t('btn_adjust_style')}</Button>
-                <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">{t('btn_done')}</Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start w-full">
+                <Button onClick={() => setStep('refine')} variant="outline" className="w-full sm:w-auto rounded-full px-8 py-6 text-xl border-white/20 hover:bg-white/5 text-white">
+                  {t('btn_adjust_style')}
+                </Button>
+                <Button onClick={() => setStep('thanks')} className="w-full sm:w-auto bg-[#4285F4] hover:bg-[#4285F4]/90 rounded-full px-8 py-6 text-xl">
+                  {t('btn_done')}
+                </Button>
               </div>
             </div>
           </div>
