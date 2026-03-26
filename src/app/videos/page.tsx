@@ -61,6 +61,12 @@ export default function NeuralStreamPage() {
         {displayVisions.map((vision, index) => (
           <div key={`${vision.id}-${index}`} className="relative group overflow-hidden rounded-[2.5rem] bg-neutral-900 border border-white/5 shadow-2xl transition-all duration-700 hover:scale-[1.01] hover:border-primary/30">
             <VisionCard mediaUrl={vision.mediaUrl} mediaType={vision.mediaType} className="w-full aspect-video" onEnded={() => handleVideoEnded(index)} muted={index !== 0} />
+            <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-6 text-center pointer-events-none z-50">
+              <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-medium mb-2">Storage Path</span>
+              <span className="text-[9px] text-white/20 font-mono leading-relaxed break-all max-w-full px-4">
+                {vision.mediaUrl ? decodeURIComponent(vision.mediaUrl.split('/o/')[1]?.split('?')[0] || vision.mediaUrl) : 'Unknown Path'}
+              </span>
+            </div>
           </div>
         ))}
       </div>

@@ -134,7 +134,7 @@ export default function GalleryPage() {
 //   // Only use images (no videos) and ensure they have a valid URL or fallback
 //   const availableImages = useMemo(() => {
 //     return visions
-//       .filter(v => !v.isHidden && v.mediaType === 'image' && (v.mediaUrl || v.imageData))
+//       .filter(v => !v.isHidden && v.mediaType === 'image' && (v.rawImageUrl || v.mediaUrl || v.imageData))
 //       .sort((a, b) => (new Date(b.createdAt).getTime() || 0) - (new Date(a.createdAt).getTime() || 0));
 //   }, [visions]);
 
@@ -222,12 +222,15 @@ export default function GalleryPage() {
 //       <main className="flex-1 grid grid-cols-3 grid-rows-2 gap-4 min-h-0 w-full overflow-hidden">
 //         {displayVisions.length > 0 ? (
 //           displayVisions.map((vision, index) => {
-//             // For the QR code download link, we need the raw storage path (e.g., visions/uid/123.jpg)
-//             const storagePath = vision.fullPath || getStoragePathFromUrl(vision.mediaUrl);
+//             // For the QR code download link, we want the FRAMED version (polaroid) if available
+//             // We prioritize mediaUrl (framed) over rawImageUrl for the QR code specifically
+//             const preferredDownloadUrl = vision.mediaUrl || vision.rawImageUrl;
+//             const storagePath = getStoragePathFromUrl(preferredDownloadUrl) || vision.fullPath;
             
 //             // Format the path for the /download route
 //             let downloadUrl = "";
 //             if (storagePath) {
+//                // Strip '_raw' to ensure the QR code targets the framed .jpg version in storage
 //                const cleanPath = storagePath.replace(/[-_]?RAW/gi, '');
 //                downloadUrl = `${origin}/download/${cleanPath.split('/').map(encodeURIComponent).join('/')}`;
 //             }
@@ -239,8 +242,8 @@ export default function GalleryPage() {
 //                 onClick={() => setSelectedImage(vision)}
 //               >
 //                 <img
-//                   // Fallback to legacy imageData if mediaUrl is missing
-//                   src={vision.mediaUrl || vision.imageData}
+//                   // Prioritize the raw, borderless image for DISPLAY. Fallback to framed mediaUrl or legacy imageData
+//                   src={vision.rawImageUrl || vision.mediaUrl || vision.imageData}
 //                   alt={vision.title || "Vision"}
 //                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
 //                 />
