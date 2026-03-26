@@ -37,7 +37,7 @@ export default function NeuralStreamPage() {
     
     if (visibleVideos.length === 0) return;
 
-    // Only set initial display visions once
+    // Only set initial display visions once or when list becomes significantly larger
     if (displayVisions.length === 0) {
       // Shuffle the available videos to ensure a randomized starting experience
       const randomizedPool = shuffleArray(visibleVideos);
@@ -54,15 +54,28 @@ export default function NeuralStreamPage() {
 
   /**
    * When a video in a specific slot ends, pick a random video from the pool 
-   * that isn't currently displayed.
+   * that isn't currently displayed in THAT slot.
    */
   const handleVideoEnded = useCallback((index: number) => {
     setDisplayVisions(prev => {
       const visibleVideos = visions.filter(v => !v.isHidden && v.mediaType === 'video' && v.mediaUrl);
-      if (visibleVideos.length <= 4) return prev; // Don't swap if we don't have enough variety
+      if (visibleVideos.length === 0) return prev;
       
+      const currentInSlot = prev[index];
       const currentlyVisibleIds = new Set(prev.map(v => v.id));
-      const pool = visibleVideos.filter(v => !currentlyVisibleIds.has(v.id));
+      
+      // Priority 1: Pick a video not visible in any slot
+      let pool = visibleVideos.filter(v => !currentlyVisibleIds.has(v.id));
+      
+      // Priority 2: If everyone is already visible, just pick something other than what was just playing in this slot
+      if (pool.length === 0) {
+        pool = visibleVideos.filter(v => v.id !== currentInSlot?.id);
+      }
+      
+      // Priority 3: Last resort (only 1 video exists), pick the same one to restart it
+      if (pool.length === 0) {
+        pool = visibleVideos;
+      }
       
       const nextVision = pool[Math.floor(Math.random() * pool.length)];
       if (nextVision) {
