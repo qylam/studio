@@ -262,7 +262,7 @@ export default function KioskFlow() {
     const logoY = 32;
     
     const logoImg = new Image();
-    logoImg.src = '/images/Gemini_PrimaryLogo_FullColor_White.png'; // Reusing branding logo
+    logoImg.src = '/images/Gemini_PrimaryLogo_FullColor.png'; // Reusing branding logo
     await new Promise((resolve) => {
       logoImg.onload = resolve;
     });
@@ -487,7 +487,7 @@ export default function KioskFlow() {
   const getShareUrl = () => {
     if (typeof window === 'undefined' || !visionId) return '';
     const baseUrl = window.location.origin;
-    return `${baseUrl}/share/${visionId}`;
+    return `${baseUrl}/share/${visionId}?lang=${language}`;
   };
 
   const getRefineGreeting = (themeId?: string) => {
@@ -685,7 +685,7 @@ export default function KioskFlow() {
               {translatedProcessingMessages[processingMsgIdx]}
             </h2>
             <p className="text-sm md:text-xl text-white/40 font-headline uppercase tracking-[0.2em] font-medium">
-              Powered by Gemini
+              {t('loading_subtitle' as TranslationKey)}
             </p>
           </div>
         </div>

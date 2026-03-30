@@ -15,11 +15,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en');
 
   useEffect(() => {
-    // Try to load from localStorage on initial render if in browser
+    // Try to load from URL or localStorage on initial render if in browser
     if (typeof window !== 'undefined') {
-      const savedLang = localStorage.getItem('kiosk_language') as Language;
-      if (savedLang && (savedLang === 'en' || savedLang === 'ko')) {
-        setLanguageState(savedLang);
+      const params = new URLSearchParams(window.location.search);
+      const urlLang = params.get('lang') as Language;
+
+      if (urlLang && urlLang in dictionaries) {
+        setLanguageState(urlLang);
+        localStorage.setItem('kiosk_language', urlLang);
+      } else {
+        const savedLang = localStorage.getItem('kiosk_language') as Language;
+        if (savedLang && savedLang in dictionaries) {
+          setLanguageState(savedLang);
+        }
       }
     }
   }, []);

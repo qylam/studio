@@ -109,13 +109,13 @@ export default function SharePortal() {
             className="w-full bg-[#4290FF] hover:bg-[#4285F4] text-white py-8 text-xl h-auto rounded-2xl flex items-center justify-center shadow-lg"
           >
             <Download className="mr-3 h-6 w-6" />
-            {t('btn_download') as TranslationKey}
+            {t('btn_download' as TranslationKey)}
           </Button>
         </div>
 
         <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/5 text-center">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            {t('download_caption') as TranslationKey}
+            {t('download_caption' as TranslationKey)}
           </p>
         </div>
       </div>
