@@ -426,12 +426,12 @@ export const dictionaries = {
   },
   jp: {
     // --- Home Page ---
-    home_title_main: "フリー タイムマシン",
+    home_title_main: "The Free-Time Machine",
     home_description: "Gemini のおかげで、毎週最大10時間の自由時間を取り戻す自分を想像してみてください",
     home_start_button: "開始",
     home_link_details: "Gemini が、教員やリーダーが毎週最大 10 時間を節約するのにどのように役立っているかをご覧ください。",
     home_consent_title: "はじめる前に",
-    home_consent_desc: "Gemini フリータイムマシンは、Google の最新の生成画像モデルである Nano Banana Pro を使用した実験です。\n\n写真を撮ると、選択したエフェクトを使用して画像が作成されます。写真を送信することにより、18歳以上であることを確認し、画像の生成のために Google が画像を処理することに同意したことになります。ダウンロードするには、最後に提供されるQRコードをスキャンし、準備ができたらもう一度確認してください。",
+    home_consent_desc: "Gemini Free-Time Machine は、Google の最新の生成画像モデルである Nano Banana Pro を使用した新しいテクノロジー体験です。\n\n写真を撮ると、選択したエフェクトを使用して画像が作成されます。写真を送信することにより、18歳以上であることを確認し、画像の生成のために Google が画像を処理することに同意したことになります。画像をダウンロードするには、最後に提供されるQRコードをスキャンしてください。",
     home_consent_accept: "同意して進む",
     home_consent_decline: "同意しない",
     home_consent_loading: "準備してください...",
@@ -449,10 +449,10 @@ export const dictionaries = {
     
 
     // --- Kiosk Flow: Camera ---
-    camera_title: "写真を撮る!",
-    camera_btn_take: "キャンセル",
+    camera_title: "ポーズを決めましょう！",
+    camera_btn_take: "写真を撮る",
     camera_btn_retake: "写真を取り直す",
-    camera_rdy_title: "準備してね...",
+    camera_rdy_title: "準備してください...",
     camera_continue_subtitle: "いい感じに撮れましたか？",
     camera_btn_continue: "完璧です！",
     
@@ -540,7 +540,7 @@ export const dictionaries = {
     theme_alpine_var2_activity: "ヘリスキーで山頂に降り立ち、最初のシュプールを描く",
 
     // --- Kiosk Flow: Caption ---
-    caption_default: "Gemini のおかげで、自由時間を満喫しています。",
+    caption_default: "Gemini のおかげで、素敵な時間を過ごせました。",
     caption_zen: "Gemini のおかげで、心穏やかなひとときを過ごせました。",
     caption_break: "Gemini のおかげで、最高のリラックスタイムを過ごせました。",
     caption_creative: "Gemini のおかげで、創造力がもっと広がりました。",
@@ -548,9 +548,9 @@ export const dictionaries = {
     caption_active: "Gemini のおかげで、もっとアクティブに過ごせました。",
     caption_skill: "Gemini のおかげで、新しいスキルが身につきました。",
     caption_imagination: "Gemini のおかげで、想像力を思い切り解き放つことができました。",
-    caption_green: "Gemini のおかげで、緑のフィールドを極めました。",
+    caption_green: "Gemini のおかげで、最高のプレーができました。",
     caption_culinary: "Gemini のおかげで、美味しいものをお腹いっぱい楽しみました。",
-    caption_warrior: "Gemini のおかげで、週末を思い切りアクティブに楽しめました。",
+    caption_warrior: "Geminiのおかげで、週末を思い切りアクティブに楽しめました。",
     caption_racing: "Gemini のおかげで、レースの興奮を間近で味わえました。",
     caption_alpine: "Gemini のおかげで、アルプスの山々を制覇しました。",
 
