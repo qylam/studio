@@ -547,7 +547,7 @@ export const dictionaries = {
     caption_recipe: "Gemini のおかげで、新しい料理に挑戦できました。",
     caption_active: "Gemini のおかげで、もっとアクティブに過ごせました。",
     caption_skill: "Gemini のおかげで、新しいスキルが身につきました。",
-    caption_imagination: "Gemini のおかげで、想像力を思い切り解き放つことができました。",
+    caption_imagination: "Gemini のおかげで、想像力を解き放つことができました。",
     caption_green: "Gemini のおかげで、最高のプレーができました。",
     caption_culinary: "Gemini のおかげで、美味しいものをお腹いっぱい楽しみました。",
     caption_warrior: "Geminiのおかげで、週末を思い切りアクティブに楽しめました。",
