@@ -6,23 +6,20 @@ import { useVisions, type Vision } from '@/hooks/vision-flow/use-visions';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, query, orderBy, limit } from 'firebase/firestore';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { generateVideo } from '@/ai/flows/generate-video-flow';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Trash2, 
-  Loader2, 
   Film, 
   CheckCircle2, 
-  Zap, 
+  Eye,
+  EyeOff,
   LayoutDashboard,
   History,
   Video,
   Activity,
   ArrowLeft,
-  Wand2,
   Image as ImageIcon
 } from 'lucide-react';
 import Link from 'next/link';
@@ -40,37 +37,50 @@ export default function AdminPage() {
   }, [firestore]);
   const { data: logs, isLoading: logsLoading } = useCollection(logsQuery);
 
-  const [videoPrompt, setVideoPrompt] = useState('');
-  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
-
   const stats = useMemo(() => {
     const totalPhotos = visions.filter(v => v.mediaType === 'image' || v.imageData).length;
     const totalVideos = visions.filter(v => v.mediaType === 'video' && !v.imageData).length;
     return { totalPhotos, totalVideos };
   }, [visions]);
 
-  const handleGenerateVideo = async () => {
-    if (!videoPrompt || isGeneratingVideo) return;
-    setIsGeneratingVideo(true);
-    try {
-      const result = await generateVideo({ prompt: videoPrompt });
-      if (firestore && result.videoUrl) {
-        const genId = `ai_gen_${Date.now()}`;
-        setDocumentNonBlocking(doc(firestore, 'visions', genId), {
-          title: `AI Generation: ${videoPrompt.slice(0, 20)}...`,
-          description: videoPrompt,
-          mediaUrl: result.videoUrl,
-          mediaType: 'video',
-          createdAt: new Date().toISOString(),
-          isHidden: false
+  const [mediaFilter, setMediaFilter] = useState<'all' | 'image' | 'video'>('all');
+  const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'visible' | 'hidden'>('all');
+
+  const filteredVisions = useMemo(() => {
+    const filtered = visions.filter(v => {
+      if (visibilityFilter === 'hidden' && !v.isHidden) return false;
+      if (visibilityFilter === 'visible' && v.isHidden) return false;
+
+      if (mediaFilter === 'all') return true;
+      // We interpret any non-video as an image for filtering purposes
+      const isVideo = v.mediaType === 'video' && !v.imageData;
+      if (mediaFilter === 'video') return isVideo;
+      if (mediaFilter === 'image') return !isVideo;
+      return true;
+    });
+
+    return filtered.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+  }, [visions, mediaFilter, visibilityFilter]);
+
+  const handleHideAll = () => {
+    if (!firestore) return;
+    const toHide = filteredVisions.filter(v => !v.isHidden);
+    if (toHide.length === 0) {
+      toast({ title: "Nothing to hide", description: "All items matching the current filter are already hidden." });
+      return;
+    }
+    if (window.confirm(`Are you sure you want to hide ${toHide.length} items?`)) {
+      toHide.forEach(v => {
+        setDocumentNonBlocking(doc(firestore, 'visions', v.id.replace(/\//g, '_')), {
+          isHidden: true,
+          updatedAt: new Date().toISOString()
         }, { merge: true });
-        toast({ title: "Video Generated", description: "Successfully added to the stream." });
-      }
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Generation Failed", description: error.message });
-    } finally {
-      setIsGeneratingVideo(false);
-      setVideoPrompt('');
+      });
+      toast({ title: "Items Hidden", description: `Successfully hid ${toHide.length} items.` });
     }
   };
 
@@ -117,27 +127,74 @@ export default function AdminPage() {
           </TabsContent>
 
           <TabsContent value="videos" className="space-y-6">
-            <Card className="bg-[#0f172a] border-l-4 border-l-amber-500">
-              <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Wand2 className="w-5 h-5 text-amber-500" /> Synthesize AI Fragment</CardTitle></CardHeader>
-              <CardContent className="flex gap-4">
-                <Input placeholder="Describe a dream..." value={videoPrompt} onChange={(e) => setVideoPrompt(e.target.value)} />
-                <Button onClick={handleGenerateVideo} disabled={!videoPrompt || isGeneratingVideo}>
-                  {isGeneratingVideo ? <Loader2 className="w-4 h-4 animate-spin" /> : "Synthesize"}
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2 bg-[#0f172a] p-2 rounded-lg border border-white/5 w-fit">
+                  <Button variant={mediaFilter === 'all' ? 'default' : 'ghost'} size="sm" onClick={() => setMediaFilter('all')}>
+                    All
+                  </Button>
+                  <Button variant={mediaFilter === 'image' ? 'default' : 'ghost'} size="sm" onClick={() => setMediaFilter('image')} className="gap-2">
+                    <ImageIcon className="w-4 h-4" /> Images
+                  </Button>
+                  <Button variant={mediaFilter === 'video' ? 'default' : 'ghost'} size="sm" onClick={() => setMediaFilter('video')} className="gap-2">
+                    <Film className="w-4 h-4" /> Videos
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-2 bg-[#0f172a] p-2 rounded-lg border border-white/5 w-fit">
+                  <Button variant={visibilityFilter === 'all' ? 'default' : 'ghost'} size="sm" onClick={() => setVisibilityFilter('all')}>
+                    All
+                  </Button>
+                  <Button variant={visibilityFilter === 'visible' ? 'default' : 'ghost'} size="sm" onClick={() => setVisibilityFilter('visible')} className="gap-2">
+                    <Eye className="w-4 h-4" /> Visible
+                  </Button>
+                  <Button variant={visibilityFilter === 'hidden' ? 'default' : 'ghost'} size="sm" onClick={() => setVisibilityFilter('hidden')} className="gap-2">
+                    <EyeOff className="w-4 h-4" /> Hidden
+                  </Button>
+                </div>
+              </div>
+
+              <Button onClick={handleHideAll} variant="destructive" className="gap-2 whitespace-nowrap">
+                <EyeOff className="w-4 h-4" /> Hide All {mediaFilter !== 'all' ? (mediaFilter === 'image' ? 'Images' : 'Videos') : 'Items'}
+              </Button>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {visions.map(vision => (
+              {filteredVisions.map(vision => (
                 <Card key={vision.id} className="bg-[#0f172a] border-white/5 overflow-hidden">
-                  <div className="aspect-video relative bg-black">
-                    {vision.mediaType === 'video' ? <video src={vision.mediaUrl} className="w-full h-full object-cover" muted loop autoPlay /> : <img src={vision.mediaUrl} className="w-full h-full object-cover" />}
+                  <div className="aspect-video relative bg-black group">
+                    {(vision.mediaType === 'video' && !vision.imageData) ? (
+                      <>
+                        <video src={vision.mediaUrl} className={cn("w-full h-full object-cover transition-all duration-300", vision.isHidden && "opacity-40 grayscale")} muted loop autoPlay />
+                        <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1 backdrop-blur-sm z-10">
+                          <Film className="w-3 h-3" /> Video
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <img src={vision.mediaUrl} className={cn("w-full h-full object-cover transition-all duration-300", vision.isHidden && "opacity-40 grayscale")} />
+                        <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1 backdrop-blur-sm z-10">
+                          <ImageIcon className="w-3 h-3" /> Image
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <CardContent className="p-4 flex justify-between items-center">
-                    <p className="text-xs font-bold truncate flex-1">{vision.title}</p>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => toggleVisibility(vision.id, !!vision.isHidden)} className={cn(vision.isHidden && "text-slate-500")}><Zap className="w-4 h-4" /></Button>
-                      <Button variant="destructive" size="icon" onClick={() => handleDeleteVision(vision.id, vision.title)}><Trash2 className="w-4 h-4" /></Button>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="text-xs font-mono text-slate-300 space-y-2 flex-1 break-all pt-1">
+                        <p>
+                          {vision.fullPath ? `Path: ${vision.fullPath}` : `ID: ${vision.id}`}
+                        </p>
+                        <p className="text-slate-400">
+                          Created: {vision.createdAt ? new Date(vision.createdAt).toLocaleString() : 'Unknown'}
+                        </p>
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => toggleVisibility(vision.id, !!vision.isHidden)} className={cn(vision.isHidden && "text-slate-500")}>
+                          {vision.isHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </Button>
+                        <Button variant="destructive" size="icon" onClick={() => handleDeleteVision(vision.id, vision.title)}><Trash2 className="w-4 h-4" /></Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

@@ -1,295 +1,169 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Info } from "lucide-react";
-import { fetchVisionsImages, type VisionImage } from "@/lib/vision-service";
-import { ImageDetailModal } from "@/components/image-detail-modal";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { Info, Loader2 } from "lucide-react";
+import { useVisions, type Vision } from "@/hooks/vision-flow/use-visions";
+import { getVisionDownloadUrl } from "@/lib/vision-service";
 import { QRCodeSVG } from 'qrcode.react';
 
+/**
+ * Helper to shuffle an array.
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 export default function GalleryPage() {
-  const [images, setImages] = useState<VisionImage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<VisionImage | null>(null);
+  const { visions, loading } = useVisions();
+  
+  const [displayVisions, setDisplayVisions] = useState<Vision[]>([]);
+  const [rawUrls, setRawUrls] = useState<Record<string, string>>({});
   const [origin, setOrigin] = useState("");
+
+  const prevVisionsLengthRef = useRef(0);
 
   useEffect(() => {
     setOrigin(process.env.NEXT_PUBLIC_SITE_URL || window.location.origin);
-    async function loadData() {
-      setLoading(true);
-      try {
-        const fetchedImages = await fetchVisionsImages();
-        // We only show up to 6 to maintain the 3x2 grid perfectly
-        setImages(fetchedImages.slice(0, 6));
-      } catch (error) {
-        console.error("Failed to fetch images:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
   }, []);
 
-  return (
-    <div className="fixed inset-0 p-4 flex flex-col gap-4 overflow-hidden select-none bg-black">
-      {/* Header */}
-      <div className="flex justify-between items-center z-10 shrink-0 h-10">
-        <div className="flex items-center h-8">
-          <img 
-            src="/images/Gemini_PrimaryLogo_FullColor_White.png" 
-            alt="Logo" 
-            className="h-full w-auto object-contain"
-            onError={(e) => {
-              // Fallback if logo.png isn't uploaded yet
-              e.currentTarget.style.display = 'none';
-              const parent = e.currentTarget.parentElement;
-              if (parent) {
-                const span = document.createElement('span');
-                span.className = "text-[9px] uppercase tracking-[0.3em] font-medium text-white/50 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full";
-                span.innerText = "Visions Stream";
-                parent.appendChild(span);
-              }
-            }}
-          />
-        </div>
+  const availableImages = useMemo(() => {
+    return visions.filter(v => 
+      !v.isHidden && 
+      v.mediaType === 'image' && 
+      v.mediaUrl
+    );
+  }, [visions]);
+
+  useEffect(() => {
+    if (loading || availableImages.length === 0) return;
+
+    if (
+      displayVisions.length === 0 || 
+      (availableImages.length > prevVisionsLengthRef.current && prevVisionsLengthRef.current > 0)
+    ) {
+      const randomizedPool = shuffleArray(availableImages);
+      const initialSet = [...randomizedPool.slice(0, 6)];
+      
+      while (initialSet.length < 6 && randomizedPool.length > 0) {
+        initialSet.push(randomizedPool[initialSet.length % randomizedPool.length]);
+      }
+      
+      setDisplayVisions(initialSet.slice(0, 6));
+      prevVisionsLengthRef.current = availableImages.length;
+    }
+  }, [availableImages, loading, displayVisions.length]);
+
+  useEffect(() => {
+    if (availableImages.length <= 6) return; 
+
+    const interval = setInterval(() => {
+      setDisplayVisions(prev => {
+        if (prev.length < 6) return prev; // Prevent sparse arrays during initialization
+
+        const currentlyVisibleIds = new Set(prev.map(v => v?.id));
+        const pool = availableImages.filter(v => !currentlyVisibleIds.has(v.id));
+        
+        if (pool.length === 0) return prev;
+
+        const nextVision = pool[Math.floor(Math.random() * pool.length)];
+        const slotToReplace = Math.floor(Math.random() * 6);
+        
+        const nextSet = [...prev];
+        nextSet[slotToReplace] = nextVision;
+        return nextSet;
+      });
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [availableImages]);
+
+  // Function to instantly swap out a vision that fails the strict "Raw Only" check
+  const replaceFailedVision = (failedId: string) => {
+    setDisplayVisions(prev => {
+      const currentlyVisibleIds = new Set(prev.map(v => v?.id));
+      // Make sure we don't accidentally pick the same broken one again
+      currentlyVisibleIds.add(failedId); 
+      
+      const pool = availableImages.filter(v => !currentlyVisibleIds.has(v.id));
+      if (pool.length === 0) return prev; // Cannot replace if pool is empty
+
+      const nextVision = pool[Math.floor(Math.random() * pool.length)];
+      return prev.map(v => (v?.id === failedId ? nextVision : v));
+    });
+  };
+
+  // Fetch raw URLs for currently displayed visions (Strict Raw Only)
+  useEffect(() => {
+    displayVisions.forEach(async (v) => {
+      if (!v) return;
+      if (v.fullPath && !rawUrls[v.id]) {
+        try {
+          const rawPath = v.fullPath.replace('.jpg', '_raw.jpg');
+          const rawUrl = await getVisionDownloadUrl(rawPath);
+          setRawUrls(prev => ({ ...prev, [v.id]: rawUrl }));
+        } catch (e) {
+          // STRICT RULE: If the raw image doesn't exist, we reject this vision completely
+          // and ask the gallery to swap it for a new random one. No bordered fallbacks!
+          console.warn(`Raw image fetch failed for ${v.id}. Swapping...`);
+          replaceFailedVision(v.id);
+        }
+      }
+    });
+  }, [displayVisions, rawUrls, availableImages]);
+
+  if (loading && displayVisions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
+        <Loader2 className="w-8 h-8 animate-spin mb-4 text-primary" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Initializing Gallery...</p>
       </div>
+    );
+  }
 
-      {/* 3x2 Grid - Fitted to screen */}
-      <main className="flex-1 grid grid-cols-3 grid-rows-2 gap-4 min-h-0 w-full overflow-hidden">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white/5 rounded-[1.225rem] animate-pulse border border-white/5" />
-          ))
-        ) : images.length > 0 ? (
-          images.map((img) => (
+  return (
+    <div className="h-screen w-full bg-black text-white p-4 md:p-6 flex flex-col overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-rows-6 sm:grid-rows-3 lg:grid-rows-2 gap-4 md:gap-6 w-full min-h-0 pb-2">
+        {displayVisions.map((v, index) => {
+          if (!v) return null; // Protective check for sparse array
+
+          const downloadUrl = v.fullPath ? `${origin}/download/${v.fullPath}` : `${origin}/share/${v.id}`;
+          const displayImage = rawUrls[v.id]; // STRICT: Only use the raw URL
+
+          return (
             <div 
-              key={img.id} 
-              className="relative rounded-[1.225rem] overflow-hidden bg-[#0A0C10] border border-white/5 cursor-pointer group"
-              onClick={() => setSelectedImage(img)}
+              key={`${v.id}-${index}`}
+              className="relative w-full h-full overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-900 border border-white/10 transition-all duration-1000 group"
             >
-              <img
-                src={img.base64Data}
-                alt={img.title || "Vision"}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              
-              {/* QR Code - Bottom Left */}
-              <div className="absolute bottom-0 left-0 pt-3 pr-3 pb-4 pl-4 bg-white rounded-tr-3xl shadow-2xl z-20 hover:scale-105 transition-transform duration-300 origin-bottom-left"> 
-                <QRCodeSVG 
-                  value={`${origin}/download/${(img.fullPath?.replace(/[-_]?RAW/gi, '') || '').split('/').map(encodeURIComponent).join('/')}`} 
-                  size={120}
-                  level="M"
-                  includeMargin={false}
+              {displayImage ? (
+                <img 
+                  src={displayImage} 
+                  alt={v.title || "Generated Vision"} 
+                  className="w-full h-full object-cover"
+                  loading="lazy"
                 />
-              </div>
-
-              <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-6 text-center">
-                <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-medium mb-2">Storage Path</span>
-                <span className="text-[9px] text-white/20 font-mono leading-relaxed break-all max-w-full px-4">
-                  {img.fullPath}
-                </span>
-              </div>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-900 animate-pulse">
+                  <Loader2 className="w-6 h-6 text-white/20 animate-spin" />
+                </div>
+              )}
+              
+              {displayImage && (
+                <div className="absolute bottom-0 left-0 z-10 pointer-events-auto">
+                  <div className="bg-white p-2 md:p-3 rounded-tr-2xl shadow-2xl flex items-center justify-center transform transition-transform hover:scale-105 active:scale-95 flex-shrink-0">
+                    <QRCodeSVG value={downloadUrl} size={90} className="md:w-[110px] md:h-[110px] hidden md:block" />
+                    <QRCodeSVG value={downloadUrl} size={60} className="md:hidden block" />
+                  </div>
+                </div>
+              )}
             </div>
-          ))
-        ) : (
-          <div className="col-span-3 row-span-2 flex items-center justify-center border border-dashed border-white/10 rounded-[1.225rem]">
-            <p className="text-white/20 text-[10px] uppercase tracking-[0.2em]">No visions found</p>
-          </div>
-        )}
-      </main>
-
-      <ImageDetailModal 
-        image={selectedImage} 
-        onClose={() => setSelectedImage(null)} 
-      />
+          );
+        })}
+      </div>
     </div>
   );
 }
-
-// "use client";
-
-// import React, { useState, useEffect, useCallback, useMemo } from "react";
-// import { Info, Loader2 } from "lucide-react";
-// import { ImageDetailModal } from "@/components/image-detail-modal";
-// import { QRCodeSVG } from 'qrcode.react';
-// import { useVisions, type Vision } from '@/hooks/vision-flow/use-visions';
-
-// // Helper to extract the raw Firebase Storage path from a download URL
-// // e.g. "https://firebasestorage.googleapis.com/.../o/visions%2Fuid%2F123.jpg?alt=media..." -> "visions/uid/123.jpg"
-// function getStoragePathFromUrl(url: string | undefined): string | null {
-//   if (!url || !url.includes('/o/')) return null;
-//   try {
-//     const pathPart = url.split('/o/')[1].split('?')[0];
-//     return decodeURIComponent(pathPart);
-//   } catch (e) {
-//     return null;
-//   }
-// }
-
-// export default function GalleryPage() {
-//   const { visions, loading } = useVisions();
-//   const [displayVisions, setDisplayVisions] = useState<Vision[]>([]);
-//   const [selectedImage, setSelectedImage] = useState<Vision | null>(null);
-//   const [origin, setOrigin] = useState("");
-
-//   // Only use images (no videos) and ensure they have a valid URL or fallback
-//   const availableImages = useMemo(() => {
-//     return visions
-//       .filter(v => !v.isHidden && v.mediaType === 'image' && (v.rawImageUrl || v.mediaUrl || v.imageData))
-//       .sort((a, b) => (new Date(b.createdAt).getTime() || 0) - (new Date(a.createdAt).getTime() || 0));
-//   }, [visions]);
-
-//   useEffect(() => {
-//     // Allows testing on mobile via local network IP or live URL if running on localhost
-//     setOrigin(process.env.NEXT_PUBLIC_SITE_URL || window.location.origin);
-//   }, []);
-
-//   // 1. Initial Load: Fill the 6 slots
-//   useEffect(() => {
-//     if (loading || availableImages.length === 0) return;
-
-//     if (displayVisions.length === 0) {
-//       const initialSet = [...availableImages.slice(0, 6)];
-//       // Loop if we have fewer than 6 total images in the database
-//       while (initialSet.length < 6 && availableImages.length > 0) {
-//         initialSet.push(availableImages[initialSet.length % availableImages.length]);
-//       }
-//       setDisplayVisions(initialSet.slice(0, 6));
-//     }
-//   }, [availableImages, loading, displayVisions.length]);
-
-//   // 2. The Rotation Interval (The "Pool and Replace" logic)
-//   useEffect(() => {
-//     if (availableImages.length <= 6) return; // No need to rotate if we don't have extra images
-
-//     const interval = setInterval(() => {
-//       setDisplayVisions(prev => {
-//         // Find which images are NOT currently on screen
-//         const currentlyVisibleIds = new Set(prev.map(v => v.id));
-//         const pool = availableImages.filter(v => !currentlyVisibleIds.has(v.id));
-        
-//         if (pool.length === 0) return prev; // Should never happen if availableImages > 6
-
-//         // Pick a random image from the pool
-//         const nextImage = pool[Math.floor(Math.random() * pool.length)];
-        
-//         // Pick a random slot (0-5) to replace
-//         const slotToReplace = Math.floor(Math.random() * 6);
-
-//         // Swap it out
-//         const nextSet = [...prev];
-//         nextSet[slotToReplace] = nextImage;
-//         return nextSet;
-//       });
-//     }, 4000); // Rotate one image every 4 seconds
-
-//     return () => clearInterval(interval);
-//   }, [availableImages]);
-
-//   // Render loader while initializing
-//   if (loading && displayVisions.length === 0) {
-//     return (
-//       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center">
-//         <Loader2 className="w-8 h-8 animate-spin text-[#4290FF] mb-4" />
-//         <p className="text-[10px] uppercase tracking-[0.3em] font-medium text-white/40">Loading Database...</p>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="fixed inset-0 p-4 flex flex-col gap-4 overflow-hidden select-none bg-black">
-//       {/* Header */}
-//       <div className="flex justify-between items-center z-10 shrink-0 h-10">
-//         <div className="flex items-center h-8">
-//           <img 
-//             src="/images/Gemini_PrimaryLogo_FullColor_White.png" 
-//             alt="Logo" 
-//             className="h-full w-auto object-contain"
-//             onError={(e) => {
-//               e.currentTarget.style.display = 'none';
-//               const parent = e.currentTarget.parentElement;
-//               if (parent) {
-//                 const span = document.createElement('span');
-//                 span.className = "text-[9px] uppercase tracking-[0.3em] font-medium text-white/50 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full";
-//                 span.innerText = "Visions Stream";
-//                 parent.appendChild(span);
-//               }
-//             }}
-//           />
-//         </div>
-//       </div>
-
-//       {/* 3x2 Grid - Fitted to screen */}
-//       <main className="flex-1 grid grid-cols-3 grid-rows-2 gap-4 min-h-0 w-full overflow-hidden">
-//         {displayVisions.length > 0 ? (
-//           displayVisions.map((vision, index) => {
-//             // For the QR code download link, we want the FRAMED version (polaroid) if available
-//             // We prioritize mediaUrl (framed) over rawImageUrl for the QR code specifically
-//             const preferredDownloadUrl = vision.mediaUrl || vision.rawImageUrl;
-//             const storagePath = getStoragePathFromUrl(preferredDownloadUrl) || vision.fullPath;
-            
-//             // Format the path for the /download route
-//             let downloadUrl = "";
-//             if (storagePath) {
-//                // Strip '_raw' to ensure the QR code targets the framed .jpg version in storage
-//                const cleanPath = storagePath.replace(/[-_]?RAW/gi, '');
-//                downloadUrl = `${origin}/download/${cleanPath.split('/').map(encodeURIComponent).join('/')}`;
-//             }
-
-//             return (
-//               <div 
-//                 key={`${vision.id}-${index}`} // Using index in key forces re-render/animation on swap, or just vision.id for crossfade if set up
-//                 className="relative rounded-[1.225rem] overflow-hidden bg-[#0A0C10] border border-white/5 cursor-pointer group animate-in fade-in zoom-in-95 duration-1000"
-//                 onClick={() => setSelectedImage(vision)}
-//               >
-//                 <img
-//                   // Prioritize the raw, borderless image for DISPLAY. Fallback to framed mediaUrl or legacy imageData
-//                   src={vision.rawImageUrl || vision.mediaUrl || vision.imageData}
-//                   alt={vision.title || "Vision"}
-//                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-//                 />
-                
-//                 {/* QR Code - Bottom Left (Flush) */}
-//                 {downloadUrl && (
-//                   <div className="absolute bottom-0 left-0 pt-3 pr-3 pb-4 pl-4 bg-white rounded-tr-3xl shadow-2xl z-20 hover:scale-105 transition-transform duration-300 origin-bottom-left">
-//                     <QRCodeSVG 
-//                       value={downloadUrl}
-//                       size={120}
-//                       level="M"
-//                       includeMargin={false}
-//                     />
-//                   </div>
-//                 )}
-
-//                 <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center p-6 text-center">
-//                   <span className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-medium mb-2">Theme</span>
-//                   <span className="text-[12px] text-white/80 font-medium leading-relaxed max-w-full px-4">
-//                     {vision.title || vision.description || 'Custom Creation'}
-//                   </span>
-//                 </div>
-//               </div>
-//             );
-//           })
-//         ) : (
-//           <div className="col-span-3 row-span-2 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-[1.225rem]">
-//             <p className="text-white/20 text-[10px] uppercase tracking-[0.2em] mb-2">No visions found</p>
-//             <p className="text-white/10 text-xs text-center max-w-xs">Use the kiosk to generate some images!</p>
-//           </div>
-//         )}
-//       </main>
-
-//       {/* Image Detail Modal Integration (Adapted for the new Vision type) */}
-//       {selectedImage && (
-//         <ImageDetailModal 
-//           // Map the new Vision object to the old VisionImage structure expected by the modal
-//           image={{
-//             id: selectedImage.id,
-//             base64Data: selectedImage.mediaUrl || selectedImage.imageData || '',
-//             title: selectedImage.title,
-//             fullPath: selectedImage.fullPath || getStoragePathFromUrl(selectedImage.mediaUrl) || ''
-//           }} 
-//           onClose={() => setSelectedImage(null)} 
-//         />
-//       )}
-//     </div>
-//   );
-// }
